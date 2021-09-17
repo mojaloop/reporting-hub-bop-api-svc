@@ -1,0 +1,66 @@
+// import 'tsconfig-paths/register';
+
+import {
+  makeSchema,
+  mutationType,
+  nullable,
+  objectType,
+  queryType,
+  stringArg,
+  enumType,
+  subscriptionField,
+  subscriptionType,
+} from 'nexus';
+import { join, dirname } from 'path';
+
+import Scalar from './Scalar';
+import DFSP from './DFSP';
+import Transaction from './Transfer';
+import Party from './Party';
+import TransactionSummary from './TransferSummary';
+
+// import Post from './Post'
+
+const types = [Scalar, DFSP, Transaction, Party, TransactionSummary];
+
+const Query = queryType({
+  definition(t) {
+    t.field('_placeholder', {
+      type: 'Boolean',
+    });
+  },
+});
+
+const Mutation = mutationType({
+  definition(t) {
+    t.field('_placeholder', {
+      type: 'Boolean',
+    });
+  },
+});
+
+export default makeSchema({
+  types: [Query, Mutation, types.flat()],
+  outputs: process.env.NODE_ENV !== 'production' && {
+    typegen: join(
+      dirname(require.resolve('@app/index')),
+      '../node_modules/@types/nexus-typegen/index.d.ts'
+    ),
+    schema: join(
+      dirname(require.resolve('@app/index')),
+      '../node_modules/@types/nexus-typegen/schema.graphql'
+    ),
+  },
+  contextType: {
+    module: '@app/context',
+    export: 'Context',
+  },
+  sourceTypes: {
+    modules: [
+      {
+        module: '@prisma/client',
+        alias: 'prisma',
+      },
+    ],
+  },
+});

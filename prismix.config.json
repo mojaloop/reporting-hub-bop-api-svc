@@ -1,0 +1,17 @@
+{
+  "mixers": [
+    {
+      "input": [
+        "prisma/base/centralLedger.prisma",
+        "prisma/overlays/centralLedger.prisma"
+      ],
+      "output": "prisma/centralLedger.prisma"
+    },
+    {
+      "input": [
+        "prisma/base/eventStore.prisma",
+      ],
+      "output": "prisma/eventStore.prisma"
+    }
+  ]
+}
