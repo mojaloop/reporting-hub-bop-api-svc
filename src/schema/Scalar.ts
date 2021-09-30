@@ -1,5 +1,16 @@
-import { decorateType, scalarType, unionType } from 'nexus';
+/**************************************************************************
+ *  (C) Copyright Mojaloop Foundation 2020                                *
+ *                                                                        *
+ *  This file is made available under the terms of the license agreement  *
+ *  specified in the corresponding source code repository.                *
+ *                                                                        *
+ *  ORIGINAL AUTHOR:                                                      *
+ *       Yevhen Kyriukha <yevhen.kyriukha@modusbox.com>                   *
+ **************************************************************************/
+
+import { decorateType, scalarType } from 'nexus';
 import * as scalars from 'graphql-scalars';
+import { GraphQLError } from 'graphql';
 
 const NonEmptyString = decorateType(scalars.GraphQLNonEmptyString, {
   sourceType: 'NonEmptyString',
@@ -11,9 +22,33 @@ const JSONObject = decorateType(scalars.GraphQLJSONObject, {
   asNexusMethod: 'jsonObject',
 });
 
-const DateTime = decorateType(scalars.GraphQLDateTime, {
+const GQLDate = decorateType(scalars.GraphQLDate, {
+  sourceType: 'Date',
+  asNexusMethod: 'date',
+});
+
+const GQLDateTime = decorateType(scalars.GraphQLDateTime, {
   sourceType: 'DateTime',
-  asNexusMethod: 'DateTime',
+  asNexusMethod: 'dateTime',
+});
+
+const Currency = decorateType(scalars.GraphQLCurrency, {
+  sourceType: 'Currency',
+  asNexusMethod: 'currency',
+});
+
+const GQLDateTimeFlexible = scalarType({
+  name: 'DateTimeFlexible',
+  asNexusMethod: 'dateTimeFlex',
+  description: 'Date time (RFC 3339), can accept data in flexible form: 2007-12-03 or 2021-01-01T00:00:00Z',
+  parseValue(value) {
+    const isValidDate = (d: any) => d instanceof Date && !Number.isNaN(d.getTime());
+    const date = new Date(value);
+    if (!isValidDate(date)) {
+      throw new GraphQLError('Invalid Date');
+    }
+    return date.toISOString();
+  },
 });
 
 // const File = scalarType({
@@ -34,4 +69,4 @@ const DateTime = decorateType(scalars.GraphQLDateTime, {
 //   resolveType: (item) => item.name,
 // });
 
-export default [DateTime, NonEmptyString, JSONObject];
+export default [GQLDateTime, GQLDate, GQLDateTimeFlexible, NonEmptyString, JSONObject, Currency];

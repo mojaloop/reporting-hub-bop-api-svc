@@ -3,7 +3,7 @@ module.exports = {
     es2021: true,
     node: true,
   },
-  extends: ['airbnb-typescript', 'prettier'],
+  extends: ['airbnb-typescript/base', 'prettier'],
   // settings: {
   //   'import/resolver': {
   //     typescript: {},
@@ -16,7 +16,7 @@ module.exports = {
     project: 'tsconfig.json',
   },
   // plugins: ['@typescript-eslint', 'prettier', 'import'],
-  plugins: ['@typescript-eslint', 'prettier'],
+  plugins: ['@typescript-eslint', 'prettier', 'import'],
   rules: {
     'prettier/prettier': 'error',
     'import/prefer-default-export': 'off',

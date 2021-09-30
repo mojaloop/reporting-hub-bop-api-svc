@@ -1,3 +1,13 @@
+/**************************************************************************
+ *  (C) Copyright Mojaloop Foundation 2020                                *
+ *                                                                        *
+ *  This file is made available under the terms of the license agreement  *
+ *  specified in the corresponding source code repository.                *
+ *                                                                        *
+ *  ORIGINAL AUTHOR:                                                      *
+ *       Yevhen Kyriukha <yevhen.kyriukha@modusbox.com>                   *
+ **************************************************************************/
+
 import { objectType } from 'nexus';
 
 const TransferSummary = objectType({
@@ -5,10 +15,10 @@ const TransferSummary = objectType({
   definition(t) {
     t.nonNull.int('count');
     t.nonNull.int('amount');
-    t.field('errorCode', { type: 'String' });
-    t.field('payer', { type: 'String' });
-    t.field('payee', { type: 'String' });
-    t.field('currency', { type: 'String' });
+    t.field('errorCode', { type: 'Int' });
+    t.field('payerDFSP', { type: 'String' });
+    t.field('payeeDFSP', { type: 'String' });
+    t.field('currency', { type: 'Currency' });
     // t.nonNull.list.nonNull.field('dfsps', {
     //   type: 'DFSP',
     //   resolve: (parent, _, context) =>

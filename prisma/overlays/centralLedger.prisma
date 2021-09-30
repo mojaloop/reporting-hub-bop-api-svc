@@ -1,0 +1,26 @@
+model transfer {
+    quoteResponse quoteResponse[]
+    transferError transferError[]
+    transferFulfilment transferFulfilment[]
+    quote quote[]
+}
+
+model transferError {
+    transfer transfer @relation(fields: [transferId], references: [transferId])
+}
+
+model quote {
+    transfer transfer @relation(fields: [transactionReferenceId], references: [transferId])
+}
+
+model quoteParty {
+    partyIdentifierType partyIdentifierType @relation(fields: [partyIdentifierTypeId], references: [partyIdentifierTypeId])
+}
+
+model transferFulfilment {
+    transfer transfer @relation(fields: [transferId], references: [transferId])
+}
+
+model quoteResponse {
+    transfer transfer @relation(fields: [ilpCondition], references: [ilpCondition])
+}

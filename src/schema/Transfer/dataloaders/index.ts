@@ -8,7 +8,6 @@
  *       Yevhen Kyriukha <yevhen.kyriukha@modusbox.com>                   *
  **************************************************************************/
 
-import Query from './Query';
-import Transfer from './Transfer';
-
-export default [Query, Transfer];
+export * from './DFSP';
+export * from './Party';
+export * from './Events';

@@ -1,8 +1,20 @@
+/**************************************************************************
+ *  (C) Copyright Mojaloop Foundation 2020                                *
+ *                                                                        *
+ *  This file is made available under the terms of the license agreement  *
+ *  specified in the corresponding source code repository.                *
+ *                                                                        *
+ *  ORIGINAL AUTHOR:                                                      *
+ *       Yevhen Kyriukha <yevhen.kyriukha@modusbox.com>                   *
+ **************************************************************************/
+
 import { GraphQLResolveInfo } from 'graphql';
 import { Context } from '@app/context';
 import DataLoader from 'dataloader';
 
-const findDfsps = async (ctx: Context, transferIds: string[], type: string) => {
+type DFSPType = 'PAYER_DFSP' | 'PAYEE_DFSP';
+
+const findDfsps = async (ctx: Context, transferIds: string[], type: DFSPType) => {
   const dfsps = await ctx.centralLedger.transferParticipant.findMany({
     where: {
       transferId: {
@@ -29,7 +41,7 @@ const findDfsps = async (ctx: Context, transferIds: string[], type: string) => {
   }));
 };
 
-export const getDFSPDataloader = (ctx: Context, info: GraphQLResolveInfo, dfspType: string) => {
+export const getDFSPDataloader = (ctx: Context, info: GraphQLResolveInfo, dfspType: DFSPType) => {
   const { loaders } = ctx;
 
   // initialize DataLoader for getting payers by transfer IDs

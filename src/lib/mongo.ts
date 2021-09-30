@@ -8,7 +8,12 @@
  *       Yevhen Kyriukha <yevhen.kyriukha@modusbox.com>                   *
  **************************************************************************/
 
-import Query from './Query';
-import Transfer from './Transfer';
+import { Collection, Db, MongoClient } from 'mongodb';
 
-export default [Query, Transfer];
+const createMongoClient = async (uri: string): Promise<Collection> => {
+  const client = new MongoClient(uri);
+  await client.connect();
+  return client.db().collection('reporting');
+};
+
+export { createMongoClient, Collection };

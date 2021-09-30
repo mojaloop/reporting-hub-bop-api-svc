@@ -1,5 +1,27 @@
-import { arg, extendType } from 'nexus';
+/**************************************************************************
+ *  (C) Copyright Mojaloop Foundation 2020                                *
+ *                                                                        *
+ *  This file is made available under the terms of the license agreement  *
+ *  specified in the corresponding source code repository.                *
+ *                                                                        *
+ *  ORIGINAL AUTHOR:                                                      *
+ *       Yevhen Kyriukha <yevhen.kyriukha@modusbox.com>                   *
+ **************************************************************************/
+
+import { arg, extendType, inputObjectType } from 'nexus';
 import { parse, simplify } from 'graphql-parse-resolve-info';
+
+const TransferSummaryFilter = inputObjectType({
+  name: 'TransferSummaryFilter',
+  definition(t) {
+    t.field('startDate', { type: 'DateTimeFlexible' });
+    t.field('endDate', { type: 'DateTimeFlexible' });
+    t.field('errorCode', { type: 'Int' });
+    t.field('payerDFSP', { type: 'String' });
+    t.field('payeeDFSP', { type: 'String' });
+    t.field('currency', { type: 'Currency' });
+  },
+});
 
 const Query = extendType({
   type: 'Query',
@@ -7,7 +29,7 @@ const Query = extendType({
     t.nonNull.list.nonNull.field('transferSummary', {
       type: 'TransferSummary',
       args: {
-        filter: arg({ type: 'TransferFilter' }),
+        filter: arg({ type: 'TransferSummaryFilter' }),
       },
       resolve: async (parent, args, ctx, info) => {
         const parsedInfo = parse(info);
@@ -18,9 +40,10 @@ const Query = extendType({
           SELECT
             COUNT(tF.transferId) as count,
             SUM(t.amount) as amount,
-            CASE WHEN ${!!fields.payer} THEN pPayer.name ELSE NULL END AS payer,
-            CASE WHEN ${!!fields.payee} THEN pPayee.name ELSE NULL END AS payee,
-            CASE WHEN ${!!fields.currency} THEN c.currencyId ELSE NULL END AS currency
+            IF(${!!fields.payerDFSP}, pPayer.name, NULL) AS payerDFSP,
+            IF(${!!fields.payeeDFSP}, pPayee.name, NULL) AS payeeDFSP,
+            IF(${!!fields.currency}, c.currencyId, NULL) AS currency,
+            IF(${!!fields.errorCode}, tE.errorCode, NULL) AS errorCode
         FROM
             transferFulfilment tF
             INNER JOIN transfer t ON t.transferId = tF.transferId
@@ -32,22 +55,24 @@ const Query = extendType({
                 AND tPPayee.transferParticipantRoleTypeId = (SELECT transferParticipantRoleTypeId from transferParticipantRoleType WHERE name = 'PAYEE_DFSP')
                 INNER JOIN participantCurrency pCPayee ON pCPayee.participantCurrencyId = tPPayee.participantCurrencyId
                 INNER JOIN participant pPayee ON pPayee.participantId = pCPayee.participantId
-            INNER JOIN settlementWindow sW on sW.settlementWindowId = tF.settlementWindowId
-            INNER JOIN settlementSettlementWindow sSW on tF.settlementWindowId = sSW.settlementWindowId
-            INNER JOIN settlementWindowStateChange sWSC on sW.currentStateChangeId = sWSC.settlementWindowStateChangeId
-            INNER JOIN settlement s on sSW.settlementId = s.settlementId
-            INNER JOIN settlementModel sM ON sM.settlementModelId = s.settlementModelId
-            INNER JOIN currency c ON c.currencyId = sM.currencyId
-        WHERE
-            tF.isValid
+            INNER JOIN currency c on t.currencyId = c.currencyId
+            LEFT JOIN transferError tE on t.transferId = tE.transferId
+        WHERE TRUE
+            AND IF(${!!args.filter?.startDate}, t.createdDate >= '${args.filter?.startDate}', TRUE)
+            AND IF(${!!args.filter?.endDate}, t.createdDate < '${args.filter?.endDate}', TRUE)
+            AND IF(${!!args.filter?.payerDFSP}, pPayer.name = '${args.filter?.payerDFSP}', TRUE)
+            AND IF(${!!args.filter?.payeeDFSP}, pPayee.name = '${args.filter?.payerDFSP}', TRUE)
+            AND IF(${!!args.filter?.currency}, c.currencyId = '${args.filter?.currency}', TRUE)
+            AND IF(${!!args.filter?.errorCode}, tE.errorCode = '${args.filter?.errorCode}', TRUE)
         GROUP BY
-            CASE WHEN ${!!fields.payer} THEN pPayer.name ELSE NULL END,
-            CASE WHEN ${!!fields.payee} THEN pPayee.name ELSE NULL END,
-            CASE WHEN ${!!fields.currency} THEN c.currencyId ELSE NULL END
-            `);
+            IF(${!!fields.payerDFSP}, pPayer.name, NULL),
+            IF(${!!fields.payeeDFSP}, pPayee.name, NULL),
+            IF(${!!fields.currency}, c.currencyId, NULL),
+            IF(${!!fields.errorCode}, tE.errorCode, NULL)
+        `);
       },
     });
   },
 });
 
-export default [Query];
+export default [Query, TransferSummaryFilter];
