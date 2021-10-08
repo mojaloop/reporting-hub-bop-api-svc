@@ -8,7 +8,7 @@
     "test": "jest test",
     "dev": "cross-env NODE_ENV=development tsnd --no-notify --respawn --transpile-only ./src",
     "generate_": "npm -s run generate:prisma && npm -s run generate:nexus",
-    "generate": "npm run -s mergePrisma && npm -s run generate:prisma",
+    "generate": "npm run -s mergePrisma && npm -s run generate:prisma && npm -s run generate:nexus",
     "mergePrisma": "node mergePrisma && prisma format --schema src/generated/centralLedger.prisma && prisma format --schema src/generated/eventStore.prisma",
     "generate:nexus": "ts-node --transpile-only ./src/schema",
     "generate:prisma": "prisma generate --schema src/generated/centralLedger.prisma && prisma generate --schema src/generated/eventStore.prisma",

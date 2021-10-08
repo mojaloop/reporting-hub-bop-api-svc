@@ -8,6 +8,7 @@
  *       Yevhen Kyriukha <yevhen.kyriukha@modusbox.com>                   *
  **************************************************************************/
 
+import 'tsconfig-paths/register';
 import { makeSchema, mutationType, queryType } from 'nexus';
 import { join, dirname } from 'path';
 
