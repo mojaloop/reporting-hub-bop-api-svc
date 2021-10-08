@@ -333,38 +333,8 @@ workflows:
                 - /feature*/
                 - /bugfix*/
                 - /hotfix*/
-      - audit-licenses:
-          context: org-global
-          requires:
-            - setup
-          filters:
-            branches:
-              ignore:
-                - /feature*/
-                - /bugfix*/
-                - /hotfix*/
       - build-local:
           context: org-global
-          filters:
-            branches:
-              ignore:
-                - /feature*/
-                - /bugfix*/
-                - /hotfix*/
-      - license-scan:
-          context: org-global
-          requires:
-            - build-local
-          filters:
-            branches:
-              ignore:
-                - /feature*/
-                - /bugfix*/
-                - /hotfix*/
-      - image-scan:
-          context: org-global
-          requires:
-            - build-local
           filters:
             branches:
               ignore:
