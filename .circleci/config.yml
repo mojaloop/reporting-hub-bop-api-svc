@@ -73,9 +73,6 @@ jobs:
           name: Update NPM install (using `npm ci`)
           command: npm ci
       - run:
-          name: Generate artifacts
-          command: npm run generate
-      - run:
           name: Delete build dependencies
           command: apk del build-dependencies
       - save_cache:
@@ -93,6 +90,9 @@ jobs:
       - restore_cache:
           keys:
             - dependency-cache-{{ checksum "package-lock.json" }}
+      - run:
+          name: Generate artifacts
+          command: npm run generate
       - run:
           name: Execute linting pass
           command: npm run lint

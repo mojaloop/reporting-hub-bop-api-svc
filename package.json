@@ -1,6 +1,6 @@
 {
   "name": "mojaloop-reporting-hub-bop-api",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "Reporting API",
   "scripts": {
     "audit:check": "SHELL=sh check-audit",
