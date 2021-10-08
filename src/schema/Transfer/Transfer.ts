@@ -30,8 +30,10 @@ const Transfer = objectType({
     t.int('amount');
     t.currency('currency');
     t.string('createdAt');
-    t.field('transferState', { type: 'TransferState' });
-    t.field('transactionType', { type: 'TransactionType' });
+    // t.field('transferState', { type: 'TransferState' });
+    t.field('transferState', { type: 'String' });
+    // t.field('transactionType', { type: 'TransactionType' });
+    t.field('transactionType', { type: 'String' });
     t.int('errorCode');
     t.int('settlementWindowId');
     t.int('settlementId');

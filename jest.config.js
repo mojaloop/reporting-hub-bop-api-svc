@@ -1,8 +1,8 @@
-const path = require('path');
-
+/** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
 module.exports = {
-    globals: {
-        __SRC__: path.resolve(__dirname, 'src'),
-        __ROOT__: path.resolve(__dirname),
-    },
+  preset: 'ts-jest',
+  testEnvironment: 'node',
+  moduleNameMapper: {
+    '^@app/(.*)$': '<rootDir>/src/$1',
+  },
 };

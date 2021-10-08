@@ -5,8 +5,7 @@
   "scripts": {
     "audit:check": "SHELL=sh check-audit",
     "lint:fix": "eslint . --fix",
-    "test": "jest test/**/*.test.js",
-    "test:integration": "jest test/integration",
+    "test": "jest test",
     "dev": "cross-env NODE_ENV=development tsnd --no-notify --respawn --transpile-only ./src",
     "generate_": "npm -s run generate:prisma && npm -s run generate:nexus",
     "generate": "npm run -s mergePrisma && npm -s run generate:prisma",
@@ -32,6 +31,7 @@
   },
   "homepage": "https://github.com/mojaloop/reporting-hub-bop-api-svc#readme",
   "devDependencies": {
+    "@types/jest": "^27.0.2",
     "@types/node": "16.10.3",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
@@ -48,6 +48,7 @@
     "prettier": "^2.4.1",
     "prisma": "^3.2.1",
     "supertest": "^6.1.6",
+    "ts-jest": "^27.0.5",
     "ts-node": "10.2.1",
     "ts-node-dev": "1.1.8",
     "tsc-alias": "^1.3.10",
