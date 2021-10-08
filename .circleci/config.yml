@@ -73,6 +73,9 @@ jobs:
           name: Update NPM install (using `npm ci`)
           command: npm ci
       - run:
+          name: Generate artifacts
+          command: npm run generate
+      - run:
           name: Delete build dependencies
           command: apk del build-dependencies
       - save_cache:
@@ -119,7 +122,7 @@ jobs:
           command: mkdir -p ./audit/results
       - run:
           name: Check for new npm vulnerabilities
-          command: npm run audit:check --silent -- --json > ./audit/results/auditResults.json
+          command: npm audit --silent --json > ./audit/results/auditResults.json
       - store_artifacts:
           path: ./audit/results
           prefix: audit

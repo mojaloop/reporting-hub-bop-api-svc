@@ -8,7 +8,7 @@
  *       Yevhen Kyriukha <yevhen.kyriukha@modusbox.com>                   *
  **************************************************************************/
 
-import { Collection, Db, MongoClient } from 'mongodb';
+import { Collection, MongoClient } from 'mongodb';
 
 const createMongoClient = async (uri: string): Promise<Collection> => {
   const client = new MongoClient(uri);

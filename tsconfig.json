@@ -1,6 +1,7 @@
 {
   "include": [
     "src/**/*",
+    "test/**/*",
     ".eslintrc.js"
   ],
   "exclude": [

@@ -12,7 +12,7 @@ import { rule, shield } from 'graphql-shield';
 import axios from 'axios';
 
 export const createAuthMiddleware = (authApi?: string) => {
-  const isAuthenticated = rule()(async (parent, args, ctx, info) => {
+  const isAuthenticated = rule()(async () => {
     if (!authApi) {
       return true;
     }

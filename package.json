@@ -18,7 +18,7 @@
     "build": "npm -s run clean && npm -s run generate && tsc",
     "clean": "rimraf dist",
     "start": "cross-env NODE_ENV=production node dist/src/index.js",
-    "lint": "eslint . --ext .ts"
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",
