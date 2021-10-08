@@ -17,7 +17,8 @@
     "prisma:pull": "prisma db pull --schema prisma/base/centralLedger.prisma",
     "build": "npm -s run clean && npm -s run generate && tsc",
     "clean": "rimraf dist",
-    "start": "cross-env NODE_ENV=production node dist/src/index.js",
+    "start": "cross-env NODE_ENV=development ts-node --transpile-only ./src",
+    "start_": "cross-env NODE_ENV=production node dist/src/index.js",
     "lint": "eslint ."
   },
   "repository": {
@@ -49,7 +50,6 @@
     "prisma": "^3.2.1",
     "supertest": "^6.1.6",
     "ts-jest": "^27.0.5",
-    "ts-node": "10.2.1",
     "ts-node-dev": "1.1.8",
     "tsc-alias": "^1.3.10",
     "typescript": "4.4.3"
@@ -71,6 +71,7 @@
     "js-yaml": "^4.1.0",
     "mongodb": "^4.1.3",
     "nexus": "1.1.0",
+    "ts-node": "10.2.1",
     "tsconfig-paths": "^3.11.0",
     "winston": "^3.3.3"
   }

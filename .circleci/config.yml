@@ -201,6 +201,9 @@ jobs:
           name: Load the pre-built docker image from workspace
           command: docker load -i /tmp/docker-image.tar
       - run:
+          name: Login to Docker Hub
+          command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+      - run:
           <<: *defaults_license_scanner
       - run:
           name: Run the license-scanner
