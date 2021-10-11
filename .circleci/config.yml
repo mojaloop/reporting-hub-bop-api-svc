@@ -130,14 +130,17 @@ jobs:
   audit-licenses:
     executor: docker-alpine-with-nodejs
     steps:
-      - checkout
       - run:
           name: Install general dependencies
           command: *defaults_Dependencies
+      - checkout
       - run:
           <<: *defaults_license_scanner
       - restore_cache:
           key: dependency-cache-{{ checksum "package-lock.json" }}
+      - run:
+          name: Prune non-production packages before running license-scanner
+          command: npm prune --production
       - run:
           name: Run the license-scanner
           command: cd /tmp/license-scanner && pathToRepo=$CIRCLE_WORKING_DIRECTORY make run
@@ -194,15 +197,11 @@ jobs:
   license-scan:
     executor: machine-ubuntu-with-docker
     steps:
-      - checkout
       - attach_workspace:
           at: /tmp
       - run:
           name: Load the pre-built docker image from workspace
           command: docker load -i /tmp/docker-image.tar
-      - run:
-          name: Login to Docker Hub
-          command: docker login -u $DOCKER_USER -p $DOCKER_PASS
       - run:
           <<: *defaults_license_scanner
       - run:
@@ -333,8 +332,38 @@ workflows:
                 - /feature*/
                 - /bugfix*/
                 - /hotfix*/
+      - audit-licenses:
+          context: org-global
+          requires:
+            - setup
+          filters:
+            branches:
+              ignore:
+                - /feature*/
+                - /bugfix*/
+                - /hotfix*/
       - build-local:
           context: org-global
+          filters:
+            branches:
+              ignore:
+                - /feature*/
+                - /bugfix*/
+                - /hotfix*/
+      - license-scan:
+          context: org-global
+          requires:
+            - build-local
+          filters:
+            branches:
+              ignore:
+                - /feature*/
+                - /bugfix*/
+                - /hotfix*/
+      - image-scan:
+          context: org-global
+          requires:
+            - build-local
           filters:
             branches:
               ignore:
