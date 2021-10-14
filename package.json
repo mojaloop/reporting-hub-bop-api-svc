@@ -1,6 +1,6 @@
 {
-  "name": "mojaloop-reporting-hub-bop-api",
-  "version": "1.0.4",
+  "name": "@mojaloop/reporting-hub-bop-api-svc",
+  "version": "1.0.5",
   "description": "Reporting API",
   "scripts": {
     "audit:check": "SHELL=sh check-audit",
@@ -10,7 +10,6 @@
     "generate_": "npm -s run generate:prisma && npm -s run generate:nexus",
     "generate": "npm run -s mergePrisma && npm -s run generate:prisma && npm -s run generate:nexus",
     "mergePrisma": "node mergePrisma && prisma format --schema src/generated/centralLedger.prisma && prisma format --schema src/generated/eventStore.prisma",
-    "release": "standard-version --releaseCommitMessageFormat 'chore(release): {{currentTag}} [skip ci]'",
     "generate:nexus": "ts-node --transpile-only ./src/schema",
     "generate:prisma": "prisma generate --schema src/generated/centralLedger.prisma && prisma generate --schema src/generated/eventStore.prisma",
     "__prisma:validate": "prisma validate --schema prisma/base/centralLedger.prisma && prisma validate --schema prisma/base/eventStore.prisma",
@@ -49,7 +48,6 @@
     "nodemon": "^2.0.13",
     "prettier": "^2.4.1",
     "prisma": "^3.2.1",
-    "standard-version": "^9.3.1",
     "supertest": "^6.1.6",
     "ts-jest": "^27.0.5",
     "ts-node-dev": "1.1.8",
