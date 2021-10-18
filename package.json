@@ -1,9 +1,8 @@
 {
   "name": "@mojaloop/reporting-hub-bop-api-svc",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Reporting API",
   "scripts": {
-    "audit:check": "SHELL=sh check-audit",
     "lint:fix": "eslint . --fix",
     "test": "jest test",
     "dev": "cross-env NODE_ENV=development tsnd --no-notify --respawn --transpile-only ./src",

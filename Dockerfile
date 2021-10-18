@@ -17,7 +17,8 @@ FROM node:16-alpine
 WORKDIR /opt/reporting
 
 COPY --from=builder /opt/reporting/package*.json /opt/reporting/tsconfig.json ./
-COPY --from=builder /opt/reporting/src .
+COPY --from=builder /opt/reporting/node_modules node_modules
+COPY --from=builder /opt/reporting/src src
 
 EXPOSE 3000
 
