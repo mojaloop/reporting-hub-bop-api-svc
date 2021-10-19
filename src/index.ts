@@ -24,6 +24,7 @@ const server = new ApolloServer({
   schema: applyMiddleware(schema, authMiddleware),
   context: createContext,
   plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
+  healthCheckPath: '/health',
 });
 
 server.listen(config.port).then(async ({ url }) => {
