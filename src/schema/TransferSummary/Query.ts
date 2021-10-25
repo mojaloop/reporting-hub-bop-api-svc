@@ -8,7 +8,7 @@
  *       Yevhen Kyriukha <yevhen.kyriukha@modusbox.com>                   *
  **************************************************************************/
 
-import { arg, extendType, inputObjectType } from 'nexus';
+import { arg, extendType, inputObjectType, intArg } from 'nexus';
 import { parse, simplify } from 'graphql-parse-resolve-info';
 
 const TransferSummaryFilter = inputObjectType({
@@ -30,6 +30,8 @@ const Query = extendType({
       type: 'TransferSummary',
       args: {
         filter: arg({ type: 'TransferSummaryFilter' }),
+        limit: intArg(),
+        offset: intArg(),
       },
       resolve: async (parent, args, ctx, info) => {
         const parsedInfo = parse(info);
@@ -69,6 +71,8 @@ const Query = extendType({
             IF(${!!fields.payeeDFSP}, pPayee.name, NULL),
             IF(${!!fields.currency}, c.currencyId, NULL),
             IF(${!!fields.errorCode}, tE.errorCode, NULL)
+        LIMIT ${args.limit || 100}
+        OFFSET ${args.offset || 0}
         `);
       },
     });
