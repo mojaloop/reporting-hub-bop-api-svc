@@ -117,10 +117,30 @@ const Query = extendType({
       args: {
         filter: arg({ type: nonNull('TransferFilter') }),
         limit: intArg(),
+        offset: intArg(),
       },
       resolve: async (parent, args, ctx) => {
+        let payeeDFSPs;
+        let payerDFSPs;
+
+        // If permissions are not enabled and filter isn't set, then don't apply filtering
+        if (ctx.participants || args.filter?.payee?.dfsp) {
+          payeeDFSPs = ctx.participants || [];
+          if (args.filter?.payee?.dfsp) {
+            payeeDFSPs.push(args.filter.payee.dfsp);
+          }
+        }
+
+        if (ctx.participants || args.filter?.payer?.dfsp) {
+          payerDFSPs = ctx.participants || [];
+          if (args.filter?.payer?.dfsp) {
+            payerDFSPs.push(args.filter.payer.dfsp);
+          }
+        }
+
         const transfers = await ctx.centralLedger.transfer.findMany({
           take: args.limit ?? 100,
+          skip: args.offset || undefined,
           orderBy: [{ createdDate: 'desc' }],
           where: {
             createdDate: {
@@ -197,7 +217,9 @@ const Query = extendType({
                     },
                     participantCurrency: {
                       participant: {
-                        name: args.filter?.payee?.dfsp || undefined,
+                        name: {
+                          in: payeeDFSPs,
+                        },
                       },
                     },
                   },
@@ -207,7 +229,9 @@ const Query = extendType({
                     },
                     participantCurrency: {
                       participant: {
-                        name: args.filter?.payer?.dfsp || undefined,
+                        name: {
+                          in: payerDFSPs,
+                        },
                       },
                     },
                   },

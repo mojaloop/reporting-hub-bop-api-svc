@@ -52,38 +52,38 @@ const Transfer = objectType({
       },
     });
     t.field('payerParty', {
-      type: 'DFSP',
+      type: 'Party',
       resolve: (parent, _, ctx, info) => {
         const dl = getPartyDataloader(ctx, info, 'PAYER');
         return dl.load(parent.transferId);
       },
     });
     t.field('payeeParty', {
-      type: 'DFSP',
+      type: 'Party',
       resolve: async (parent, _, ctx, info) => {
         const dl = getPartyDataloader(ctx, info, 'PAYEE');
         return dl.load(parent.transferId);
       },
     });
-    t.jsonObject('partyLookupEvents', {
+    t.list.jsonObject('partyLookupEvents', {
       resolve: async (parent, _, ctx, info) => {
         const dl = getEventsDataloader(ctx, info, 'PartyLookup');
         return dl.load(parent.transactionId);
       },
     });
-    t.jsonObject('quoteEvents', {
+    t.list.jsonObject('quoteEvents', {
       resolve: async (parent, _, ctx, info) => {
         const dl = getEventsDataloader(ctx, info, 'Quote');
         return dl.load(parent.transactionId);
       },
     });
-    t.jsonObject('transferEvents', {
+    t.list.jsonObject('transferEvents', {
       resolve: async (parent, _, ctx, info) => {
         const dl = getEventsDataloader(ctx, info, 'Transfer');
         return dl.load(parent.transactionId);
       },
     });
-    t.jsonObject('settlementEvents', {
+    t.list.jsonObject('settlementEvents', {
       resolve: async (parent, _, ctx, info) => {
         const dl = getEventsDataloader(ctx, info, 'Settlement');
         return dl.load(parent.transactionId);

@@ -13,7 +13,7 @@ import {
   createEventStoreClient,
   createLogger,
   LogLevel,
-  createMongoClient,
+  getMongoClient,
   Collection,
 } from './lib';
 import config from './config';
@@ -29,6 +29,7 @@ export interface Context {
   config: typeof config;
   loaders: WeakMap<any, any>;
   eventStoreMongo: Collection;
+  participants: string[] | undefined;
 }
 
 export const createContext = async (ctx: any): Promise<Context> => ({
@@ -38,5 +39,5 @@ export const createContext = async (ctx: any): Promise<Context> => ({
   centralLedger,
   eventStore,
   loaders: new WeakMap(),
-  eventStoreMongo: await createMongoClient(config.eventStoreDb),
+  eventStoreMongo: await getMongoClient(config.eventStoreDb),
 });

@@ -37,7 +37,9 @@ export const getEventsDataloader = (ctx: Context, info: GraphQLResolveInfo, type
       // Get DFSP by Transfer IDs
       const events = await findEvents(ctx, transactionIds as string[], type);
       // IMPORTANT: sort data in the same order as transferIds
-      return transactionIds.map((tid) => events.find((e) => e.transactionId === tid));
+      return transactionIds
+        .map((tid) => events.find((e) => e.transactionId === tid))
+        .map((event) => ({ ...event?.event }));
     });
     // Put instance of dataloader in WeakMap for future reuse
     loaders.set(info.fieldNodes, dl);

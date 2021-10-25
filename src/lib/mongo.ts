@@ -10,10 +10,15 @@
 
 import { Collection, MongoClient } from 'mongodb';
 
-const createMongoClient = async (uri: string): Promise<Collection> => {
-  const client = new MongoClient(uri);
-  await client.connect();
-  return client.db().collection('reporting');
+let collection: Collection;
+
+const getMongoClient = async (uri: string): Promise<Collection> => {
+  if (!collection) {
+    const client = new MongoClient(uri);
+    await client.connect();
+    collection = client.db().collection('reporting');
+  }
+  return collection;
 };
 
-export { createMongoClient, Collection };
+export { getMongoClient, Collection };
