@@ -148,18 +148,26 @@ const Query = extendType({
               lt: args.filter?.endDate || undefined,
             },
             currencyId: args.filter?.currency || undefined,
-            transferError: {
-              some: {
-                errorCode: args.filter?.errorCode || undefined,
-              },
-            },
-            transferStateChange: {
-              some: {
-                transferState: {
-                  enumeration: args.filter?.transferState || undefined,
-                },
-              },
-            },
+            ...(args.filter?.errorCode
+              ? {
+                  transferError: {
+                    some: {
+                      errorCode: args.filter?.errorCode || undefined,
+                    },
+                  },
+                }
+              : {}),
+            ...(args.filter?.transferState
+              ? {
+                  transferStateChange: {
+                    some: {
+                      transferState: {
+                        enumeration: args.filter?.transferState,
+                      },
+                    },
+                  },
+                }
+              : {}),
             ...(args.filter?.settlementWindowId
               ? {
                   transferFulfilment: {
