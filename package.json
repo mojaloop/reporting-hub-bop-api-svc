@@ -1,6 +1,6 @@
 {
   "name": "@mojaloop/reporting-hub-bop-api-svc",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Reporting API",
   "scripts": {
     "lint:fix": "eslint . --fix",
