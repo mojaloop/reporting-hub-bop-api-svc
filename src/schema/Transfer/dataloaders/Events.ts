@@ -34,12 +34,16 @@ export const getEventsDataloader = (ctx: Context, info: GraphQLResolveInfo, type
   let dl = loaders.get(info.fieldNodes);
   if (!dl) {
     dl = new DataLoader(async (transactionIds: readonly string[]) => {
-      // Get DFSP by Transfer IDs
       const events = await findEvents(ctx, transactionIds as string[], type);
       // IMPORTANT: sort data in the same order as transferIds
-      return transactionIds
-        .map((tid) => events.find((e) => e.transactionId === tid))
-        .map((event) => ({ ...event?.event }));
+      const eventMap: Record<string, any> = {};
+      for (let event of events) {
+        if (!eventMap[event.transactionId]) {
+          eventMap[event.transactionId] = [];
+        }
+        eventMap[event.transactionId].push(event.event);
+      }
+      return transactionIds.map((tid) => eventMap[tid] || []);
     });
     // Put instance of dataloader in WeakMap for future reuse
     loaders.set(info.fieldNodes, dl);
