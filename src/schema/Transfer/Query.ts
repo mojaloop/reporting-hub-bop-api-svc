@@ -102,7 +102,7 @@ const Query = extendType({
           currency: tr.currencyId,
           createdAt: tr.createdDate.toISOString(),
           ilpCondition: tr.ilpCondition,
-          transferState: tr.transferStateChange[0]?.transferState.enumeration,
+          transferState: tr.transferStateChange.slice(-1)[0]?.transferState.enumeration,
           transactionType: tr.quote[0]?.transactionScenario.name,
           errorCode: tr.transferError[0]?.errorCode,
           settlementId: tr.transferFulfilment[0]?.settlementWindow?.settlementSettlementWindow[0]
@@ -289,7 +289,7 @@ const Query = extendType({
           currency: tr.currencyId,
           createdAt: tr.createdDate.toISOString(),
           ilpCondition: tr.ilpCondition,
-          transferState: tr.transferStateChange[0]?.transferState.enumeration,
+          transferState: tr.transferStateChange.slice(-1)[0]?.transferState.enumeration,
           transactionType: tr.quote[0]?.transactionScenario.name,
           errorCode: tr.transferError[0]?.errorCode,
           settlementId: tr.transferFulfilment[0]?.settlementWindow?.settlementSettlementWindow[0]
