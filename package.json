@@ -52,7 +52,7 @@
   "dependencies": {
     "@ory/keto-client": "^0.7.0-alpha.1",
     "@prisma/client": "^3.3.0",
-    "apollo-server": "^3.4.0",
+    "apollo-server": "^3.4.1",
     "apollo-server-core": "^3.4.0",
     "axios": "^0.24.0",
     "cross-env": "7.0.3",
