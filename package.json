@@ -1,9 +1,9 @@
 {
   "name": "@mojaloop/reporting-hub-bop-api-svc",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "description": "Reporting API",
   "scripts": {
-    "postinstall": "patch-package",
+    "postinstall__new": "patch-package",
     "lint:fix": "eslint . --fix",
     "test": "jest test",
     "dev": "cross-env NODE_ENV=development tsnd --no-notify --respawn --transpile-only ./src",
@@ -60,7 +60,7 @@
     "dataloader": "^2.0.0",
     "dotenv": "^10.0.0",
     "env-var": "^7.1.1",
-    "graphql": "^16.0.1",
+    "graphql": "^15.6.1",
     "graphql-middleware": "^6.1.12",
     "graphql-parse-resolve-info": "^4.12.0",
     "graphql-rate-limit": "^3.3.0",
