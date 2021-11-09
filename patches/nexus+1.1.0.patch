@@ -1,0 +1,35 @@
+diff --git a/node_modules/nexus/dist/definitions/wrapping.js b/node_modules/nexus/dist/definitions/wrapping.js
+index 2369cd2..85960f0 100644
+--- a/node_modules/nexus/dist/definitions/wrapping.js
++++ b/node_modules/nexus/dist/definitions/wrapping.js
+@@ -165,11 +165,11 @@ function rewrapAsGraphQLType(baseType, wrapping) {
+     let finalType = baseType;
+     wrapping.forEach((wrap) => {
+         if (wrap === 'List') {
+-            finalType = graphql_1.GraphQLList(finalType);
++            finalType = new graphql_1.GraphQLList(finalType);
+         }
+         else if (wrap === 'NonNull') {
+             if (!graphql_1.isNonNullType(finalType)) {
+-                finalType = graphql_1.GraphQLNonNull(finalType);
++                finalType = new graphql_1.GraphQLNonNull(finalType);
+             }
+         }
+         else {
+diff --git a/node_modules/nexus/src/definitions/wrapping.ts b/node_modules/nexus/src/definitions/wrapping.ts
+index 9af7565..c60aa00 100644
+--- a/node_modules/nexus/src/definitions/wrapping.ts
++++ b/node_modules/nexus/src/definitions/wrapping.ts
+@@ -246,10 +246,10 @@ export function rewrapAsGraphQLType(baseType: GraphQLNamedType, wrapping: NexusF
+   let finalType: GraphQLType = baseType
+   wrapping.forEach((wrap) => {
+     if (wrap === 'List') {
+-      finalType = GraphQLList(finalType)
++      finalType = new GraphQLList(finalType)
+     } else if (wrap === 'NonNull') {
+       if (!isNonNullType(finalType)) {
+-        finalType = GraphQLNonNull(finalType)
++        finalType = new GraphQLNonNull(finalType)
+       }
+     } else {
+       throw new Unreachable(wrap)

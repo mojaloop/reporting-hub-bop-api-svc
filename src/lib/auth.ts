@@ -9,30 +9,26 @@
  **************************************************************************/
 
 import { rule, shield } from 'graphql-shield';
-import keto from '@ory/keto-client';
-import jwt_decode from 'jwt-decode';
+import * as keto from '@ory/keto-client';
 import { parse, simplify } from 'graphql-parse-resolve-info';
 
-export const createAuthMiddleware = (oryKetoReadUrl?: string) => {
+export const createAuthMiddleware = (userIdHeader: string, oryKetoReadUrl?: string) => {
   let oryKetoReadApi: keto.ReadApi;
   if (oryKetoReadUrl) {
     oryKetoReadApi = new keto.ReadApi(undefined, oryKetoReadUrl);
   }
 
+  const opts = {
+    validateStatus: () => true,
+  };
+
   const getParticipantsByUserId = async (userId: string) => {
-    const response = await oryKetoReadApi.getRelationTuples(
-      'participant',
-      undefined,
-      undefined,
-      undefined,
-      'member',
-      userId
-    );
+    const response = await oryKetoReadApi.getRelationTuples('participant', undefined, 'member', userId);
     return response.data.relation_tuples?.map(({ object }) => object);
   };
 
   const checkPermission = async (userId: string, obj: string) => {
-    const response = await oryKetoReadApi.getCheck('permission', obj, 'access', userId);
+    const response = await oryKetoReadApi.getCheck('permission', obj, 'granted', userId, opts);
     return response.data.allowed;
   };
 
@@ -40,7 +36,7 @@ export const createAuthMiddleware = (oryKetoReadUrl?: string) => {
     if (!oryKetoReadApi) {
       return true;
     }
-    const { userId } = jwt_decode(ctx.req.headers.token_id) as any;
+    const userId = ctx.req.headers[userIdHeader];
 
     ctx.participants = await getParticipantsByUserId(userId);
 

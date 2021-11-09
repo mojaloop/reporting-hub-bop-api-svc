@@ -15,8 +15,8 @@ loadDotEnv();
 
 export default {
   port: env.get('PORT').default('3000').asPortNumber(),
-  // url: env.get('URL').required().asString(),
   centralLedgerDbUrl: env.get('CENTRAL_LEDGER_DB_URL').required().asUrlString(),
   eventStoreDb: env.get('EVENT_STORE_DB_URL').required().asUrlString(),
   oryKetoReadUrl: env.get('ORY_KETO_READ_URL').asUrlString(),
+  userIdHeader: env.get('USER_ID_HEADER').default('x-user').asString(),
 };

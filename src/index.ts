@@ -18,7 +18,7 @@ import config from './config';
 import { applyMiddleware } from 'graphql-middleware';
 import { createAuthMiddleware } from '@app/lib';
 
-const authMiddleware = createAuthMiddleware(config.oryKetoReadUrl);
+const authMiddleware = createAuthMiddleware(config.userIdHeader, config.oryKetoReadUrl);
 
 const server = new ApolloServer({
   schema: applyMiddleware(schema, authMiddleware),
