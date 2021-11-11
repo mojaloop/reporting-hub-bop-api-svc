@@ -27,7 +27,7 @@ const Transfer = objectType({
     t.nonNull.string('transferId');
     t.string('transactionId');
     t.string('quoteId');
-    t.int('amount');
+    t.decimal('amount');
     t.currency('currency');
     t.string('createdAt');
     // t.field('transferState', { type: 'TransferState' });

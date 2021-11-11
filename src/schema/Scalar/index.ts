@@ -11,6 +11,7 @@
 import { decorateType, scalarType } from 'nexus';
 import * as scalars from 'graphql-scalars';
 import { GraphQLError } from 'graphql';
+import GraphQLDecimal from './Decimal';
 
 const NonEmptyString = decorateType(scalars.GraphQLNonEmptyString, {
   sourceType: 'NonEmptyString',
@@ -35,6 +36,11 @@ const GQLDateTime = decorateType(scalars.GraphQLDateTime, {
 const Currency = decorateType(scalars.GraphQLCurrency, {
   sourceType: 'Currency',
   asNexusMethod: 'currency',
+});
+
+const Decimal = decorateType(GraphQLDecimal, {
+  sourceType: 'Decimal',
+  asNexusMethod: 'decimal',
 });
 
 const GQLDateTimeFlexible = scalarType({
@@ -69,4 +75,4 @@ const GQLDateTimeFlexible = scalarType({
 //   resolveType: (item) => item.name,
 // });
 
-export default [GQLDateTime, GQLDate, GQLDateTimeFlexible, NonEmptyString, JSONObject, Currency];
+export default [GQLDateTime, GQLDate, GQLDateTimeFlexible, NonEmptyString, JSONObject, Currency, Decimal];

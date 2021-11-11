@@ -14,7 +14,7 @@ const TransferSummary = objectType({
   name: 'TransferSummary',
   definition(t) {
     t.nonNull.int('count');
-    t.nonNull.int('amount');
+    t.nonNull.decimal('amount');
     t.field('errorCode', { type: 'Int' });
     t.field('payerDFSP', { type: 'String' });
     t.field('payeeDFSP', { type: 'String' });
