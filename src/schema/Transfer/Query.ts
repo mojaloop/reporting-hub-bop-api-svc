@@ -34,8 +34,6 @@ const TransferFilter = inputObjectType({
   },
 });
 
-type Number = number | undefined;
-
 const Query = extendType({
   type: 'Query',
   definition(t) {
@@ -105,10 +103,9 @@ const Query = extendType({
           transferState: tr.transferStateChange.slice(-1)[0]?.transferState.enumeration,
           transactionType: tr.quote[0]?.transactionScenario.name,
           errorCode: tr.transferError[0]?.errorCode,
-          settlementId: tr.transferFulfilment[0]?.settlementWindow?.settlementSettlementWindow[0]
-            ?.settlementId as Number,
-          settlementWindowId: tr.transferFulfilment[0]?.settlementWindow?.settlementSettlementWindow[0]
-            ?.settlementWindowId as Number,
+          settlementId: tr.transferFulfilment[0]?.settlementWindow?.settlementSettlementWindow[0]?.settlementId,
+          settlementWindowId:
+            tr.transferFulfilment[0]?.settlementWindow?.settlementSettlementWindow[0]?.settlementWindowId,
         };
       },
     });
@@ -300,10 +297,9 @@ const Query = extendType({
           transferState: tr.transferStateChange.slice(-1)[0]?.transferState.enumeration,
           transactionType: tr.quote[0]?.transactionScenario.name,
           errorCode: tr.transferError[0]?.errorCode,
-          settlementId: tr.transferFulfilment[0]?.settlementWindow?.settlementSettlementWindow[0]
-            ?.settlementId as Number,
-          settlementWindowId: tr.transferFulfilment[0]?.settlementWindow?.settlementSettlementWindow[0]
-            ?.settlementWindowId as Number,
+          settlementId: tr.transferFulfilment[0]?.settlementWindow?.settlementSettlementWindow[0]?.settlementId,
+          settlementWindowId:
+            tr.transferFulfilment[0]?.settlementWindow?.settlementSettlementWindow[0]?.settlementWindowId,
         }));
       },
     });

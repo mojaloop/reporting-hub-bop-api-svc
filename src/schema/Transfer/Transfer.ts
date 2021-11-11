@@ -35,8 +35,8 @@ const Transfer = objectType({
     // t.field('transactionType', { type: 'TransactionType' });
     t.field('transactionType', { type: 'String' });
     t.int('errorCode');
-    t.int('settlementWindowId');
-    t.int('settlementId');
+    t.bigInt('settlementWindowId');
+    t.bigInt('settlementId');
     t.field('payerDFSP', {
       type: 'DFSP',
       resolve: (parent, _, ctx, info) => {

@@ -43,6 +43,11 @@ const Decimal = decorateType(GraphQLDecimal, {
   asNexusMethod: 'decimal',
 });
 
+const BigInt = decorateType(scalars.GraphQLBigInt, {
+  sourceType: 'BigInt',
+  asNexusMethod: 'bigInt',
+});
+
 const GQLDateTimeFlexible = scalarType({
   name: 'DateTimeFlexible',
   asNexusMethod: 'dateTimeFlex',
@@ -75,4 +80,4 @@ const GQLDateTimeFlexible = scalarType({
 //   resolveType: (item) => item.name,
 // });
 
-export default [GQLDateTime, GQLDate, GQLDateTimeFlexible, NonEmptyString, JSONObject, Currency, Decimal];
+export default [GQLDateTime, GQLDate, GQLDateTimeFlexible, NonEmptyString, JSONObject, Currency, Decimal, BigInt];
