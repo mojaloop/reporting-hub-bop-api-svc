@@ -120,19 +120,18 @@ const Query = extendType({
         let payeeDFSPs;
         let payerDFSPs;
 
-        // If permissions are not enabled and filter isn't set, then don't apply filtering
-        if (ctx.participants || args.filter?.payee?.dfsp) {
-          payeeDFSPs = ctx.participants || [];
-          if (args.filter?.payee?.dfsp) {
-            payeeDFSPs.push(args.filter.payee.dfsp);
-          }
+        if (ctx.participants) {
+          payeeDFSPs = payerDFSPs = ctx.participants || [];
         }
-
-        if (ctx.participants || args.filter?.payer?.dfsp) {
-          payerDFSPs = ctx.participants || [];
-          if (args.filter?.payer?.dfsp) {
-            payerDFSPs.push(args.filter.payer.dfsp);
-          }
+        if (ctx.participants && args.filter?.payer?.dfsp) {
+          payerDFSPs = ctx.participants?.includes(args.filter.payer.dfsp) ? args.filter.payer.dfsp : [];
+        } else if (args.filter?.payer?.dfsp) {
+          payerDFSPs = [args.filter.payer.dfsp];
+        }
+        if (ctx.participants && args.filter?.payee?.dfsp) {
+          payeeDFSPs = ctx.participants?.includes(args.filter.payee.dfsp) ? args.filter.payee.dfsp : [];
+        } else if (args.filter?.payee?.dfsp) {
+          payeeDFSPs = [args.filter.payee.dfsp];
         }
 
         const transfers = await ctx.centralLedger.transfer.findMany({

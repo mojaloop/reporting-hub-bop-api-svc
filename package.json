@@ -1,6 +1,6 @@
 {
   "name": "@mojaloop/reporting-hub-bop-api-svc",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "description": "Reporting API",
   "scripts": {
     "postinstall__new": "patch-package",

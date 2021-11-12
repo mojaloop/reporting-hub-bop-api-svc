@@ -18,8 +18,8 @@ import {
 } from './lib';
 import config from './config';
 
-const centralLedger = createCentralLedgerClient(true);
-const eventStore = createEventStoreClient(true);
+const centralLedger = createCentralLedgerClient(false);
+const eventStore = createEventStoreClient(false);
 const log = createLogger(LogLevel.DEBUG);
 
 export interface Context {
