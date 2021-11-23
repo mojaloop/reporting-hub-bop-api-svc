@@ -12,7 +12,11 @@ import { rule, shield } from 'graphql-shield';
 import * as keto from '@ory/keto-client';
 import { parse, simplify } from 'graphql-parse-resolve-info';
 
-export const createAuthMiddleware = (userIdHeader: string, oryKetoReadUrl?: string) => {
+export const createAuthMiddleware = (
+  userIdHeader: string,
+  oryKetoReadUrl?: string,
+  authCheckParticipants?: boolean
+) => {
   let oryKetoReadApi: keto.ReadApi;
   if (oryKetoReadUrl) {
     oryKetoReadApi = new keto.ReadApi(undefined, oryKetoReadUrl);
@@ -38,7 +42,9 @@ export const createAuthMiddleware = (userIdHeader: string, oryKetoReadUrl?: stri
     }
     const userId = ctx.req.headers[userIdHeader];
 
-    ctx.participants = await getParticipantsByUserId(userId);
+    if (authCheckParticipants) {
+      ctx.participants = await getParticipantsByUserId(userId);
+    }
 
     const parsedInfo = parse(info);
     const simplifiedInfo = simplify(parsedInfo as any, info.returnType);

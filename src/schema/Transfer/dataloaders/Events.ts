@@ -30,7 +30,7 @@ const findEvents = async (ctx: Context, filters: EventFilter[], type: EventType)
             ? [
                 {
                   $and: [
-                    { 'metadata.reporting.transactionId': 'undefined' },
+                    { 'metadata.reporting.transactionId': { $exists: false } },
                     {
                       $or: [
                         ...((f.settlementId && [{ 'metadata.reporting.settlementId': f.settlementId }]) || []),

@@ -18,5 +18,6 @@ export default {
   centralLedgerDbUrl: env.get('CENTRAL_LEDGER_DB_URL').required().asUrlString(),
   eventStoreDb: env.get('EVENT_STORE_DB_URL').required().asUrlString(),
   oryKetoReadUrl: env.get('ORY_KETO_READ_URL').asUrlString(),
+  authCheckParticipants: env.get('AUTH_CHECK_PARTICIPANTS').default('false').asBool(),
   userIdHeader: env.get('USER_ID_HEADER').default('x-user').asString(),
 };
