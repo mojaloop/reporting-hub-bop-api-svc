@@ -26,24 +26,8 @@ const findEvents = async (ctx: Context, filters: EventFilter[], type: EventType)
       $or: filters.map((f) => ({
         $or: [
           { 'metadata.reporting.transactionId': f.transactionId },
-          ...(f.settlementId || f.settlementWindowId
-            ? [
-                {
-                  $and: [
-                    { 'metadata.reporting.transactionId': { $exists: false } },
-                    {
-                      $or: [
-                        ...((f.settlementId && [{ 'metadata.reporting.settlementId': f.settlementId }]) || []),
-                        ...((f.settlementWindowId && [
-                          { 'metadata.reporting.settlementWindowId': f.settlementWindowId },
-                        ]) ||
-                          []),
-                      ],
-                    },
-                  ],
-                },
-              ]
-            : []),
+          ...((f.settlementId && [{ 'metadata.reporting.settlementId': f.settlementId }]) || []),
+          ...((f.settlementWindowId && [{ 'metadata.reporting.settlementWindowId': f.settlementWindowId }]) || []),
         ],
       })),
       'metadata.reporting.eventType': type,
@@ -80,9 +64,11 @@ export const getEventsDataloader = (ctx: Context, info: GraphQLResolveInfo, type
         }
         eventMap[key].push(event.event);
       }
-      return filters.map(
-        (f) => eventMap[f.transactionId] || eventMap[f.settlementId] || eventMap[f.settlementWindowId] || []
-      );
+      return filters.map((f) => [
+        ...(eventMap[f.transactionId] || []),
+        ...(eventMap[f.settlementId] || []),
+        ...(eventMap[f.settlementWindowId] || []),
+      ]);
     });
     // Put instance of dataloader in WeakMap for future reuse
     loaders.set(info.fieldNodes, dl);
