@@ -14,15 +14,51 @@ import DataLoader from 'dataloader';
 
 type EventType = 'Quote' | 'Transfer' | 'Settlement' | 'PartyLookup';
 
-const findEvents = async (ctx: Context, transactionIds: string[], type: EventType) => {
+interface EventFilter {
+  transactionId: string;
+  settlementId: string;
+  settlementWindowId: string;
+}
+
+const findEvents = async (ctx: Context, filters: EventFilter[], type: EventType) => {
   return ctx.eventStoreMongo
     .find({
-      'metadata.reporting.transactionId': { $in: transactionIds },
+      $or: filters.map((f) => ({
+        $or: [
+          { 'metadata.reporting.transactionId': f.transactionId },
+          ...(f.settlementId || f.settlementWindowId
+            ? [
+                {
+                  $and: [
+                    { 'metadata.reporting.transactionId': 'undefined' },
+                    {
+                      $or: [
+                        ...((f.settlementId && [{ 'metadata.reporting.settlementId': f.settlementId }]) || []),
+                        ...((f.settlementWindowId && [
+                          { 'metadata.reporting.settlementWindowId': f.settlementWindowId },
+                        ]) ||
+                          []),
+                      ],
+                    },
+                  ],
+                },
+              ]
+            : []),
+        ],
+      })),
       'metadata.reporting.eventType': type,
     })
     .map((event) => ({
       event: event.event,
-      transactionId: event.metadata.reporting.transactionId,
+      ...(event.metadata.reporting.transactionId !== 'undefined' && {
+        transactionId: event.metadata.reporting.transactionId,
+      }),
+      ...(event.metadata.reporting.settlementId !== 'undefined' && {
+        settlementId: event.metadata.reporting.settlementId,
+      }),
+      ...(event.metadata.reporting.settlementWindowId !== 'undefined' && {
+        settlementWindowId: event.metadata.reporting.settlementWindowId,
+      }),
     }))
     .toArray();
 };
@@ -33,17 +69,20 @@ export const getEventsDataloader = (ctx: Context, info: GraphQLResolveInfo, type
   // initialize DataLoader for getting payers by transfer IDs
   let dl = loaders.get(info.fieldNodes);
   if (!dl) {
-    dl = new DataLoader(async (transactionIds: readonly string[]) => {
-      const events = await findEvents(ctx, transactionIds as string[], type);
+    dl = new DataLoader(async (filters: readonly EventFilter[]) => {
+      const events = await findEvents(ctx, filters as EventFilter[], type);
       // IMPORTANT: sort data in the same order as transferIds
       const eventMap: Record<string, any> = {};
       for (let event of events) {
-        if (!eventMap[event.transactionId]) {
-          eventMap[event.transactionId] = [];
+        const key = event.transactionId || event.settlementId || event.settlementWindowId;
+        if (!eventMap[key]) {
+          eventMap[key] = [];
         }
-        eventMap[event.transactionId].push(event.event);
+        eventMap[key].push(event.event);
       }
-      return transactionIds.map((tid) => eventMap[tid] || []);
+      return filters.map(
+        (f) => eventMap[f.transactionId] || eventMap[f.settlementId] || eventMap[f.settlementWindowId] || []
+      );
     });
     // Put instance of dataloader in WeakMap for future reuse
     loaders.set(info.fieldNodes, dl);

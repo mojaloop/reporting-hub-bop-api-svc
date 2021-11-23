@@ -68,25 +68,41 @@ const Transfer = objectType({
     t.list.jsonObject('partyLookupEvents', {
       resolve: async (parent, _, ctx, info) => {
         const dl = getEventsDataloader(ctx, info, 'PartyLookup');
-        return dl.load(parent.transactionId);
+        return dl.load({
+          transactionId: parent.transactionId,
+          settlementId: parent.settlementId?.toString(),
+          settlementWindowId: parent.settlementWindowId?.toString(),
+        });
       },
     });
     t.list.jsonObject('quoteEvents', {
       resolve: async (parent, _, ctx, info) => {
         const dl = getEventsDataloader(ctx, info, 'Quote');
-        return dl.load(parent.transactionId);
+        return dl.load({
+          transactionId: parent.transactionId,
+          settlementId: parent.settlementId?.toString(),
+          settlementWindowId: parent.settlementWindowId?.toString(),
+        });
       },
     });
     t.list.jsonObject('transferEvents', {
       resolve: async (parent, _, ctx, info) => {
         const dl = getEventsDataloader(ctx, info, 'Transfer');
-        return dl.load(parent.transactionId);
+        return dl.load({
+          transactionId: parent.transactionId,
+          settlementId: parent.settlementId?.toString(),
+          settlementWindowId: parent.settlementWindowId?.toString(),
+        });
       },
     });
     t.list.jsonObject('settlementEvents', {
       resolve: async (parent, _, ctx, info) => {
         const dl = getEventsDataloader(ctx, info, 'Settlement');
-        return dl.load(parent.transactionId);
+        return dl.load({
+          transactionId: parent.transactionId,
+          settlementId: parent.settlementId?.toString(),
+          settlementWindowId: parent.settlementWindowId?.toString(),
+        });
       },
     });
   },
