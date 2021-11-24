@@ -8,7 +8,6 @@
  *       Yevhen Kyriukha <yevhen.kyriukha@modusbox.com>                   *
  **************************************************************************/
 
-export * from './logger';
 export * from './prisma';
 export * from './auth';
 export * from './mongo';

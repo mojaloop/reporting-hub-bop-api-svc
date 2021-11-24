@@ -17,13 +17,24 @@ import { createContext } from './context';
 import config from './config';
 import { applyMiddleware } from 'graphql-middleware';
 import { createAuthMiddleware } from '@app/lib';
+import Logger from '@mojaloop/central-services-logger';
+import { GraphQLRequestContext } from 'apollo-server-types';
 
 const authMiddleware = createAuthMiddleware(config.userIdHeader, config.oryKetoReadUrl, config.authCheckParticipants);
+
+const loggerPlugin = {
+  // Fires whenever a GraphQL request is received from a client.
+  async requestDidStart(requestContext: GraphQLRequestContext) {
+    if (requestContext.request.operationName !== 'IntrospectionQuery') {
+      Logger.debug(requestContext.request.query);
+    }
+  },
+};
 
 const server = new ApolloServer({
   schema: applyMiddleware(schema, authMiddleware),
   context: createContext,
-  plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
+  plugins: [ApolloServerPluginLandingPageGraphQLPlayground(), loggerPlugin],
   healthCheckPath: '/health',
 });
 

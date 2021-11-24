@@ -2,7 +2,8 @@
   "include": [
     "src/**/*",
     "test/**/*",
-    ".eslintrc.js"
+    ".eslintrc.js",
+    "ambient.d.ts",
   ],
   "exclude": [
     "node_modules"
