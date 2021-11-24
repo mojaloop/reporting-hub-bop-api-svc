@@ -5,3 +5,6 @@ generated/
 # IDE's
 .idea/
 .vscode/
+
+# Config
+.env

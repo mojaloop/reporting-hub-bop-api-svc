@@ -20,4 +20,5 @@ export default {
   oryKetoReadUrl: env.get('ORY_KETO_READ_URL').asUrlString(),
   authCheckParticipants: env.get('AUTH_CHECK_PARTICIPANTS').default('false').asBool(),
   userIdHeader: env.get('USER_ID_HEADER').default('x-user').asString(),
+  prismaLoggingEnabled: env.get('ENABLE_PRISMA_LOGGING').default('false').asBool(),
 };

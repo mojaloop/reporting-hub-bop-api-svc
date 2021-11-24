@@ -1,6 +1,6 @@
 {
   "name": "@mojaloop/reporting-hub-bop-api-svc",
-  "version": "1.0.22",
+  "version": "1.0.23",
   "description": "Reporting API",
   "scripts": {
     "postinstall__new": "patch-package",
@@ -51,10 +51,12 @@
     "ts-node-dev": "1.1.8"
   },
   "dependencies": {
+    "@mojaloop/central-services-logger": "^10.6.2",
     "@ory/keto-client": "^0.6.0-alpha.6",
     "@prisma/client": "^3.4.2",
     "apollo-server": "^3.5.0",
     "apollo-server-core": "^3.5.0",
+    "apollo-server-types": "^3.4.0",
     "axios": "^0.24.0",
     "cross-env": "7.0.3",
     "dataloader": "^2.0.0",

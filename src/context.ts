@@ -8,22 +8,15 @@
  *       Yevhen Kyriukha <yevhen.kyriukha@modusbox.com>                   *
  **************************************************************************/
 
-import {
-  createCentralLedgerClient,
-  createEventStoreClient,
-  createLogger,
-  LogLevel,
-  getMongoClient,
-  Collection,
-} from './lib';
+import { createCentralLedgerClient, createEventStoreClient, getMongoClient, Collection } from './lib';
+import Logger from '@mojaloop/central-services-logger';
 import config from './config';
 
-const centralLedger = createCentralLedgerClient(false);
-const eventStore = createEventStoreClient(false);
-const log = createLogger(LogLevel.DEBUG);
+const centralLedger = createCentralLedgerClient(config.prismaLoggingEnabled);
+const eventStore = createEventStoreClient(config.prismaLoggingEnabled);
 
 export interface Context {
-  log: typeof log;
+  log: typeof Logger;
   centralLedger: typeof centralLedger;
   eventStore: typeof eventStore;
   config: typeof config;
@@ -35,7 +28,7 @@ export interface Context {
 export const createContext = async (ctx: any): Promise<Context> => ({
   ...ctx,
   config,
-  log,
+  log: Logger,
   centralLedger,
   eventStore,
   loaders: new WeakMap(),
