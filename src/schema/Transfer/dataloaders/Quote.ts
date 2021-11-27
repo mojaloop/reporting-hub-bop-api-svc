@@ -10,64 +10,43 @@
 
 import { Context } from '@app/context';
 import DataLoader from 'dataloader';
+import { quote } from '@app/generated/centralLedger';
 
-type DFSPType = 'PAYER_DFSP' | 'PAYEE_DFSP';
+const ID = Symbol();
 
-const ID = (type: DFSPType) => Symbol.for(`DFSP_DL_${type}`);
-
-const findDfsps = async (ctx: Context, transferIds: string[], type: DFSPType) => {
-  const dfsps = await ctx.centralLedger.participant.findMany({
+const findQuotes = async (ctx: Context, transferIds: string[]) => {
+  const entries = await ctx.centralLedger.quote.findMany({
     where: {
-      participantCurrency: {
-        some: {
-          transferParticipant: {
-            some: {
-              transferId: { in: transferIds },
-              transferParticipantRoleType: { name: type },
-            },
-          },
+      transfer: {
+        transferId: {
+          in: transferIds,
         },
       },
     },
     include: {
-      participantCurrency: {
+      transfer: {
         select: {
-          transferParticipant: {
-            select: {
-              transferId: true,
-            },
-          },
+          transferId: true,
         },
       },
     },
   });
-  return Object.fromEntries(
-    dfsps.map((e) => [
-      e.participantCurrency[0].transferParticipant[0].transferId,
-      {
-        id: e.participantId,
-        name: e.name,
-        description: e.description,
-        active: e.isActive,
-      },
-    ])
-  );
+  return Object.fromEntries(entries.map((e) => [e.transfer.transferId, e]));
 };
 
-export const getDFSPDataloader = (ctx: Context, dfspType: DFSPType) => {
+export const getQuotesDataloader = (ctx: Context): DataLoader<string, quote> => {
   const { loaders } = ctx;
 
   // initialize DataLoader for getting payers by transfer IDs
-  let dl = loaders.get(ID(dfspType));
+  let dl = loaders.get(ID);
   if (!dl) {
     dl = new DataLoader(async (transferIds: readonly string[]) => {
-      // Get DFSP by Transfer IDs
-      const dfsps = await findDfsps(ctx, transferIds as string[], dfspType);
+      const quotes = await findQuotes(ctx, transferIds as string[]);
       // IMPORTANT: sort data in the same order as transferIds
-      return transferIds.map((id) => dfsps[id]);
+      return transferIds.map((tid) => quotes[tid]);
     });
     // Put instance of dataloader in WeakMap for future reuse
-    loaders.set(ID(dfspType), dl);
+    loaders.set(ID, dl);
   }
   return dl;
 };

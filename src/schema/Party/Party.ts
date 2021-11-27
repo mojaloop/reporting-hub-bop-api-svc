@@ -18,7 +18,7 @@ const PartyIDType = enumType({
 const Party = objectType({
   name: 'Party',
   definition(t) {
-    t.int('id');
+    t.bigInt('id');
     t.string('firstName');
     t.string('lastName');
     t.string('middleName');

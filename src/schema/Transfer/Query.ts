@@ -9,6 +9,7 @@
  **************************************************************************/
 
 import { arg, extendType, inputObjectType, intArg, nonNull, stringArg } from 'nexus';
+import { createTransferFilter } from './helpers';
 
 const PartyFilter = inputObjectType({
   name: 'PartyFilter',
@@ -47,68 +48,20 @@ const Query = extendType({
           where: {
             transferId: args.transferId,
           },
-          include: {
-            transferStateChange: {
-              select: {
-                transferState: {
-                  select: {
-                    enumeration: true,
-                  },
-                },
-              },
-            },
-            transferFulfilment: {
-              select: {
-                settlementWindow: {
-                  select: {
-                    settlementSettlementWindow: {
-                      select: {
-                        settlementId: true,
-                        settlementWindowId: true,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-            quote: {
-              select: {
-                quoteId: true,
-                transactionReferenceId: true,
-                transactionScenario: {
-                  select: {
-                    name: true,
-                  },
-                },
-              },
-            },
-            transferError: {
-              select: {
-                errorCode: true,
-              },
-            },
-          },
         });
         if (!tr) {
           return null;
         }
         return {
           transferId: tr.transferId,
-          transactionId: tr.quote[0]?.transactionReferenceId,
-          quoteId: tr.quote[0]?.quoteId,
           amount: tr.amount.toNumber(),
           currency: tr.currencyId,
           createdAt: tr.createdDate.toISOString(),
           ilpCondition: tr.ilpCondition,
-          transferState: tr.transferStateChange.slice(-1)[0]?.transferState.enumeration,
-          transactionType: tr.quote[0]?.transactionScenario.name,
-          errorCode: tr.transferError[0]?.errorCode,
-          settlementId: tr.transferFulfilment[0]?.settlementWindow?.settlementSettlementWindow[0]?.settlementId,
-          settlementWindowId:
-            tr.transferFulfilment[0]?.settlementWindow?.settlementSettlementWindow[0]?.settlementWindowId,
         };
       },
     });
+
     t.nonNull.list.nonNull.field('transfers', {
       type: 'Transfer',
       args: {
@@ -117,22 +70,7 @@ const Query = extendType({
         offset: intArg(),
       },
       resolve: async (parent, args, ctx) => {
-        let payeeDFSPs;
-        let payerDFSPs;
-
-        if (ctx.participants) {
-          payeeDFSPs = payerDFSPs = ctx.participants || [];
-        }
-        if (ctx.participants && args.filter?.payer?.dfsp) {
-          payerDFSPs = ctx.participants?.includes(args.filter.payer.dfsp) ? args.filter.payer.dfsp : [];
-        } else if (args.filter?.payer?.dfsp) {
-          payerDFSPs = [args.filter.payer.dfsp];
-        }
-        if (ctx.participants && args.filter?.payee?.dfsp) {
-          payeeDFSPs = ctx.participants?.includes(args.filter.payee.dfsp) ? args.filter.payee.dfsp : [];
-        } else if (args.filter?.payee?.dfsp) {
-          payeeDFSPs = [args.filter.payee.dfsp];
-        }
+        const transferFilter = createTransferFilter(ctx.participants, args.filter);
 
         const transfers = await ctx.centralLedger.transfer.findMany({
           take: args.limit ?? 100,
@@ -143,162 +81,15 @@ const Query = extendType({
               gte: args.filter?.startDate || undefined,
               lt: args.filter?.endDate || undefined,
             },
-            currencyId: args.filter?.currency || undefined,
-            ...(args.filter?.errorCode
-              ? {
-                  transferError: {
-                    some: {
-                      errorCode: args.filter?.errorCode || undefined,
-                    },
-                  },
-                }
-              : {}),
-            ...(args.filter?.transferState
-              ? {
-                  transferStateChange: {
-                    some: {
-                      transferState: {
-                        enumeration: args.filter?.transferState,
-                      },
-                    },
-                  },
-                }
-              : {}),
-            ...(args.filter?.settlementWindowId
-              ? {
-                  transferFulfilment: {
-                    some: {
-                      settlementWindowId: args.filter?.settlementWindowId,
-                      ...(args.filter?.settlementId
-                        ? {
-                            settlementWindow: {
-                              settlementSettlementWindow: {
-                                some: {
-                                  settlementId: args.filter?.settlementId,
-                                },
-                              },
-                            },
-                          }
-                        : {}),
-                    },
-                  },
-                }
-              : {}),
-            quote: {
-              some: {
-                quoteParty: {
-                  every: {
-                    OR: [
-                      {
-                        partyType: {
-                          name: 'PAYEE',
-                        },
-                        partyIdentifierType: {
-                          name: args.filter?.payee?.idType || undefined,
-                        },
-                        partyIdentifierValue: args.filter?.payee?.idValue || undefined,
-                      },
-                      {
-                        partyType: {
-                          name: 'PAYER',
-                        },
-                        partyIdentifierType: {
-                          name: args.filter?.payer?.idType || undefined,
-                        },
-                        partyIdentifierValue: args.filter?.payer?.idValue || undefined,
-                      },
-                    ],
-                  },
-                },
-              },
-            },
-            transferParticipant: {
-              every: {
-                OR: [
-                  {
-                    transferParticipantRoleType: {
-                      name: 'PAYEE_DFSP',
-                    },
-                    participantCurrency: {
-                      participant: {
-                        name: {
-                          in: payeeDFSPs,
-                        },
-                      },
-                    },
-                  },
-                  {
-                    transferParticipantRoleType: {
-                      name: 'PAYER_DFSP',
-                    },
-                    participantCurrency: {
-                      participant: {
-                        name: {
-                          in: payerDFSPs,
-                        },
-                      },
-                    },
-                  },
-                ],
-              },
-            },
-          },
-          include: {
-            transferStateChange: {
-              select: {
-                transferState: {
-                  select: {
-                    enumeration: true,
-                  },
-                },
-              },
-            },
-            transferFulfilment: {
-              select: {
-                settlementWindow: {
-                  select: {
-                    settlementSettlementWindow: {
-                      select: {
-                        settlementId: true,
-                        settlementWindowId: true,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-            quote: {
-              select: {
-                quoteId: true,
-                transactionReferenceId: true,
-                transactionScenario: {
-                  select: {
-                    name: true,
-                  },
-                },
-              },
-            },
-            transferError: {
-              select: {
-                errorCode: true,
-              },
-            },
+            ...transferFilter,
           },
         });
         return transfers.map((tr) => ({
           transferId: tr.transferId,
-          transactionId: tr.quote[0]?.transactionReferenceId,
-          quoteId: tr.quote[0]?.quoteId,
           amount: tr.amount.toNumber(),
           currency: tr.currencyId,
           createdAt: tr.createdDate.toISOString(),
           ilpCondition: tr.ilpCondition,
-          transferState: tr.transferStateChange.slice(-1)[0]?.transferState.enumeration,
-          transactionType: tr.quote[0]?.transactionScenario.name,
-          errorCode: tr.transferError[0]?.errorCode,
-          settlementId: tr.transferFulfilment[0]?.settlementWindow?.settlementSettlementWindow[0]?.settlementId,
-          settlementWindowId:
-            tr.transferFulfilment[0]?.settlementWindow?.settlementSettlementWindow[0]?.settlementWindowId,
         }));
       },
     });

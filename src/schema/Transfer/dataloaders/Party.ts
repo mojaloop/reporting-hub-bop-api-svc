@@ -8,66 +8,77 @@
  *       Yevhen Kyriukha <yevhen.kyriukha@modusbox.com>                   *
  **************************************************************************/
 
-import { GraphQLResolveInfo } from 'graphql';
 import { Context } from '@app/context';
 import DataLoader from 'dataloader';
 
 type PartyType = 'PAYEE' | 'PAYER';
 
+const ID = (type: PartyType) => Symbol.for(`PARTY_DL_${type}`);
+
 const findParties = async (ctx: Context, transferIds: string[], type: PartyType) => {
-  const quoteParty = await ctx.centralLedger.quoteParty.findMany({
+  const result = await ctx.centralLedger.party.findMany({
     where: {
-      quote: {
-        transfer: {
-          transferId: {
-            in: transferIds,
+      quoteParty: {
+        quote: {
+          transfer: {
+            transferId: {
+              in: transferIds,
+            },
           },
         },
-      },
-      partyType: {
-        name: type,
+        partyType: {
+          name: type,
+        },
       },
     },
     include: {
-      partyIdentifierType: true,
-      party: true,
-      quote: {
+      quoteParty: {
         select: {
-          transfer: {
+          partyIdentifierType: true,
+          partyIdentifierValue: true,
+          quote: {
             select: {
-              transferId: true,
+              transfer: {
+                select: {
+                  transferId: true,
+                },
+              },
             },
           },
         },
       },
     },
   });
-  return quoteParty.map((qp) => ({
-    transferId: qp.quote.transfer.transferId,
-    // dfsp: qp.fspId,
-    firstName: qp.party[0]?.firstName,
-    lastName: qp.party[0]?.lastName,
-    middleName: qp.party[0]?.middleName,
-    dateOfBirth: qp.party[0]?.dateOfBirth,
-    idType: qp.partyIdentifierType.name,
-    idValue: qp.partyIdentifierValue,
-  }));
+  return Object.fromEntries(
+    result.map((e) => [
+      e.quoteParty.quote.transfer.transferId,
+      {
+        id: e.partyId,
+        firstName: e.firstName,
+        lastName: e.lastName,
+        middleName: e.middleName,
+        dateOfBirth: e.dateOfBirth,
+        idType: e.quoteParty.partyIdentifierType.name,
+        idValue: e.quoteParty.partyIdentifierValue,
+      },
+    ])
+  );
 };
 
-export const getPartyDataloader = (ctx: Context, info: GraphQLResolveInfo, partyType: PartyType) => {
+export const getPartyDataloader = (ctx: Context, partyType: PartyType) => {
   const { loaders } = ctx;
 
   // initialize DataLoader for getting payers by transfer IDs
-  let dl = loaders.get(info.fieldNodes);
+  let dl = loaders.get(ID(partyType));
   if (!dl) {
     dl = new DataLoader(async (transferIds: readonly string[]) => {
       // Get DFSP by Transfer IDs
       const parties = await findParties(ctx, transferIds as string[], partyType);
       // IMPORTANT: sort data in the same order as transferIds
-      return transferIds.map((tid) => parties.find((party) => party.transferId === tid));
+      return transferIds.map((id) => parties[id]);
     });
     // Put instance of dataloader in WeakMap for future reuse
-    loaders.set(info.fieldNodes, dl);
+    loaders.set(ID(partyType), dl);
   }
   return dl;
 };

@@ -11,3 +11,7 @@
 export * from './DFSP';
 export * from './Party';
 export * from './Events';
+export * from './TransferState';
+export * from './Quote';
+export * from './TransactionType';
+export * from './Settlement';

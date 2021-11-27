@@ -8,17 +8,18 @@
  *       Yevhen Kyriukha <yevhen.kyriukha@modusbox.com>                   *
  **************************************************************************/
 
-import { GraphQLResolveInfo } from 'graphql';
 import { Context } from '@app/context';
 import DataLoader from 'dataloader';
 
-type EventType = 'Quote' | 'Transfer' | 'Settlement' | 'PartyLookup';
+export type EventType = 'Quote' | 'Transfer' | 'Settlement' | 'PartyLookup';
 
 interface EventFilter {
   transactionId: string;
   settlementId: string;
   settlementWindowId: string;
 }
+
+const ID = (type: EventType) => Symbol.for(`EVENT_DL_${type}`);
 
 const findEvents = async (ctx: Context, filters: EventFilter[], type: EventType) => {
   return ctx.eventStoreMongo
@@ -47,11 +48,11 @@ const findEvents = async (ctx: Context, filters: EventFilter[], type: EventType)
     .toArray();
 };
 
-export const getEventsDataloader = (ctx: Context, info: GraphQLResolveInfo, type: EventType) => {
+export const getEventsDataloader = (ctx: Context, type: EventType) => {
   const { loaders } = ctx;
 
   // initialize DataLoader for getting payers by transfer IDs
-  let dl = loaders.get(info.fieldNodes);
+  let dl = loaders.get(ID(type));
   if (!dl) {
     dl = new DataLoader(async (filters: readonly EventFilter[]) => {
       const events = await findEvents(ctx, filters as EventFilter[], type);
@@ -71,7 +72,7 @@ export const getEventsDataloader = (ctx: Context, info: GraphQLResolveInfo, type
       ]);
     });
     // Put instance of dataloader in WeakMap for future reuse
-    loaders.set(info.fieldNodes, dl);
+    loaders.set(ID(type), dl);
   }
   return dl;
 };

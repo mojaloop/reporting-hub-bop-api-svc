@@ -8,7 +8,7 @@
  *       Yevhen Kyriukha <yevhen.kyriukha@modusbox.com>                   *
  **************************************************************************/
 
-import { createCentralLedgerClient, createEventStoreClient, getMongoClient, Collection } from './lib';
+import { createCentralLedgerClient, createEventStoreClient, getMongoClient, Collection, getRequestFields } from './lib';
 import Logger from '@mojaloop/central-services-logger';
 import config from './config';
 
@@ -20,9 +20,10 @@ export interface Context {
   centralLedger: typeof centralLedger;
   eventStore: typeof eventStore;
   config: typeof config;
-  loaders: WeakMap<any, any>;
+  loaders: Map<any, any>;
   eventStoreMongo: Collection;
   participants: string[] | undefined;
+  getRequestFields: typeof getRequestFields;
 }
 
 export const createContext = async (ctx: any): Promise<Context> => ({
@@ -31,6 +32,7 @@ export const createContext = async (ctx: any): Promise<Context> => ({
   log: Logger,
   centralLedger,
   eventStore,
-  loaders: new WeakMap(),
+  loaders: new Map(),
   eventStoreMongo: await getMongoClient(config.eventStoreDb),
+  getRequestFields,
 });

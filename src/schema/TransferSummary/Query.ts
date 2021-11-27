@@ -9,7 +9,7 @@
  **************************************************************************/
 
 import { arg, extendType, inputObjectType, intArg } from 'nexus';
-import { parse, simplify } from 'graphql-parse-resolve-info';
+import { NexusGenObjects } from 'nexus-typegen';
 
 const TransferSummaryFilter = inputObjectType({
   name: 'TransferSummaryFilter',
@@ -34,9 +34,7 @@ const Query = extendType({
         offset: intArg(),
       },
       resolve: async (parent, args, ctx, info) => {
-        const parsedInfo = parse(info);
-        const simplifiedInfo = simplify(parsedInfo as any, info.returnType);
-        const { fields }: any = simplifiedInfo;
+        const fields = ctx.getRequestFields(info) as NexusGenObjects['TransferSummary'];
 
         return ctx.centralLedger.$queryRawUnsafe(`
           SELECT

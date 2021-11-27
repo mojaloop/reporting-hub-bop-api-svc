@@ -31,10 +31,19 @@ const loggerPlugin = {
   },
 };
 
+const fieldsPlugin = {
+  // Fires whenever a GraphQL request is received from a client.
+  async requestDidStart(requestContext: GraphQLRequestContext) {
+    if (requestContext.request.operationName !== 'IntrospectionQuery') {
+      Logger.debug(requestContext.request.query);
+    }
+  },
+};
+
 const server = new ApolloServer({
   schema: applyMiddleware(schema, authMiddleware),
   context: createContext,
-  plugins: [ApolloServerPluginLandingPageGraphQLPlayground(), loggerPlugin],
+  plugins: [ApolloServerPluginLandingPageGraphQLPlayground(), loggerPlugin, fieldsPlugin],
   healthCheckPath: '/health',
 });
 
