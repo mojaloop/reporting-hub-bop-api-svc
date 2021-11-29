@@ -15,7 +15,7 @@ const DFSP = objectType({
   definition(t) {
     t.nonNull.int('id');
     t.nonNull.string('name');
-    t.nonNull.string('description');
+    t.string('description');
     t.nonNull.boolean('active');
     t.nonNull.list.nonNull.field('currencies', {
       type: 'NonEmptyString',
