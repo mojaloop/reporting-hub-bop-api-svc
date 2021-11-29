@@ -25,6 +25,11 @@ export const createTransferFilter = (participants?: string[], filter?: NexusGenI
 
   const transferFilter: transferWhereInput = {};
 
+  transferFilter.createdDate = {
+    gte: filter?.startDate || undefined,
+    lt: filter?.endDate || undefined,
+  };
+
   if (filter?.errorCode) {
     transferFilter.transferError = {
       some: {
@@ -65,7 +70,9 @@ export const createTransferFilter = (participants?: string[], filter?: NexusGenI
   }
 
   if (filter?.currency) {
-    transferFilter.currency = filter?.currency;
+    transferFilter.currency = {
+      currencyId: filter?.currency,
+    };
   }
 
   if (filter?.payee?.idType || filter?.payee?.idValue || filter?.payer?.idType || filter?.payer?.idValue) {

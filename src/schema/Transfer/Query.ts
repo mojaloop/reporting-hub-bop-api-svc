@@ -76,13 +76,7 @@ const Query = extendType({
           take: args.limit ?? 100,
           skip: args.offset || undefined,
           orderBy: [{ createdDate: 'desc' }],
-          where: {
-            createdDate: {
-              gte: args.filter?.startDate || undefined,
-              lt: args.filter?.endDate || undefined,
-            },
-            ...transferFilter,
-          },
+          where: transferFilter,
         });
         return transfers.map((tr) => ({
           transferId: tr.transferId,
