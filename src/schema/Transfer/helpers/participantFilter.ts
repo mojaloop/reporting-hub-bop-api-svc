@@ -2,36 +2,34 @@ import { Prisma } from '@app/generated/centralLedger';
 import transferParticipantWhereInput = Prisma.transferParticipantWhereInput;
 
 export const createParticipantFilter = (payeeDFSPs: string[] | undefined, payerDFSPs: string[] | undefined) => {
-  const participantFilter: transferParticipantWhereInput[] = [];
+  const payeeFilter: transferParticipantWhereInput = {
+    transferParticipantRoleType: {
+      name: 'PAYEE_DFSP',
+    },
+  };
+  const payerFilter: transferParticipantWhereInput = {
+    transferParticipantRoleType: {
+      name: 'PAYER_DFSP',
+    },
+  };
   if (payeeDFSPs) {
-    participantFilter.push({
-      transferParticipantRoleType: {
-        name: 'PAYEE_DFSP',
-      },
-      participantCurrency: {
-        participant: {
-          name: {
-            in: payeeDFSPs,
-          },
+    payeeFilter.participantCurrency = {
+      participant: {
+        name: {
+          in: payeeDFSPs,
         },
       },
-    });
+    };
   }
-
   if (payerDFSPs) {
-    participantFilter.push({
-      transferParticipantRoleType: {
-        name: 'PAYER_DFSP',
-      },
-      participantCurrency: {
-        participant: {
-          name: {
-            in: payerDFSPs,
-          },
+    payerFilter.participantCurrency = {
+      participant: {
+        name: {
+          in: payerDFSPs,
         },
       },
-    });
+    };
   }
 
-  return participantFilter;
+  return [payerFilter, payeeFilter];
 };

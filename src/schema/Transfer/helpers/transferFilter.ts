@@ -87,13 +87,11 @@ export const createTransferFilter = (participants?: string[], filter?: NexusGenI
     };
   }
 
-  if (payeeDFSPs || payerDFSPs) {
-    transferFilter.transferParticipant = {
-      every: {
-        OR: createParticipantFilter(payeeDFSPs, payerDFSPs),
-      },
-    };
-  }
+  transferFilter.transferParticipant = {
+    every: {
+      OR: createParticipantFilter(payeeDFSPs, payerDFSPs),
+    },
+  };
 
   return transferFilter;
 };
