@@ -28,7 +28,15 @@ const parseSchema = (path) => {
       currentBlock = def;
     } else if (currentBlock && !['}', ''].includes(components[0])) {
       const block = schema[currentBlock];
-      const key = /(?<!@)@(?!@)/.test(components[0]) ? currentKey : components[0];
+      // const key = /(?<!@)@(?!@)/.test(components[0]) ? currentKey : components[0];
+      let key;
+      if (components[0].startsWith('@@')) {
+        key = components.join(' ');
+      } else if (components[0].startsWith('@')) {
+        key = currentKey;
+      } else {
+        key = components[0];
+      }
       block[key] = (block[key] || []).concat(...components);
       currentKey = key;
     }
@@ -47,8 +55,11 @@ const mergeSchema = (name) => {
   for (const blockDef of blockDefs) {
     data.push(`${blockDef} {`);
     const blockKeys = Object.keys(overlaySchema[blockDef] || {}).concat(Object.keys(baseSchema[blockDef] || {}))
+    const seen = new Set();
     for (const key of blockKeys) {
+      if (seen.has(key)) continue;
       data.push((overlaySchema[blockDef]?.[key] || baseSchema[blockDef]?.[key]).join(' '))
+      seen.add(key);
     }
     data.push('}');
   }

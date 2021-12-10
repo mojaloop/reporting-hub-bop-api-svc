@@ -15,46 +15,45 @@ type DFSPType = 'PAYER_DFSP' | 'PAYEE_DFSP';
 
 const ID = (type: DFSPType) => Symbol.for(`DFSP_DL_${type}`);
 
+interface DFSP {
+  id: number;
+  name: string;
+  description?: string;
+  active: boolean;
+}
+
 const findDfsps = async (ctx: Context, transferIds: string[], type: DFSPType) => {
-  const dfsps = await ctx.centralLedger.participant.findMany({
+  const transferParticipant = await ctx.centralLedger.transferParticipant.findMany({
     where: {
-      participantCurrency: {
-        some: {
-          transferParticipant: {
-            some: {
-              transferId: { in: transferIds },
-              transferParticipantRoleType: { name: type },
-            },
-          },
-        },
-      },
+      transferId: { in: transferIds },
+      transferParticipantRoleType: { name: type },
     },
-    include: {
+    select: {
+      transferId: true,
       participantCurrency: {
-        select: {
-          transferParticipant: {
-            select: {
-              transferId: true,
-            },
-          },
+        include: {
+          participant: true,
         },
       },
     },
   });
   return Object.fromEntries(
-    dfsps.map((e) => [
-      e.participantCurrency[0].transferParticipant[0].transferId,
-      {
-        id: e.participantId,
-        name: e.name,
-        description: e.description,
-        active: e.isActive,
-      },
-    ])
+    transferParticipant.map((t) => {
+      const p = t.participantCurrency.participant;
+      return [
+        t.transferId,
+        {
+          id: p?.participantId,
+          name: p?.name,
+          description: p?.description,
+          active: p?.isActive,
+        },
+      ];
+    })
   );
 };
 
-export const getDFSPDataloader = (ctx: Context, dfspType: DFSPType) => {
+export const getDFSPDataloader = (ctx: Context, dfspType: DFSPType): DataLoader<string, DFSP> => {
   const { loaders } = ctx;
 
   // initialize DataLoader for getting payers by transfer IDs

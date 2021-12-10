@@ -10,14 +10,14 @@
 
 import { enumType, objectType } from 'nexus';
 import {
-  getDFSPDataloader,
-  getPartyDataloader,
-  getEventsDataloader,
-  getTransferStateDataloader,
-  getQuotesDataloader,
-  getTransactionTypeDataloader,
-  getSettlementDataloader,
   EventType,
+  getDFSPDataloader,
+  getEventsDataloader,
+  getPartyDataloader,
+  getQuotesDataloader,
+  getSettlementDataloader,
+  getTransactionTypeDataloader,
+  getTransferStateDataloader,
 } from './dataloaders';
 import { Context } from '@app/context';
 
@@ -104,7 +104,7 @@ const Transfer = objectType({
     });
     t.field('payeeDFSP', {
       type: 'DFSP',
-      resolve: async (parent, _, ctx) => {
+      resolve: (parent, _, ctx) => {
         return getDFSPDataloader(ctx, 'PAYEE_DFSP').load(parent.transferId);
       },
     });

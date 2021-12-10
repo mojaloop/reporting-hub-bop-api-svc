@@ -8,12 +8,21 @@
  *       Yevhen Kyriukha <yevhen.kyriukha@modusbox.com>                   *
  **************************************************************************/
 
-import { createCentralLedgerClient, createEventStoreClient, getMongoClient, Collection, getRequestFields } from './lib';
+import {
+  createCentralLedgerClient,
+  createEventStoreClient,
+  getMongoClient,
+  Collection,
+  getRequestFields,
+  createCacheMiddleware,
+} from './lib';
 import Logger from '@mojaloop/central-services-logger';
 import config from './config';
 
 const centralLedger = createCentralLedgerClient(config.prismaLoggingEnabled);
 const eventStore = createEventStoreClient(config.prismaLoggingEnabled);
+
+centralLedger.$use(createCacheMiddleware());
 
 export interface Context {
   log: typeof Logger;

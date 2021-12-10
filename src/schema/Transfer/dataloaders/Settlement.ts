@@ -15,31 +15,28 @@ import { settlementSettlementWindow } from '@app/generated/centralLedger';
 const ID = Symbol();
 
 const findSettlements = async (ctx: Context, transferIds: string[]) => {
-  const result = await ctx.centralLedger.settlementSettlementWindow.findMany({
+  const transfers = await ctx.centralLedger.transfer.findMany({
     where: {
-      settlementWindow: {
-        transferFulfilment: {
-          some: {
-            transferId: {
-              in: transferIds,
-            },
-          },
-        },
+      transferId: {
+        in: transferIds,
       },
     },
-    include: {
-      settlementWindow: {
+    select: {
+      transferId: true,
+      transferFulfilment: {
         select: {
-          transferFulfilment: {
+          settlementWindow: {
             select: {
-              transferId: true,
+              settlementSettlementWindow: true,
             },
           },
         },
       },
     },
   });
-  return Object.fromEntries(result.map((e) => [e.settlementWindow.transferFulfilment[0]?.transferId, e]));
+  return Object.fromEntries(
+    transfers.map((e) => [e.transferId, e.transferFulfilment[0]?.settlementWindow?.settlementSettlementWindow[0]])
+  );
 };
 
 export const getSettlementDataloader = (ctx: Context): DataLoader<string, settlementSettlementWindow> => {

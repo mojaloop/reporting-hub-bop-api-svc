@@ -17,11 +17,16 @@ const findTransferStates = async (ctx: Context, transferIds: string[]) => {
   const trStates = await ctx.centralLedger.transferStateChange.findMany({
     where: {
       transferId: {
-        in: transferIds as string[],
+        in: transferIds,
       },
     },
-    include: {
-      transferState: true,
+    select: {
+      transferId: true,
+      transferState: {
+        select: {
+          enumeration: true,
+        },
+      },
     },
   });
   return Object.fromEntries(trStates.map((e) => [e.transferId, e.transferState.enumeration]));

@@ -24,3 +24,10 @@ model transferFulfilment {
 model quoteResponse {
     transfer transfer @relation(fields: [ilpCondition], references: [ilpCondition])
 }
+
+model transferParticipant {
+    transferParticipantId BigInt @default(autoincrement()) @db.UnsignedBigInt
+
+    @@id([transferId, transferParticipantRoleTypeId])
+    @@index([transferParticipantId], map: "transferparticipant_transferparticipantid_index")
+}

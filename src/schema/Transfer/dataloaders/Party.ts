@@ -16,33 +16,32 @@ type PartyType = 'PAYEE' | 'PAYER';
 const ID = (type: PartyType) => Symbol.for(`PARTY_DL_${type}`);
 
 const findParties = async (ctx: Context, transferIds: string[], type: PartyType) => {
-  const result = await ctx.centralLedger.party.findMany({
+  const transfers = await ctx.centralLedger.transfer.findMany({
     where: {
-      quoteParty: {
-        quote: {
-          transfer: {
-            transferId: {
-              in: transferIds,
+      transferId: {
+        in: transferIds,
+      },
+      quote: {
+        some: {
+          quoteParty: {
+            some: {
+              partyType: {
+                name: type,
+              },
             },
           },
         },
-        partyType: {
-          name: type,
-        },
       },
     },
-    include: {
-      quoteParty: {
+    select: {
+      transferId: true,
+      quote: {
         select: {
-          partyIdentifierType: true,
-          partyIdentifierValue: true,
-          quote: {
+          quoteParty: {
             select: {
-              transfer: {
-                select: {
-                  transferId: true,
-                },
-              },
+              partyIdentifierType: true,
+              partyIdentifierValue: true,
+              party: true,
             },
           },
         },
@@ -50,18 +49,22 @@ const findParties = async (ctx: Context, transferIds: string[], type: PartyType)
     },
   });
   return Object.fromEntries(
-    result.map((e) => [
-      e.quoteParty.quote.transfer.transferId,
-      {
-        id: e.partyId,
-        firstName: e.firstName,
-        lastName: e.lastName,
-        middleName: e.middleName,
-        dateOfBirth: e.dateOfBirth,
-        idType: e.quoteParty.partyIdentifierType.name,
-        idValue: e.quoteParty.partyIdentifierValue,
-      },
-    ])
+    transfers.map((t) => {
+      const qp = t.quote[0]?.quoteParty[0];
+      const p = qp?.party[0];
+      return [
+        t.transferId,
+        {
+          id: p?.partyId,
+          firstName: p?.firstName,
+          lastName: p?.lastName,
+          middleName: p?.middleName,
+          dateOfBirth: p?.dateOfBirth,
+          idType: qp?.partyIdentifierType?.name,
+          idValue: qp?.partyIdentifierValue,
+        },
+      ];
+    })
   );
 };
 

@@ -12,3 +12,4 @@ export * from './prisma';
 export * from './auth';
 export * from './mongo';
 export * from './requestInfoParser';
+export * from './cacheMiddleware';

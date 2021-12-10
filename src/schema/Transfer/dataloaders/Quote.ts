@@ -15,23 +15,18 @@ import { quote } from '@app/generated/centralLedger';
 const ID = Symbol();
 
 const findQuotes = async (ctx: Context, transferIds: string[]) => {
-  const entries = await ctx.centralLedger.quote.findMany({
+  const transfers = await ctx.centralLedger.transfer.findMany({
     where: {
-      transfer: {
-        transferId: {
-          in: transferIds,
-        },
+      transferId: {
+        in: transferIds,
       },
     },
-    include: {
-      transfer: {
-        select: {
-          transferId: true,
-        },
-      },
+    select: {
+      transferId: true,
+      quote: true,
     },
   });
-  return Object.fromEntries(entries.map((e) => [e.transfer.transferId, e]));
+  return Object.fromEntries(transfers.map((e) => [e.transferId, e.quote[0]]));
 };
 
 export const getQuotesDataloader = (ctx: Context): DataLoader<string, quote> => {
