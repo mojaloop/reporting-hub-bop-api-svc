@@ -47,11 +47,11 @@ const Query = extendType({
         FROM
             transfer t
             LEFT JOIN transferFulfilment tF ON t.transferId = tF.transferId
-            LEFT JOIN transferParticipant tPPayer ON tPPayer.transferId = tF.transferId
+            LEFT JOIN transferParticipant tPPayer ON tPPayer.transferId = t.transferId
                 AND tPPayer.transferParticipantRoleTypeId = (SELECT transferParticipantRoleTypeId from transferParticipantRoleType WHERE name = 'PAYER_DFSP')
                 JOIN participantCurrency pCPayer ON pCPayer.participantCurrencyId = tPPayer.participantCurrencyId
                 JOIN participant pPayer ON pPayer.participantId = pCPayer.participantId
-            LEFT JOIN transferParticipant tPPayee ON tPPayee.transferId = tF.transferId
+            LEFT JOIN transferParticipant tPPayee ON tPPayee.transferId = t.transferId
                 AND tPPayee.transferParticipantRoleTypeId = (SELECT transferParticipantRoleTypeId from transferParticipantRoleType WHERE name = 'PAYEE_DFSP')
                 JOIN participantCurrency pCPayee ON pCPayee.participantCurrencyId = tPPayee.participantCurrencyId
                 JOIN participant pPayee ON pPayee.participantId = pCPayee.participantId

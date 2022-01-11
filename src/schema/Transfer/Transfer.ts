@@ -20,6 +20,7 @@ import {
   getTransferStateDataloader,
 } from './dataloaders';
 import { Context } from '@app/context';
+import { getTransferErrorDataloader } from '@app/schema/Transfer/dataloaders/TransferError';
 
 const TransferState = enumType({
   name: 'TransferState',
@@ -81,7 +82,12 @@ const Transfer = objectType({
         return null;
       },
     });
-    t.int('errorCode');
+    t.field('errorCode', {
+      type: 'Int', // 'TransferState'
+      resolve: (parent, _, ctx) => {
+        return getTransferErrorDataloader(ctx).load(parent.transferId);
+      },
+    });
     t.field('settlementWindowId', {
       type: 'BigInt',
       resolve: async (parent, _, ctx) => {
