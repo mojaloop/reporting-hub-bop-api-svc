@@ -1,6 +1,6 @@
 {
   "name": "@mojaloop/reporting-hub-bop-api-svc",
-  "version": "1.0.29",
+  "version": "1.0.30",
   "description": "Reporting API",
   "scripts": {
     "postinstall__new": "patch-package",
@@ -46,7 +46,7 @@
     "jest": "^27.4.7",
     "nodemon": "^2.0.14",
     "prettier": "^2.5.1",
-    "supertest": "^6.2.0",
+    "supertest": "^6.2.1",
     "ts-jest": "^27.1.2",
     "ts-node-dev": "1.1.8"
   },
@@ -54,7 +54,7 @@
     "@mojaloop/central-services-logger": "^10.6.2",
     "@ory/keto-client": "^0.6.0-alpha.6",
     "@paljs/plugins": "^4.0.13",
-    "@prisma/client": "^3.7.0",
+    "@prisma/client": "^3.8.0",
     "apollo-server": "^3.6.1",
     "apollo-server-core": "^3.6.1",
     "apollo-server-types": "^3.5.0",
@@ -73,7 +73,7 @@
     "mongodb": "^4.3.0",
     "nexus": "1.1.0",
     "patch-package": "^6.4.7",
-    "prisma": "^3.7.0",
+    "prisma": "^3.8.0",
     "ts-node": "10.4.0",
     "tsconfig-paths": "^3.12.0",
     "typescript": "^4.5.4",
