@@ -53,7 +53,7 @@ executors:
 
   default-machine:
     machine:
-      image: ubuntu-1604:201903-01
+      image: ubuntu-2004:202010-01
 
 ##
 # Jobs
