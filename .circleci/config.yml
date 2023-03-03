@@ -16,11 +16,15 @@ orbs:
 # YAML defaults templates, in alphabetical order
 ##
 defaults_Dependencies: &defaults_Dependencies |
+  apk --no-cache add bash
   apk --no-cache add git
   apk --no-cache add ca-certificates
   apk --no-cache add curl
   apk --no-cache add openssh-client
   apk add --no-cache -t build-dependencies make gcc g++ python3 libtool autoconf automake jq
+  apk add --no-cache -t openssl ncurses coreutils libgcc linux-headers grep util-linux binutils findutils
+  apk add --no-cache curl
+  npm config set unsafe-perm true
   npm install -g node-gyp
 
 defaults_awsCliDependencies: &defaults_awsCliDependencies |
@@ -48,11 +52,11 @@ executors:
   default-docker:
     working_directory: /home/circleci/project
     docker:
-      - image: node:lts-alpine
+      - image: node:16.15.0-alpine # Ref: https://hub.docker.com/_/node?tab=tags&page=1&name=alpine
 
   default-machine:
     machine:
-      image: ubuntu-2004:202010-01
+      image: ubuntu-2004:current # Ref: https://circleci.com/developer/machine/image/ubuntu-2004
 
 ##
 # Jobs
@@ -256,13 +260,13 @@ jobs:
       - run:
           name: Pull base image locally
           command: |
-            docker pull node:lts-alpine
+            docker pull node:16.15.0-alpine
       # Analyze the base and derived image
       # Note: It seems images are scanned in parallel, so preloading the base image result doesn't give us any real performance gain
       - anchore/analyze_local_image:
           # Force the older version, version 0.7.0 was just published, and is broken
           anchore_version: v0.6.1
-          image_name: "docker.io/node:lts-alpine $DOCKER_ORG/$CIRCLE_PROJECT_REPONAME:local"
+          image_name: "docker.io/node:16.15.0-alpine $DOCKER_ORG/$CIRCLE_PROJECT_REPONAME:local"
           policy_failure: false
           timeout: '1000'
           # Note: if the generated policy is invalid, this will fallback to the default policy, which we don't want!
@@ -275,7 +279,7 @@ jobs:
             aws s3 cp anchore-reports ${AWS_S3_DIR_ANCHORE_REPORTS}/latest/ --recursive
       - run:
           name: Evaluate failures
-          command: /tmp/ci-config/container-scanning/anchore-result-diff.js anchore-reports/node_lts-alpine-policy.json anchore-reports/${CIRCLE_PROJECT_REPONAME}*-policy.json
+          command: /tmp/ci-config/container-scanning/anchore-result-diff.js anchore-reports/node_16.15.0-alpine-policy.json anchore-reports/${CIRCLE_PROJECT_REPONAME}*-policy.json
       - slack/status:
           fail_only: true
           webhook: "$SLACK_WEBHOOK_ANNOUNCEMENT_CI_CD"
