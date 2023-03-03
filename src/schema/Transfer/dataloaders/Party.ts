@@ -21,17 +21,6 @@ const findParties = async (ctx: Context, transferIds: string[], type: PartyType)
       transferId: {
         in: transferIds,
       },
-      quote: {
-        some: {
-          quoteParty: {
-            some: {
-              partyType: {
-                name: type,
-              },
-            },
-          },
-        },
-      },
     },
     select: {
       transferId: true,
@@ -42,15 +31,18 @@ const findParties = async (ctx: Context, transferIds: string[], type: PartyType)
               partyIdentifierType: true,
               partyIdentifierValue: true,
               party: true,
+              partyType: true,
             },
           },
         },
       },
     },
   });
+
   return Object.fromEntries(
     transfers.map((t) => {
-      const qp = t.quote[0]?.quoteParty[0];
+      // Search the quote for the party that matches that party type
+      const qp = t.quote[0]?.quoteParty.find((item) => item.partyType.name === type);
       const p = qp?.party[0];
       return [
         t.transferId,

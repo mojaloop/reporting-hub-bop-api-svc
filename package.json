@@ -19,7 +19,9 @@
     "clean": "rimraf dist",
     "start": "cross-env NODE_ENV=development ts-node --transpile-only ./src",
     "start_": "cross-env NODE_ENV=production node dist/src/index.js",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "audit:fix": "npm audit fix",
+    "audit:check": "npx audit-ci --config ./audit-ci.jsonc"
   },
   "repository": {
     "type": "git",
@@ -36,6 +38,7 @@
     "@types/node": "^16.11.12",
     "@typescript-eslint/eslint-plugin": "^5.9.1",
     "@typescript-eslint/parser": "^5.9.1",
+    "audit-ci": "^6.6.1",
     "eslint": "^8.6.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-airbnb-typescript": "^16.1.0",

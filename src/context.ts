@@ -21,7 +21,20 @@ import config from './config';
 
 const centralLedger = createCentralLedgerClient(config.prismaLoggingEnabled);
 const eventStore = createEventStoreClient(config.prismaLoggingEnabled);
-
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+centralLedger.$on('query', async (e) => {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  console.log(`${e.query} ${e.params}`);
+});
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+eventStore.$on('query', async (e) => {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  console.log(`${e.query} ${e.params}`);
+});
 centralLedger.$use(createCacheMiddleware());
 
 export interface Context {
