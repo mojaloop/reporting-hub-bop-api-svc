@@ -19,7 +19,9 @@
     "clean": "rimraf dist",
     "start": "cross-env NODE_ENV=development ts-node --transpile-only ./src",
     "start_": "cross-env NODE_ENV=production node dist/src/index.js",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "audit:fix": "npm audit fix",
+    "audit:check": "npx audit-ci --config ./audit-ci.jsonc"
   },
   "repository": {
     "type": "git",
@@ -36,6 +38,7 @@
     "@types/node": "^16.11.12",
     "@typescript-eslint/eslint-plugin": "^5.9.1",
     "@typescript-eslint/parser": "^5.9.1",
+    "audit-ci": "^6.6.1",
     "eslint": "^8.6.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-airbnb-typescript": "^16.1.0",
@@ -54,7 +57,7 @@
     "@mojaloop/central-services-logger": "^10.6.2",
     "@ory/keto-client": "^0.6.0-alpha.6",
     "@paljs/plugins": "^4.0.13",
-    "@prisma/client": "4.11.0",
+    "@prisma/client": "^3.8.0",
     "apollo-server": "^3.6.1",
     "apollo-server-core": "^3.6.1",
     "apollo-server-types": "^3.5.0",
@@ -73,7 +76,7 @@
     "mongodb": "^4.3.0",
     "nexus": "1.1.0",
     "patch-package": "^6.4.7",
-    "prisma": "4.11.0",
+    "prisma": "^3.8.0",
     "ts-node": "10.4.0",
     "tsconfig-paths": "^3.12.0",
     "typescript": "^4.5.4",

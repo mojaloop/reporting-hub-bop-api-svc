@@ -1,4 +1,4 @@
-FROM node:lts-alpine as builder
+FROM node:16.15.0-alpine as builder
 
 RUN apk add --no-cache git python3 build-base
 
@@ -13,7 +13,7 @@ RUN npm ci --production
 RUN npm run generate
 # RUN npm install
 
-FROM node:lts-alpine
+FROM node:16.15.0-alpine
 
 WORKDIR /opt/reporting
 
