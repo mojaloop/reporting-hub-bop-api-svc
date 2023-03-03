@@ -540,7 +540,7 @@ model quoteResponse {
   payeeFspFeeAmount                                             Decimal?                     @db.Decimal(18, 4)
   payeeFspCommissionCurrencyId                                  String?                      @db.VarChar(3)
   payeeFspCommissionAmount                                      Decimal?                     @db.Decimal(18, 4)
-  ilpCondition                                                  String                       @db.VarChar(256)
+  ilpCondition                                                  String                       @unique(map: "quoteResponse_ilpCondition_unique") @db.VarChar(256)
   responseExpirationDate                                        DateTime?                    @db.DateTime(0)
   isValid                                                       Boolean?
   createdDate                                                   DateTime                     @default(now()) @db.DateTime(0)
@@ -917,7 +917,7 @@ model transfer {
   transferId                       String                            @id @db.VarChar(36)
   amount                           Decimal                           @db.Decimal(18, 4)
   currencyId                       String                            @db.VarChar(3)
-  ilpCondition                     String                            @db.VarChar(256)
+  ilpCondition                     String                            @unique(map: "transfer_ilpCondition_unique") @db.VarChar(256)
   expirationDate                   DateTime                          @db.DateTime(0)
   createdDate                      DateTime                          @default(now()) @db.DateTime(0)
   currency                         currency                          @relation(fields: [currencyId], references: [currencyId], onUpdate: Restrict, map: "transfer_currencyid_foreign")
