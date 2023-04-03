@@ -1,6 +1,6 @@
 datasource db {
   provider = "mongodb"
-  url      = env("EVENT_STORE_DB_URL")
+  url      = "mongodb+srv://test:test@localhost/test"
 }
 
 generator client {

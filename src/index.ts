@@ -14,13 +14,13 @@ import { ApolloServer } from 'apollo-server';
 import { ApolloServerPluginLandingPageGraphQLPlayground } from 'apollo-server-core';
 import schema from './schema';
 import { createContext } from './context';
-import config from './config';
+import Config from './lib/config';
 import { applyMiddleware } from 'graphql-middleware';
 import { createAuthMiddleware } from '@app/lib';
 import Logger from '@mojaloop/central-services-logger';
 import { GraphQLRequestContext } from 'apollo-server-types';
 
-const authMiddleware = createAuthMiddleware(config.userIdHeader, config.oryKetoReadUrl, config.authCheckParticipants);
+const authMiddleware = createAuthMiddleware(Config.USER_ID_HEADER, Config.ORY_KETO_READ_URL, Config.AUTH_CHECK_PARTICIPANTS);
 
 const loggerPlugin = {
   // Fires whenever a GraphQL request is received from a client.
@@ -38,6 +38,6 @@ const server = new ApolloServer({
   healthCheckPath: '/health',
 });
 
-server.listen(config.port).then(async ({ url }) => {
+server.listen(Config.PORT).then(async ({ url }) => {
   console.log(`🚀 Server ready at: ${url}`);
 });

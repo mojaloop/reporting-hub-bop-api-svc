@@ -1,0 +1,83 @@
+version: "3.7"
+
+networks:
+  mojaloop-net:
+    name: mojaloop-net
+
+services:
+  # reporting-hub-bop-trx-ui:
+  #   image: mojaloop/reporting-hub-bop-trx-ui:v1.7.2
+  #   environment:
+  #     - REACT_APP_API_BASE_URL=http://localhost:3000/
+  #     - REACT_APP_MOCK_API=false
+  #   ports:
+  #     - "8082:8082"
+  #   networks:
+  #     - mojaloop-net
+  #   healthcheck:
+  #     test: wget -q http://172.17.0.1:8082 -O /dev/null || exit 1
+  #     timeout: 20s
+  #     retries: 30
+  #     interval: 15s
+
+  mongodb:
+    image: mongo:6.0.5
+    logging:
+      driver: none
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: test
+      MONGO_INITDB_ROOT_PASSWORD: test123
+      ALLOW_EMPTY_PASSWORD: "true"
+    networks:
+      - mojaloop-net
+    volumes:
+      - db-data:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  mysql:
+    image: mysql:8.0.32
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_USER=central_ledger
+      - MYSQL_PASSWORD=password
+      - MYSQL_DATABASE=central_ledger
+      - MYSQL_ALLOW_EMPTY_PASSWORD=true
+    networks:
+      - mojaloop-net
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "mysql"]
+      timeout: 20s
+      retries: 10
+      start_period: 40s
+      interval: 30s
+
+  ## TODO: Need to fix the following
+  init-mysql:
+    image: mysql:8.0.32
+    volumes:
+      - ./test/manual-test/sample_mysql_data.sql:/tmp/sample_mysql_data.sql
+    command: |-
+      mysql -hmysql -ucentral_ledger -ppassword central_ledger < /tmp/sample_mysql_data.sql;
+    networks:
+      - mojaloop-net
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "mysql"]
+      timeout: 20s
+      retries: 10
+      start_period: 40s
+      interval: 30s
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  db-data:
+    driver: local
