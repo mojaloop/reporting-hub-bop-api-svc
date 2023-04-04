@@ -4,8 +4,8 @@
   "description": "Reporting API",
   "scripts": {
     "postinstall__new": "patch-package",
-    "lint:fix": "eslint . --fix",
-    "test": "jest test",
+    "test": "npm run test:unit",
+    "test:unit": "npx jest --testMatch='**/test/unit/**/*.test.ts' --reporters=default",
     "dev": "cross-env NODE_ENV=development tsnd --no-notify --respawn --transpile-only ./src",
     "generate_": "npm -s run generate:prisma && npm -s run generate:nexus",
     "generate": "npm run -s mergePrisma && npm -s run generate:prisma && npm -s run generate:nexus",
@@ -19,7 +19,8 @@
     "clean": "rimraf dist",
     "start": "cross-env NODE_ENV=default ts-node --transpile-only ./src",
     "start_": "cross-env NODE_ENV=production node dist/src/index.js",
-    "lint": "eslint .",
+    "lint": "eslint ./src/**/*.ts",
+    "lint:fix": "npm run lint -- --fix",
     "audit:fix": "npm audit fix",
     "audit:check": "npx audit-ci --config ./audit-ci.jsonc"
   },

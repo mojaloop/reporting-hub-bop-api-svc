@@ -10,18 +10,18 @@
 
 import { PrismaClient as CentralLedgerClient } from '@app/generated/centralLedger';
 import { PrismaClient as EventStoreClient } from '@app/generated/eventStore';
-import Config from './config'
+import Config from './config';
 import { ConnectionString } from 'connection-string';
 
 const createCentralLedgerClient = (logQuery = false): CentralLedgerClient => {
-  const csMysqlObj = new ConnectionString()
+  const csMysqlObj = new ConnectionString();
   csMysqlObj.setDefaults({
     protocol: 'mysql',
-    hosts: [{ name: Config.REPORTING_DB.HOST, port: Config.REPORTING_DB.PORT}],
+    hosts: [{ name: Config.REPORTING_DB.HOST, port: Config.REPORTING_DB.PORT }],
     user: encodeURIComponent(Config.REPORTING_DB.USER),
     password: encodeURIComponent(Config.REPORTING_DB.PASSWORD),
-    path: [Config.REPORTING_DB.SCHEMA]
-  })
+    path: [Config.REPORTING_DB.SCHEMA],
+  });
 
   return new CentralLedgerClient({
     datasources: {
@@ -31,17 +31,17 @@ const createCentralLedgerClient = (logQuery = false): CentralLedgerClient => {
     },
     log: logQuery ? ['query'] : [],
   });
-}
+};
 
 const createEventStoreClient = (logQuery = false): EventStoreClient => {
-  const csMongoDBObj = new ConnectionString()
+  const csMongoDBObj = new ConnectionString();
   csMongoDBObj.setDefaults({
     protocol: 'mongodb',
-    hosts: [{ name: Config.EVENT_STORE_DB.HOST, port: Config.EVENT_STORE_DB.PORT}],
+    hosts: [{ name: Config.EVENT_STORE_DB.HOST, port: Config.EVENT_STORE_DB.PORT }],
     user: encodeURIComponent(Config.EVENT_STORE_DB.USER),
     password: encodeURIComponent(Config.EVENT_STORE_DB.PASSWORD),
-    path: [Config.EVENT_STORE_DB.DATABASE]
-  })
+    path: [Config.EVENT_STORE_DB.DATABASE],
+  });
   return new EventStoreClient({
     datasources: {
       db: {
@@ -50,6 +50,6 @@ const createEventStoreClient = (logQuery = false): EventStoreClient => {
     },
     log: logQuery ? ['query'] : [],
   });
-}
+};
 
 export { createCentralLedgerClient, createEventStoreClient, CentralLedgerClient, EventStoreClient };
