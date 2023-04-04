@@ -3,27 +3,29 @@ import path from 'path'
 
 // interface to represent service configuration
 export interface ServiceConfig {
-  env: string
-  PORT: number,
+  env: string;
+  PORT: number;
   REPORTING_DB: {
-    DIALECT: string
-    HOST: string
-    PORT: number
-    USER: string
-    PASSWORD: string
-    SCHEMA: string
-  }
+    DIALECT: string;
+    HOST: string;
+    PORT: number;
+    USER: string;
+    PASSWORD: string;
+    SCHEMA: string;
+  };
   EVENT_STORE_DB: {
-    HOST: string
-    PORT: number
-    USER: string
-    PASSWORD: string
-    DATABASE: string
-  },
-  ORY_KETO_READ_URL: string
-  AUTH_CHECK_PARTICIPANTS: boolean
-  USER_ID_HEADER: string
-  PRISMA_LOGGING_ENABLED: boolean
+    HOST: string;
+    PORT: number;
+    USER: string;
+    PASSWORD: string;
+    DATABASE: string;
+  };
+  ORY_KETO_READ_URL: string;
+  AUTH_CHECK_PARTICIPANTS: boolean;
+  USER_ID_HEADER: string;
+  PRISMA_LOGGING_ENABLED: boolean;
+  CORS_WHITELIST: string[];
+  ALLOW_CREDENTIALS: boolean;
 }
 
 // Declare configuration schema, default values and bindings to environment variables
@@ -134,6 +136,18 @@ export const ConvictConfig = Convict<ServiceConfig>({
     default: false,
     env: 'PRISMA_LOGGING_ENABLED'
   },
+  CORS_WHITELIST: {
+    doc: 'CORS_WHITELIST',
+    format: Array,
+    default: [],
+    env: 'CORS_WHITELIST'
+  },
+  ALLOW_CREDENTIALS: {
+    doc: 'ALLOW_CREDENTIALS',
+    format: 'Boolean',
+    default: false,
+    env: 'ALLOW_CREDENTIALS'
+  },
 })
 
 // Load environment dependent configuration
@@ -154,6 +168,8 @@ const config: ServiceConfig = {
   AUTH_CHECK_PARTICIPANTS: ConvictConfig.get('AUTH_CHECK_PARTICIPANTS'),
   USER_ID_HEADER: ConvictConfig.get('USER_ID_HEADER'),
   PRISMA_LOGGING_ENABLED: ConvictConfig.get('PRISMA_LOGGING_ENABLED'),
+  CORS_WHITELIST: ConvictConfig.get('CORS_WHITELIST'),
+  ALLOW_CREDENTIALS: ConvictConfig.get('ALLOW_CREDENTIALS'),
 }
 
 export default config

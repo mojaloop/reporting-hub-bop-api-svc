@@ -1,6 +1,20 @@
-- Run `docker-compose up` to start mysql and mongodb
-- Import the mysql dump file `sample_mysql_data.sql` into `central_ledger` database
-- Start the service using `npm start`
+## Deploying the service along with ML Core Test Harness
+- Download and run `ml-core-test-harness`
+```
+git clone https://github.com/mojaloop/ml-core-test-harness.git
+cd ml-core-test-harness
+docker-compose --profile all-services --profile ttk-provisioning --profile ttk-tests up
+```
+- Wait for tests to be run
+- Start the service using the following commands in a new terminal
+```
+npm install
+npm run generate
+npm start
+```
+
+## Running a sample query using graphql playground
+
 - Open http://localhost:3000 for graphql playground and enter the following query and query variables.
 
 Query:
@@ -59,12 +73,15 @@ query GetTransfersWithEvents($startDate: DateTimeFlexible!, $endDate: DateTimeFl
 }
 ```
 
-Query Variables:
+Variables:
 ```
 {
     "startDate": "Sun Jan 01 2023 14:32:35 GMT+0530",
-    "endDate": "Mon Apr 03 2023 14:32:35 GMT+0530"
+    "endDate": "Mon Jan 01 2024 14:32:35 GMT+0530"
 }
 ```
 
-
+## Viewing the transfers in transfer UI
+- In a new terminal run `docker-compose up` to start transfers UI service
+- Open `http://localhost:8082` in browser
+- Click on `Find Transfers` and the transfers executed through `ML Core Test Harness` should be visible

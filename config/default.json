@@ -11,12 +11,16 @@
   "EVENT_STORE_DB": {
     "HOST": "localhost",
     "PORT": 27017,
-    "USER": "test",
-    "PASSWORD": "test123",
+    "USER": "",
+    "PASSWORD": "",
     "DATABASE": "admin"
   },
   "ORY_KETO_READ_URL": "",
   "AUTH_CHECK_PARTICIPANTS": false,
   "USER_ID_HEADER": "x-user",
-  "PRISMA_LOGGING_ENABLED": false
+  "PRISMA_LOGGING_ENABLED": false,
+  "CORS_WHITELIST": [
+    "http://localhost:8082"
+  ],
+  "ALLOW_CREDENTIALS": true
 }

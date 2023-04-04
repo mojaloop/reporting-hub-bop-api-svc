@@ -18,7 +18,7 @@ import {
 } from './lib';
 import Logger from '@mojaloop/central-services-logger';
 import Config from './lib/config';
-import MongoUriBuilder from 'mongo-uri-builder';
+import { ConnectionString } from 'connection-string';
 
 const centralLedger = createCentralLedgerClient(Config.PRISMA_LOGGING_ENABLED);
 const eventStore = createEventStoreClient(Config.PRISMA_LOGGING_ENABLED);
@@ -49,12 +49,13 @@ export interface Context {
   getRequestFields: typeof getRequestFields;
 }
 
-const connectionString = MongoUriBuilder({
-  username: encodeURIComponent(Config.EVENT_STORE_DB.USER),
+const csMongoDBObj = new ConnectionString()
+csMongoDBObj.setDefaults({
+  protocol: 'mongodb',
+  hosts: [{ name: Config.EVENT_STORE_DB.HOST, port: Config.EVENT_STORE_DB.PORT}],
+  user: encodeURIComponent(Config.EVENT_STORE_DB.USER),
   password: encodeURIComponent(Config.EVENT_STORE_DB.PASSWORD),
-  host: Config.EVENT_STORE_DB.HOST,
-  port: Config.EVENT_STORE_DB.PORT,
-  database: Config.EVENT_STORE_DB.DATABASE
+  path: [Config.EVENT_STORE_DB.DATABASE]
 })
 
 export const createContext = async (ctx: any): Promise<Context> => ({
@@ -64,6 +65,6 @@ export const createContext = async (ctx: any): Promise<Context> => ({
   centralLedger,
   eventStore,
   loaders: new Map(),
-  eventStoreMongo: await getMongoClient(connectionString),
+  eventStoreMongo: await getMongoClient(csMongoDBObj.toString()),
   getRequestFields,
 });
