@@ -52,7 +52,8 @@ const GQLDateTimeFlexible = scalarType({
   name: 'DateTimeFlexible',
   asNexusMethod: 'dateTimeFlex',
   description: 'Date time (RFC 3339), can accept data in flexible form: 2007-12-03 or 2021-01-01T00:00:00Z',
-  parseValue(value) {
+  // TODO: need to fix the following reference to any
+  parseValue(value: any) {
     const isValidDate = (d: any) => d instanceof Date && !Number.isNaN(d.getTime());
     const date = new Date(value);
     if (!isValidDate(date)) {
