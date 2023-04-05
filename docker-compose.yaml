@@ -20,6 +20,10 @@ services:
       retries: 30
       interval: 15s
 
+  ## TODO: The following sections are provided as future proof and can be enabled later.
+  ## Currently we can't query the event information from api service as there is no functionality in ml-core-test-harness to push the audit messages to kafka notification topic.
+  ## When it's implemented, we can enable the following services to process and store the events and run queries on that data from api service.
+
   # reporting-events-processor-svc:
   #   image: mojaloop/reporting-events-processor-svc:v1.1.0
   #   environment:
