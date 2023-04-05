@@ -5,7 +5,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = env("CENTRAL_LEDGER_DB_URL")
+  url      = "mysql://test:test@localhost:3306/test"
 }
 
 model amountType {
