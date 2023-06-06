@@ -51,6 +51,11 @@ const startServer = async () => {
     origin: Config.CORS_WHITELIST,
     credentials: Config.ALLOW_CREDENTIALS
   }
+  app.get('/health', (req, res) => {
+    res.json({
+      status: 'OK'
+    });
+  });
   app.use(
     '/',
     cors<cors.CorsRequest>(corsOptions),
@@ -66,6 +71,7 @@ const startServer = async () => {
   // Modified server startup
   await new Promise<void>((resolve) => httpServer.listen({ port: Config.PORT }, resolve));
   console.log(`🚀 Server ready at http://localhost:${Config.PORT}/`);
+
 }
 
 startServer()
