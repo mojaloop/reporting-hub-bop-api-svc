@@ -18,8 +18,8 @@ const createCentralLedgerClient = (logQuery = false): CentralLedgerClient => {
   csMysqlObj.setDefaults({
     protocol: 'mysql',
     hosts: [{ name: Config.REPORTING_DB.HOST, port: Config.REPORTING_DB.PORT }],
-    user: encodeURIComponent(Config.REPORTING_DB.USER),
-    password: encodeURIComponent(Config.REPORTING_DB.PASSWORD),
+    user: Config.REPORTING_DB.USER,
+    password: Config.REPORTING_DB.PASSWORD,
     path: [Config.REPORTING_DB.SCHEMA],
   });
 
@@ -38,8 +38,8 @@ const createEventStoreClient = (logQuery = false): EventStoreClient => {
   csMongoDBObj.setDefaults({
     protocol: 'mongodb',
     hosts: [{ name: Config.EVENT_STORE_DB.HOST, port: Config.EVENT_STORE_DB.PORT }],
-    user: encodeURIComponent(Config.EVENT_STORE_DB.USER),
-    password: encodeURIComponent(Config.EVENT_STORE_DB.PASSWORD),
+    user: Config.EVENT_STORE_DB.USER,
+    password: Config.EVENT_STORE_DB.PASSWORD,
     path: [Config.EVENT_STORE_DB.DATABASE],
   });
   return new EventStoreClient({
