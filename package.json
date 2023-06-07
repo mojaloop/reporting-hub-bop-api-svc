@@ -1,12 +1,12 @@
 {
   "name": "@mojaloop/reporting-hub-bop-api-svc",
-  "version": "2.0.1",
+  "version": "2.0.3",
   "description": "Reporting API",
   "scripts": {
     "postinstall__new": "patch-package",
     "test": "npm run test:unit",
     "test:unit": "npx jest --testMatch='**/test/unit/**/*.test.ts' --reporters=default",
-    "dev": "cross-env NODE_ENV=development tsnd --no-notify --respawn --transpile-only ./src",
+    "dev": "cross-env NODE_ENV=default tsnd --no-notify --respawn --transpile-only ./src",
     "generate_": "npm -s run generate:prisma && npm -s run generate:nexus",
     "generate": "npm run -s mergePrisma && npm -s run generate:prisma && npm -s run generate:nexus",
     "mergePrisma": "node mergePrisma && prisma format --schema src/generated/centralLedger.prisma && prisma format --schema src/generated/eventStore.prisma",

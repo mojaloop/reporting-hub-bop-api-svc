@@ -53,8 +53,8 @@ const csMongoDBObj = new ConnectionString()
 csMongoDBObj.setDefaults({
   protocol: 'mongodb',
   hosts: [{ name: Config.EVENT_STORE_DB.HOST, port: Config.EVENT_STORE_DB.PORT}],
-  user: encodeURIComponent(Config.EVENT_STORE_DB.USER),
-  password: encodeURIComponent(Config.EVENT_STORE_DB.PASSWORD),
+  user: Config.EVENT_STORE_DB.USER,
+  password: Config.EVENT_STORE_DB.PASSWORD,
   path: [Config.EVENT_STORE_DB.DATABASE]
 })
 
