@@ -20,7 +20,7 @@
     "outDir": "dist",
     "lib": ["es2020"],
     "strict": true,
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "noImplicitThis": true,
     "alwaysStrict": true,
     "strictBindCallApply": true,
