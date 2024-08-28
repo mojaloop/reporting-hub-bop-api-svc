@@ -39,15 +39,22 @@ const findDfsps = async (ctx: Context, transferIds: string[], type: DFSPType) =>
   });
   return Object.fromEntries(
     transferParticipant.map((t) => {
-      const p = t.participantCurrency.participant;
+      const p = t.participantCurrency?.participant;
       return [
         t.transferId,
-        {
-          id: p?.participantId,
-          name: p?.name,
-          description: p?.description,
-          active: p?.isActive,
-        },
+        p
+          ? {
+              id: p?.participantId,
+              name: p?.name,
+              description: p?.description,
+              active: p?.isActive,
+            }
+          : {
+              id: 0,
+              name: 'Unknown',
+              description: 'Unknown',
+              active: false,
+            },
       ];
     })
   );

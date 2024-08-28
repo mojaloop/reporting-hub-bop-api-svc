@@ -9,11 +9,13 @@ datasource db {
 }
 
 model amountType {
-  amountTypeId Int      @id @default(autoincrement()) @db.UnsignedInt
-  name         String   @unique(map: "amounttype_name_unique") @db.VarChar(256)
-  description  String?  @db.VarChar(1024)
-  createdDate  DateTime @default(now()) @db.DateTime(0)
-  quote        quote[]
+  amountTypeId                   Int                              @id @default(autoincrement()) @db.UnsignedInt
+  name                           String                           @unique(map: "amounttype_name_unique") @db.VarChar(256)
+  description                    String?                          @db.VarChar(1024)
+  createdDate                    DateTime                         @default(now()) @db.DateTime(0)
+  fxQuoteConversionTerms         fxQuoteConversionTerms[]
+  fxQuoteResponseConversionTerms fxQuoteResponseConversionTerms[]
+  quote                          quote[]
 }
 
 model balanceOfPayments {
@@ -40,9 +42,9 @@ model bulkTransfer {
   payeeParticipantId                                       Int?                                  @db.UnsignedInt
   expirationDate                                           DateTime                              @db.DateTime(0)
   createdDate                                              DateTime                              @default(now()) @db.DateTime(0)
-  bulkTransferDuplicateCheck                               bulkTransferDuplicateCheck            @relation(fields: [bulkTransferId], references: [bulkTransferId], onUpdate: Restrict, map: "bulktransfer_bulktransferid_foreign")
-  participant_bulkTransfer_payeeParticipantIdToparticipant participant?                          @relation("bulkTransfer_payeeParticipantIdToparticipant", fields: [payeeParticipantId], references: [participantId], onDelete: Restrict, onUpdate: Restrict, map: "bulktransfer_payeeparticipantid_foreign")
-  participant_bulkTransfer_payerParticipantIdToparticipant participant?                          @relation("bulkTransfer_payerParticipantIdToparticipant", fields: [payerParticipantId], references: [participantId], onDelete: Restrict, onUpdate: Restrict, map: "bulktransfer_payerparticipantid_foreign")
+  bulkTransferDuplicateCheck                               bulkTransferDuplicateCheck            @relation(fields: [bulkTransferId], references: [bulkTransferId], onDelete: NoAction, onUpdate: NoAction, map: "bulktransfer_bulktransferid_foreign")
+  participant_bulkTransfer_payeeParticipantIdToparticipant participant?                          @relation("bulkTransfer_payeeParticipantIdToparticipant", fields: [payeeParticipantId], references: [participantId], onDelete: NoAction, onUpdate: NoAction, map: "bulktransfer_payeeparticipantid_foreign")
+  participant_bulkTransfer_payerParticipantIdToparticipant participant?                          @relation("bulkTransfer_payerParticipantIdToparticipant", fields: [payerParticipantId], references: [participantId], onDelete: NoAction, onUpdate: NoAction, map: "bulktransfer_payerparticipantid_foreign")
   bulkTransferAssociation                                  bulkTransferAssociation[]
   bulkTransferExtension                                    bulkTransferExtension[]
   bulkTransferFulfilmentDuplicateCheck                     bulkTransferFulfilmentDuplicateCheck?
@@ -61,8 +63,8 @@ model bulkTransferAssociation {
   lastProcessedDate         DateTime            @default(now()) @db.DateTime(0)
   errorCode                 Int?                @db.UnsignedInt
   errorDescription          String?             @db.VarChar(128)
-  bulkProcessingState       bulkProcessingState @relation(fields: [bulkProcessingStateId], references: [bulkProcessingStateId], onUpdate: Restrict, map: "bulktransferassociation_bulkprocessingstateid_foreign")
-  bulkTransfer              bulkTransfer        @relation(fields: [bulkTransferId], references: [bulkTransferId], onUpdate: Restrict, map: "bulktransferassociation_bulktransferid_foreign")
+  bulkProcessingState       bulkProcessingState @relation(fields: [bulkProcessingStateId], references: [bulkProcessingStateId], onDelete: NoAction, onUpdate: NoAction, map: "bulktransferassociation_bulkprocessingstateid_foreign")
+  bulkTransfer              bulkTransfer        @relation(fields: [bulkTransferId], references: [bulkTransferId], onDelete: NoAction, onUpdate: NoAction, map: "bulktransferassociation_bulktransferid_foreign")
 
   @@unique([transferId, bulkTransferId], map: "bulktransferassociation_transferid_bulktransferid_unique")
   @@index([bulkProcessingStateId], map: "bulktransferassociation_bulkprocessingstateid_foreign")
@@ -82,7 +84,7 @@ model bulkTransferError {
   errorCode                 Int                     @db.UnsignedInt
   errorDescription          String                  @db.VarChar(128)
   createdDate               DateTime                @default(now()) @db.DateTime(0)
-  bulkTransferStateChange   bulkTransferStateChange @relation(fields: [bulkTransferStateChangeId], references: [bulkTransferStateChangeId], onUpdate: Restrict, map: "bulktransfererror_bulktransferstatechangeid_foreign")
+  bulkTransferStateChange   bulkTransferStateChange @relation(fields: [bulkTransferStateChangeId], references: [bulkTransferStateChangeId], onDelete: NoAction, onUpdate: NoAction, map: "bulktransfererror_bulktransferstatechangeid_foreign")
 
   @@index([bulkTransferStateChangeId], map: "bulktransfererror_bulktransferstatechangeid_index")
 }
@@ -94,7 +96,7 @@ model bulkTransferExtension {
   key                     String       @db.VarChar(128)
   value                   String       @db.Text
   createdDate             DateTime     @default(now()) @db.DateTime(0)
-  bulkTransfer            bulkTransfer @relation(fields: [bulkTransferId], references: [bulkTransferId], onUpdate: Restrict, map: "bulktransferextension_bulktransferid_foreign")
+  bulkTransfer            bulkTransfer @relation(fields: [bulkTransferId], references: [bulkTransferId], onDelete: NoAction, onUpdate: NoAction, map: "bulktransferextension_bulktransferid_foreign")
 
   @@index([bulkTransferId], map: "bulktransferextension_bulktransferid_index")
 }
@@ -103,15 +105,15 @@ model bulkTransferFulfilment {
   bulkTransferId                       String                               @id @db.VarChar(36)
   completedDate                        DateTime                             @db.DateTime(0)
   createdDate                          DateTime                             @default(now()) @db.DateTime(0)
-  bulkTransferFulfilmentDuplicateCheck bulkTransferFulfilmentDuplicateCheck @relation(fields: [bulkTransferId], references: [bulkTransferId], onUpdate: Restrict, map: "bulktransferfulfilment_bulktransferid_foreign")
+  bulkTransferFulfilmentDuplicateCheck bulkTransferFulfilmentDuplicateCheck @relation(fields: [bulkTransferId], references: [bulkTransferId], onDelete: NoAction, onUpdate: NoAction, map: "bulktransferfulfilment_bulktransferid_foreign")
 }
 
 model bulkTransferFulfilmentDuplicateCheck {
   bulkTransferId         String                  @id @db.VarChar(36)
   hash                   String                  @db.VarChar(256)
   createdDate            DateTime                @default(now()) @db.DateTime(0)
-  bulkTransfer           bulkTransfer            @relation(fields: [bulkTransferId], references: [bulkTransferId], onUpdate: Restrict, map: "bulktransferfulfilmentduplicatecheck_bulktransferid_foreign")
   bulkTransferFulfilment bulkTransferFulfilment?
+  bulkTransfer           bulkTransfer            @relation(fields: [bulkTransferId], references: [bulkTransferId], onDelete: NoAction, onUpdate: NoAction, map: "bulktransferfulfilmentduplicatecheck_bulktransferid_foreign")
 }
 
 model bulkTransferState {
@@ -129,9 +131,9 @@ model bulkTransferStateChange {
   bulkTransferStateId       String              @db.VarChar(50)
   reason                    String?             @db.VarChar(512)
   createdDate               DateTime            @default(now()) @db.DateTime(0)
-  bulkTransfer              bulkTransfer        @relation(fields: [bulkTransferId], references: [bulkTransferId], onUpdate: Restrict, map: "bulktransferstatechange_bulktransferid_foreign")
-  bulkTransferState         bulkTransferState   @relation(fields: [bulkTransferStateId], references: [bulkTransferStateId], onUpdate: Restrict, map: "bulktransferstatechange_bulktransferstateid_foreign")
   bulkTransferError         bulkTransferError[]
+  bulkTransfer              bulkTransfer        @relation(fields: [bulkTransferId], references: [bulkTransferId], onDelete: NoAction, onUpdate: NoAction, map: "bulktransferstatechange_bulktransferid_foreign")
+  bulkTransferState         bulkTransferState   @relation(fields: [bulkTransferStateId], references: [bulkTransferStateId], onDelete: NoAction, onUpdate: NoAction, map: "bulktransferstatechange_bulktransferstateid_foreign")
 
   @@index([bulkTransferId], map: "bulktransferstatechange_bulktransferid_index")
   @@index([bulkTransferStateId], map: "bulktransferstatechange_bulktransferstateid_index")
@@ -147,20 +149,26 @@ model contactType {
 }
 
 model currency {
-  currencyId                                                         String                    @id @db.VarChar(3)
-  name                                                               String?                   @db.VarChar(128)
-  isActive                                                           Boolean                   @default(true)
-  createdDate                                                        DateTime                  @default(now()) @db.DateTime(0)
-  scale                                                              Int                       @default(4) @db.UnsignedInt
-  participantCurrency                                                participantCurrency[]
-  quote                                                              quote[]
-  quoteParty                                                         quoteParty[]
-  quoteResponse_currencyToquoteResponse_payeeFspCommissionCurrencyId quoteResponse[]           @relation("currencyToquoteResponse_payeeFspCommissionCurrencyId")
-  quoteResponse_currencyToquoteResponse_payeeReceiveAmountCurrencyId quoteResponse[]           @relation("currencyToquoteResponse_payeeReceiveAmountCurrencyId")
-  quoteResponse_currencyToquoteResponse_transferAmountCurrencyId     quoteResponse[]           @relation("currencyToquoteResponse_transferAmountCurrencyId")
-  settlementModel                                                    settlementModel[]
-  settlementWindowContent                                            settlementWindowContent[]
-  transfer                                                           transfer[]
+  currencyId                                                                             String                           @id @db.VarChar(3)
+  name                                                                                   String?                          @db.VarChar(128)
+  isActive                                                                               Boolean                          @default(true)
+  createdDate                                                                            DateTime                         @default(now()) @db.DateTime(0)
+  scale                                                                                  Int                              @default(4) @db.UnsignedInt
+  fxQuoteConversionTerms_fxQuoteConversionTerms_sourceCurrencyTocurrency                 fxQuoteConversionTerms[]         @relation("fxQuoteConversionTerms_sourceCurrencyTocurrency")
+  fxQuoteConversionTerms_fxQuoteConversionTerms_targetCurrencyTocurrency                 fxQuoteConversionTerms[]         @relation("fxQuoteConversionTerms_targetCurrencyTocurrency")
+  fxQuoteResponseConversionTerms_fxQuoteResponseConversionTerms_sourceCurrencyTocurrency fxQuoteResponseConversionTerms[] @relation("fxQuoteResponseConversionTerms_sourceCurrencyTocurrency")
+  fxQuoteResponseConversionTerms_fxQuoteResponseConversionTerms_targetCurrencyTocurrency fxQuoteResponseConversionTerms[] @relation("fxQuoteResponseConversionTerms_targetCurrencyTocurrency")
+  fxTransfer_fxTransfer_sourceCurrencyTocurrency                                         fxTransfer[]                     @relation("fxTransfer_sourceCurrencyTocurrency")
+  fxTransfer_fxTransfer_targetCurrencyTocurrency                                         fxTransfer[]                     @relation("fxTransfer_targetCurrencyTocurrency")
+  participantCurrency                                                                    participantCurrency[]
+  quote                                                                                  quote[]
+  quoteParty                                                                             quoteParty[]
+  quoteResponse_currencyToquoteResponse_payeeFspCommissionCurrencyId                     quoteResponse[]                  @relation("currencyToquoteResponse_payeeFspCommissionCurrencyId")
+  quoteResponse_currencyToquoteResponse_payeeReceiveAmountCurrencyId                     quoteResponse[]                  @relation("currencyToquoteResponse_payeeReceiveAmountCurrencyId")
+  quoteResponse_currencyToquoteResponse_transferAmountCurrencyId                         quoteResponse[]                  @relation("currencyToquoteResponse_transferAmountCurrencyId")
+  settlementModel                                                                        settlementModel[]
+  settlementWindowContent                                                                settlementWindowContent[]
+  transfer                                                                               transfer[]
 }
 
 model endpointType {
@@ -184,7 +192,7 @@ model expiringTransfer {
   transferId         String   @unique(map: "expiringtransfer_transferid_unique") @db.VarChar(36)
   expirationDate     DateTime @db.DateTime(0)
   createdDate        DateTime @default(now()) @db.DateTime(0)
-  transfer           transfer @relation(fields: [transferId], references: [transferId], onUpdate: Restrict, map: "expiringtransfer_transferid_foreign")
+  transfer           transfer @relation(fields: [transferId], references: [transferId], onDelete: NoAction, onUpdate: NoAction, map: "expiringtransfer_transferid_foreign")
 
   @@index([expirationDate], map: "expiringtransfer_expirationdate_index")
 }
@@ -195,7 +203,7 @@ model geoCode {
   latitude     String     @db.VarChar(50)
   longitude    String     @db.VarChar(50)
   createdDate  DateTime   @default(now()) @db.DateTime(0)
-  quoteParty   quoteParty @relation(fields: [quotePartyId], references: [quotePartyId], onUpdate: Restrict, map: "geocode_quotepartyid_foreign")
+  quoteParty   quoteParty @relation(fields: [quotePartyId], references: [quotePartyId], onDelete: NoAction, onUpdate: NoAction, map: "geocode_quotepartyid_foreign")
 
   @@index([quotePartyId], map: "geocode_quotepartyid_foreign")
 }
@@ -204,7 +212,7 @@ model ilpPacket {
   transferId  String   @id @db.VarChar(36)
   value       String   @db.Text
   createdDate DateTime @default(now()) @db.DateTime(0)
-  transfer    transfer @relation(fields: [transferId], references: [transferId], onUpdate: Restrict, map: "ilppacket_transferid_foreign")
+  transfer    transfer @relation(fields: [transferId], references: [transferId], onDelete: NoAction, onUpdate: NoAction, map: "ilppacket_transferid_foreign")
 }
 
 model ledgerAccountType {
@@ -227,7 +235,8 @@ model ledgerEntryType {
   isActive                      Boolean                         @default(true)
   createdDate                   DateTime                        @default(now()) @db.DateTime(0)
   ledgerAccountTypeId           Int?                            @db.UnsignedInt
-  ledgerAccountType             ledgerAccountType?              @relation(fields: [ledgerAccountTypeId], references: [ledgerAccountTypeId], onDelete: Restrict, onUpdate: Restrict, map: "ledgerentrytype_ledgeraccounttypeid_foreign")
+  fxTransferParticipant         fxTransferParticipant[]
+  ledgerAccountType             ledgerAccountType?              @relation(fields: [ledgerAccountTypeId], references: [ledgerAccountTypeId], onDelete: NoAction, onUpdate: NoAction, map: "ledgerentrytype_ledgeraccounttypeid_foreign")
   quoteParty                    quoteParty[]
   settlementContentAggregation  settlementContentAggregation[]
   settlementTransferParticipant settlementTransferParticipant[]
@@ -243,6 +252,7 @@ model participant {
   isActive                                                  Boolean               @default(true)
   createdDate                                               DateTime              @default(now()) @db.DateTime(0)
   createdBy                                                 String                @db.VarChar(128)
+  isProxy                                                   Boolean               @default(false)
   bulkTransfer_bulkTransfer_payeeParticipantIdToparticipant bulkTransfer[]        @relation("bulkTransfer_payeeParticipantIdToparticipant")
   bulkTransfer_bulkTransfer_payerParticipantIdToparticipant bulkTransfer[]        @relation("bulkTransfer_payerParticipantIdToparticipant")
   participantContact                                        participantContact[]
@@ -262,8 +272,8 @@ model participantContact {
   isActive             Boolean     @default(true)
   createdDate          DateTime    @default(now()) @db.DateTime(0)
   createdBy            String      @db.VarChar(128)
-  contactType          contactType @relation(fields: [contactTypeId], references: [contactTypeId], onUpdate: Restrict, map: "participantcontact_contacttypeid_foreign")
-  participant          participant @relation(fields: [participantId], references: [participantId], onUpdate: Restrict, map: "participantcontact_participantid_foreign")
+  contactType          contactType @relation(fields: [contactTypeId], references: [contactTypeId], onDelete: NoAction, onUpdate: NoAction, map: "participantcontact_contacttypeid_foreign")
+  participant          participant @relation(fields: [participantId], references: [participantId], onDelete: NoAction, onUpdate: NoAction, map: "participantcontact_participantid_foreign")
 
   @@index([contactTypeId], map: "participantcontact_contacttypeid_index")
   @@index([participantId], map: "participantcontact_participantid_index")
@@ -277,11 +287,13 @@ model participantCurrency {
   isActive                      Boolean                         @default(true)
   createdDate                   DateTime                        @default(now()) @db.DateTime(0)
   createdBy                     String                          @db.VarChar(128)
-  currency                      currency                        @relation(fields: [currencyId], references: [currencyId], onUpdate: Restrict, map: "participantcurrency_currencyid_foreign")
-  ledgerAccountType             ledgerAccountType               @relation(fields: [ledgerAccountTypeId], references: [ledgerAccountTypeId], onUpdate: Restrict, map: "participantcurrency_ledgeraccounttypeid_foreign")
-  participant                   participant                     @relation(fields: [participantId], references: [participantId], onUpdate: Restrict, map: "participantcurrency_participantid_foreign")
+  fxTransferParticipant         fxTransferParticipant[]
+  currency                      currency                        @relation(fields: [currencyId], references: [currencyId], onDelete: NoAction, onUpdate: NoAction, map: "participantcurrency_currencyid_foreign")
+  ledgerAccountType             ledgerAccountType               @relation(fields: [ledgerAccountTypeId], references: [ledgerAccountTypeId], onDelete: NoAction, onUpdate: NoAction, map: "participantcurrency_ledgeraccounttypeid_foreign")
+  participant                   participant                     @relation(fields: [participantId], references: [participantId], onDelete: NoAction, onUpdate: NoAction, map: "participantcurrency_participantid_foreign")
   participantLimit              participantLimit[]
   participantPosition           participantPosition[]
+  participantPositionChange     participantPositionChange[]
   settlementContentAggregation  settlementContentAggregation[]
   settlementParticipantCurrency settlementParticipantCurrency[]
   settlementTransferParticipant settlementTransferParticipant[]
@@ -301,8 +313,8 @@ model participantEndpoint {
   isActive              Boolean      @default(true)
   createdDate           DateTime     @default(now()) @db.DateTime(0)
   createdBy             String       @db.VarChar(128)
-  endpointType          endpointType @relation(fields: [endpointTypeId], references: [endpointTypeId], onUpdate: Restrict, map: "participantendpoint_endpointtypeid_foreign")
-  participant           participant  @relation(fields: [participantId], references: [participantId], onUpdate: Restrict, map: "participantendpoint_participantid_foreign")
+  endpointType          endpointType @relation(fields: [endpointTypeId], references: [endpointTypeId], onDelete: NoAction, onUpdate: NoAction, map: "participantendpoint_endpointtypeid_foreign")
+  participant           participant  @relation(fields: [participantId], references: [participantId], onDelete: NoAction, onUpdate: NoAction, map: "participantendpoint_participantid_foreign")
 
   @@index([endpointTypeId], map: "participantendpoint_endpointtypeid_index")
   @@index([participantId], map: "participantendpoint_participantid_index")
@@ -318,9 +330,9 @@ model participantLimit {
   isActive                              Boolean                    @default(true)
   createdDate                           DateTime                   @default(now()) @db.DateTime(0)
   createdBy                             String                     @db.VarChar(128)
-  participantCurrency                   participantCurrency        @relation(fields: [participantCurrencyId], references: [participantCurrencyId], onUpdate: Restrict, map: "participantlimit_participantcurrencyid_foreign")
-  participantLimitType                  participantLimitType       @relation(fields: [participantLimitTypeId], references: [participantLimitTypeId], onUpdate: Restrict, map: "participantlimit_participantlimittypeid_foreign")
-  participantPositionChange             participantPositionChange? @relation(fields: [startAfterParticipantPositionChangeId], references: [participantPositionChangeId], onDelete: Restrict, onUpdate: Restrict, map: "participantlimit_startafterparticipantpositionchangeid_foreign")
+  participantCurrency                   participantCurrency        @relation(fields: [participantCurrencyId], references: [participantCurrencyId], onDelete: NoAction, onUpdate: NoAction, map: "participantlimit_participantcurrencyid_foreign")
+  participantLimitType                  participantLimitType       @relation(fields: [participantLimitTypeId], references: [participantLimitTypeId], onDelete: NoAction, onUpdate: NoAction, map: "participantlimit_participantlimittypeid_foreign")
+  participantPositionChange             participantPositionChange? @relation(fields: [startAfterParticipantPositionChangeId], references: [participantPositionChangeId], onDelete: NoAction, onUpdate: NoAction, map: "participantlimit_startafterparticipantpositionchangeid_foreign")
 
   @@unique([participantCurrencyId, participantLimitTypeId, isActive, participantLimitId], map: "participantLimit_unique_idx")
   @@index([participantCurrencyId], map: "participantlimit_participantcurrencyid_index")
@@ -341,7 +353,7 @@ model participantParty {
   participantPartyId BigInt      @id @default(autoincrement()) @db.UnsignedBigInt
   participantId      Int         @db.UnsignedInt
   partyId            BigInt      @db.UnsignedBigInt
-  participant        participant @relation(fields: [participantId], references: [participantId], onUpdate: Restrict, map: "participantparty_participantid_foreign")
+  participant        participant @relation(fields: [participantId], references: [participantId], onDelete: NoAction, onUpdate: NoAction, map: "participantparty_participantid_foreign")
 
   @@unique([participantId, partyId], map: "participantparty_participantid_partyid_unique")
   @@index([participantId], map: "participantparty_participantid_index")
@@ -353,25 +365,31 @@ model participantPosition {
   value                     Decimal                     @db.Decimal(18, 4)
   reservedValue             Decimal                     @db.Decimal(18, 4)
   changedDate               DateTime                    @default(now()) @db.DateTime(0)
-  participantCurrency       participantCurrency         @relation(fields: [participantCurrencyId], references: [participantCurrencyId], onUpdate: Restrict, map: "participantposition_participantcurrencyid_foreign")
+  participantCurrency       participantCurrency         @relation(fields: [participantCurrencyId], references: [participantCurrencyId], onDelete: NoAction, onUpdate: NoAction, map: "participantposition_participantcurrencyid_foreign")
   participantPositionChange participantPositionChange[]
 
   @@index([participantCurrencyId], map: "participantposition_participantcurrencyid_index")
 }
 
 model participantPositionChange {
-  participantPositionChangeId BigInt              @id @default(autoincrement()) @db.UnsignedBigInt
-  participantPositionId       BigInt              @db.UnsignedBigInt
-  transferStateChangeId       BigInt              @db.UnsignedBigInt
-  value                       Decimal             @db.Decimal(18, 4)
-  reservedValue               Decimal             @db.Decimal(18, 4)
-  createdDate                 DateTime            @default(now()) @db.DateTime(0)
-  participantPosition         participantPosition @relation(fields: [participantPositionId], references: [participantPositionId], onUpdate: Restrict, map: "participantpositionchange_participantpositionid_foreign")
-  transferStateChange         transferStateChange @relation(fields: [transferStateChangeId], references: [transferStateChangeId], onUpdate: Restrict, map: "participantpositionchange_transferstatechangeid_foreign")
+  participantPositionChangeId BigInt                 @id @default(autoincrement()) @db.UnsignedBigInt
+  participantPositionId       BigInt                 @db.UnsignedBigInt
+  transferStateChangeId       BigInt?                @db.UnsignedBigInt
+  value                       Decimal                @db.Decimal(18, 4)
+  reservedValue               Decimal                @db.Decimal(18, 4)
+  createdDate                 DateTime               @default(now()) @db.DateTime(0)
+  participantCurrencyId       Int                    @db.UnsignedInt
+  fxTransferStateChangeId     BigInt?                @db.UnsignedBigInt
   participantLimit            participantLimit[]
+  fxTransferStateChange       fxTransferStateChange? @relation(fields: [fxTransferStateChangeId], references: [fxTransferStateChangeId], onDelete: NoAction, onUpdate: NoAction, map: "participantpositionchange_fxtransferstatechangeid_foreign")
+  participantCurrency         participantCurrency    @relation(fields: [participantCurrencyId], references: [participantCurrencyId], onDelete: NoAction, onUpdate: NoAction, map: "participantpositionchange_participantcurrencyid_foreign")
+  participantPosition         participantPosition    @relation(fields: [participantPositionId], references: [participantPositionId], onDelete: NoAction, onUpdate: NoAction, map: "participantpositionchange_participantpositionid_foreign")
+  transferStateChange         transferStateChange?   @relation(fields: [transferStateChangeId], references: [transferStateChangeId], onDelete: NoAction, onUpdate: NoAction, map: "participantpositionchange_transferstatechangeid_foreign")
 
   @@index([participantPositionId], map: "participantpositionchange_participantpositionid_index")
   @@index([transferStateChangeId], map: "participantpositionchange_transferstatechangeid_index")
+  @@index([fxTransferStateChangeId], map: "participantpositionchange_fxtransferstatechangeid_foreign")
+  @@index([participantCurrencyId], map: "participantpositionchange_participantcurrencyid_foreign")
 }
 
 model party {
@@ -381,7 +399,7 @@ model party {
   middleName   String?    @db.VarChar(128)
   lastName     String?    @db.VarChar(128)
   dateOfBirth  DateTime?  @db.DateTime(0)
-  quoteParty   quoteParty @relation(fields: [quotePartyId], references: [quotePartyId], onUpdate: Restrict, map: "party_quotepartyid_foreign")
+  quoteParty   quoteParty @relation(fields: [quotePartyId], references: [quotePartyId], onDelete: NoAction, onUpdate: NoAction, map: "party_quotepartyid_foreign")
 
   @@index([quotePartyId], map: "party_quotepartyid_foreign")
 }
@@ -391,7 +409,6 @@ model partyIdentifierType {
   name                                                             String       @unique(map: "partyidentifiertype_name_unique") @db.VarChar(50)
   description                                                      String       @db.VarChar(512)
   quoteParty_partyIdentifierTypeToquoteParty_partyIdentifierTypeId quoteParty[] @relation("partyIdentifierTypeToquoteParty_partyIdentifierTypeId")
-  quoteParty_partyIdentifierTypeToquoteParty_partySubIdOrTypeId    quoteParty[] @relation("partyIdentifierTypeToquoteParty_partySubIdOrTypeId")
 }
 
 model partyType {
@@ -414,17 +431,16 @@ model quote {
   transactionSubScenarioId                                                Int?                          @db.UnsignedInt
   amountTypeId                                                            Int                           @db.UnsignedInt
   amount                                                                  Decimal                       @default(0.0000) @db.Decimal(18, 4)
-  currencyId                                                              String?                       @db.VarChar(3)
+  currencyId                                                              String?                       @db.VarChar(255)
   createdDate                                                             DateTime                      @default(now()) @db.DateTime(0)
-  amountType                                                              amountType                    @relation(fields: [amountTypeId], references: [amountTypeId], onUpdate: Restrict, map: "quote_amounttypeid_foreign")
-  balanceOfPayments                                                       balanceOfPayments?            @relation(fields: [balanceOfPaymentsId], references: [balanceOfPaymentsId], onDelete: Restrict, onUpdate: Restrict, map: "quote_balanceofpaymentsid_foreign")
-  currency                                                                currency?                     @relation(fields: [currencyId], references: [currencyId], onDelete: Restrict, onUpdate: Restrict, map: "quote_currencyid_foreign")
-  transactionInitiator                                                    transactionInitiator          @relation(fields: [transactionInitiatorId], references: [transactionInitiatorId], onUpdate: Restrict, map: "quote_transactioninitiatorid_foreign")
-  transactionInitiatorType                                                transactionInitiatorType      @relation(fields: [transactionInitiatorTypeId], references: [transactionInitiatorTypeId], onUpdate: Restrict, map: "quote_transactioninitiatortypeid_foreign")
-  transactionReference_quote_transactionReferenceIdTotransactionReference transactionReference          @relation("quote_transactionReferenceIdTotransactionReference", fields: [transactionReferenceId], references: [transactionReferenceId], onUpdate: Restrict, map: "quote_transactionreferenceid_foreign")
-  transactionReference_quote_transactionRequestIdTotransactionReference   transactionReference?         @relation("quote_transactionRequestIdTotransactionReference", fields: [transactionRequestId], references: [transactionReferenceId], onDelete: Restrict, onUpdate: Restrict, map: "quote_transactionrequestid_foreign")
-  transactionScenario                                                     transactionScenario           @relation(fields: [transactionScenarioId], references: [transactionScenarioId], onUpdate: Restrict, map: "quote_transactionscenarioid_foreign")
-  transactionSubScenario                                                  transactionSubScenario?       @relation(fields: [transactionSubScenarioId], references: [transactionSubScenarioId], onDelete: Restrict, onUpdate: Restrict, map: "quote_transactionsubscenarioid_foreign")
+  amountType                                                              amountType                    @relation(fields: [amountTypeId], references: [amountTypeId], onDelete: NoAction, onUpdate: NoAction, map: "quote_amounttypeid_foreign")
+  balanceOfPayments                                                       balanceOfPayments?            @relation(fields: [balanceOfPaymentsId], references: [balanceOfPaymentsId], onDelete: NoAction, onUpdate: NoAction, map: "quote_balanceofpaymentsid_foreign")
+  currency                                                                currency?                     @relation(fields: [currencyId], references: [currencyId], onDelete: NoAction, onUpdate: NoAction, map: "quote_currencyid_foreign")
+  transactionInitiator                                                    transactionInitiator          @relation(fields: [transactionInitiatorId], references: [transactionInitiatorId], onDelete: NoAction, onUpdate: NoAction, map: "quote_transactioninitiatorid_foreign")
+  transactionInitiatorType                                                transactionInitiatorType      @relation(fields: [transactionInitiatorTypeId], references: [transactionInitiatorTypeId], onDelete: NoAction, onUpdate: NoAction, map: "quote_transactioninitiatortypeid_foreign")
+  transactionReference_quote_transactionReferenceIdTotransactionReference transactionReference          @relation("quote_transactionReferenceIdTotransactionReference", fields: [transactionReferenceId], references: [transactionReferenceId], onDelete: NoAction, onUpdate: NoAction, map: "quote_transactionreferenceid_foreign")
+  transactionScenario                                                     transactionScenario           @relation(fields: [transactionScenarioId], references: [transactionScenarioId], onDelete: NoAction, onUpdate: NoAction, map: "quote_transactionscenarioid_foreign")
+  transactionSubScenario                                                  transactionSubScenario?       @relation(fields: [transactionSubScenarioId], references: [transactionSubScenarioId], onDelete: NoAction, onUpdate: NoAction, map: "quote_transactionsubscenarioid_foreign")
   quoteError                                                              quoteError[]
   quoteExtension                                                          quoteExtension[]
   quoteParty                                                              quoteParty[]
@@ -456,8 +472,8 @@ model quoteError {
   errorCode        Int            @db.UnsignedInt
   errorDescription String         @db.VarChar(128)
   createdDate      DateTime       @default(now()) @db.DateTime(0)
-  quote            quote          @relation(fields: [quoteId], references: [quoteId], onUpdate: Restrict, map: "quoteerror_quoteid_foreign")
-  quoteResponse    quoteResponse? @relation(fields: [quoteResponseId], references: [quoteResponseId], onDelete: Restrict, onUpdate: Restrict, map: "quoteerror_quoteresponseid_foreign")
+  quote            quote          @relation(fields: [quoteId], references: [quoteId], onDelete: NoAction, onUpdate: NoAction, map: "quoteerror_quoteid_foreign")
+  quoteResponse    quoteResponse? @relation(fields: [quoteResponseId], references: [quoteResponseId], onDelete: NoAction, onUpdate: NoAction, map: "quoteerror_quoteresponseid_foreign")
 
   @@index([quoteId], map: "quoteerror_quoteid_foreign")
   @@index([quoteResponseId], map: "quoteerror_quoteresponseid_foreign")
@@ -471,9 +487,9 @@ model quoteExtension {
   key                  String                @db.VarChar(128)
   value                String                @db.Text
   createdDate          DateTime              @default(now()) @db.DateTime(0)
-  quote                quote                 @relation(fields: [quoteId], references: [quoteId], onUpdate: Restrict, map: "quoteextension_quoteid_foreign")
-  quoteResponse        quoteResponse?        @relation(fields: [quoteResponseId], references: [quoteResponseId], onDelete: Restrict, onUpdate: Restrict, map: "quoteextension_quoteresponseid_foreign")
-  transactionReference transactionReference? @relation(fields: [transactionId], references: [transactionReferenceId], onDelete: Restrict, onUpdate: Restrict, map: "quoteextension_transactionid_foreign")
+  quote                quote                 @relation(fields: [quoteId], references: [quoteId], onDelete: NoAction, onUpdate: NoAction, map: "quoteextension_quoteid_foreign")
+  quoteResponse        quoteResponse?        @relation(fields: [quoteResponseId], references: [quoteResponseId], onDelete: NoAction, onUpdate: NoAction, map: "quoteextension_quoteresponseid_foreign")
+  transactionReference transactionReference? @relation(fields: [transactionId], references: [transactionReferenceId], onDelete: NoAction, onUpdate: NoAction, map: "quoteextension_transactionid_foreign")
 
   @@index([quoteId], map: "quoteextension_quoteid_foreign")
   @@index([quoteResponseId], map: "quoteextension_quoteresponseid_foreign")
@@ -486,7 +502,7 @@ model quoteParty {
   partyTypeId                                                               Int                         @db.UnsignedInt
   partyIdentifierTypeId                                                     Int                         @db.UnsignedInt
   partyIdentifierValue                                                      String                      @db.VarChar(128)
-  partySubIdOrTypeId                                                        Int?                        @db.UnsignedInt
+  partySubIdOrTypeId                                                        String?                     @db.VarChar(128)
   fspId                                                                     String?                     @db.VarChar(255)
   participantId                                                             Int?                        @db.UnsignedInt
   merchantClassificationCode                                                String?                     @db.VarChar(4)
@@ -496,16 +512,15 @@ model quoteParty {
   amount                                                                    Decimal                     @db.Decimal(18, 4)
   currencyId                                                                String                      @db.VarChar(3)
   createdDate                                                               DateTime                    @default(now()) @db.DateTime(0)
-  currency                                                                  currency                    @relation(fields: [currencyId], references: [currencyId], onUpdate: Restrict, map: "quoteparty_currencyid_foreign")
-  ledgerEntryType                                                           ledgerEntryType             @relation(fields: [ledgerEntryTypeId], references: [ledgerEntryTypeId], onUpdate: Restrict, map: "quoteparty_ledgerentrytypeid_foreign")
-  participant                                                               participant?                @relation(fields: [participantId], references: [participantId], onDelete: Restrict, onUpdate: Restrict, map: "quoteparty_participantid_foreign")
-  partyIdentifierType_partyIdentifierTypeToquoteParty_partyIdentifierTypeId partyIdentifierType         @relation("partyIdentifierTypeToquoteParty_partyIdentifierTypeId", fields: [partyIdentifierTypeId], references: [partyIdentifierTypeId], onUpdate: Restrict, map: "quoteparty_partyidentifiertypeid_foreign")
-  partyIdentifierType_partyIdentifierTypeToquoteParty_partySubIdOrTypeId    partyIdentifierType?        @relation("partyIdentifierTypeToquoteParty_partySubIdOrTypeId", fields: [partySubIdOrTypeId], references: [partyIdentifierTypeId], onDelete: Restrict, onUpdate: Restrict, map: "quoteparty_partysubidortypeid_foreign")
-  partyType                                                                 partyType                   @relation(fields: [partyTypeId], references: [partyTypeId], onUpdate: Restrict, map: "quoteparty_partytypeid_foreign")
-  quote                                                                     quote                       @relation(fields: [quoteId], references: [quoteId], onUpdate: Restrict, map: "quoteparty_quoteid_foreign")
-  transferParticipantRoleType                                               transferParticipantRoleType @relation(fields: [transferParticipantRoleTypeId], references: [transferParticipantRoleTypeId], onUpdate: Restrict, map: "quoteparty_transferparticipantroletypeid_foreign")
   geoCode                                                                   geoCode[]
   party                                                                     party[]
+  currency                                                                  currency                    @relation(fields: [currencyId], references: [currencyId], onDelete: NoAction, onUpdate: NoAction, map: "quoteparty_currencyid_foreign")
+  ledgerEntryType                                                           ledgerEntryType             @relation(fields: [ledgerEntryTypeId], references: [ledgerEntryTypeId], onDelete: NoAction, onUpdate: NoAction, map: "quoteparty_ledgerentrytypeid_foreign")
+  participant                                                               participant?                @relation(fields: [participantId], references: [participantId], onDelete: NoAction, onUpdate: NoAction, map: "quoteparty_participantid_foreign")
+  partyIdentifierType_partyIdentifierTypeToquoteParty_partyIdentifierTypeId partyIdentifierType         @relation("partyIdentifierTypeToquoteParty_partyIdentifierTypeId", fields: [partyIdentifierTypeId], references: [partyIdentifierTypeId], onDelete: NoAction, onUpdate: NoAction, map: "quoteparty_partyidentifiertypeid_foreign")
+  partyType                                                                 partyType                   @relation(fields: [partyTypeId], references: [partyTypeId], onDelete: NoAction, onUpdate: NoAction, map: "quoteparty_partytypeid_foreign")
+  quote                                                                     quote                       @relation(fields: [quoteId], references: [quoteId], onDelete: NoAction, onUpdate: NoAction, map: "quoteparty_quoteid_foreign")
+  transferParticipantRoleType                                               transferParticipantRoleType @relation(fields: [transferParticipantRoleTypeId], references: [transferParticipantRoleTypeId], onDelete: NoAction, onUpdate: NoAction, map: "quoteparty_transferparticipantroletypeid_foreign")
   quotePartyIdInfoExtension                                                 quotePartyIdInfoExtension[]
 
   @@index([currencyId], map: "quoteparty_currencyid_foreign")
@@ -524,7 +539,7 @@ model quotePartyIdInfoExtension {
   key                         String     @db.VarChar(128)
   value                       String     @db.Text
   createdDate                 DateTime   @default(now()) @db.DateTime(0)
-  quoteParty                  quoteParty @relation(fields: [quotePartyId], references: [quotePartyId], onUpdate: Restrict, map: "quotepartyidinfoextension_quotepartyid_foreign")
+  quoteParty                  quoteParty @relation(fields: [quotePartyId], references: [quotePartyId], onDelete: NoAction, onUpdate: NoAction, map: "quotepartyidinfoextension_quotepartyid_foreign")
 
   @@index([quotePartyId], map: "quotepartyidinfoextension_quotepartyid_foreign")
 }
@@ -540,16 +555,16 @@ model quoteResponse {
   payeeFspFeeAmount                                             Decimal?                     @db.Decimal(18, 4)
   payeeFspCommissionCurrencyId                                  String?                      @db.VarChar(3)
   payeeFspCommissionAmount                                      Decimal?                     @db.Decimal(18, 4)
-  ilpCondition                                                  String                       @unique(map: "quoteResponse_ilpCondition_unique") @db.VarChar(256)
+  ilpCondition                                                  String                       @db.VarChar(256)
   responseExpirationDate                                        DateTime?                    @db.DateTime(0)
   isValid                                                       Boolean?
   createdDate                                                   DateTime                     @default(now()) @db.DateTime(0)
-  currency_currencyToquoteResponse_payeeFspCommissionCurrencyId currency?                    @relation("currencyToquoteResponse_payeeFspCommissionCurrencyId", fields: [payeeFspCommissionCurrencyId], references: [currencyId], onDelete: Restrict, onUpdate: Restrict, map: "quoteresponse_payeefspcommissioncurrencyid_foreign")
-  currency_currencyToquoteResponse_payeeReceiveAmountCurrencyId currency?                    @relation("currencyToquoteResponse_payeeReceiveAmountCurrencyId", fields: [payeeReceiveAmountCurrencyId], references: [currencyId], onDelete: Restrict, onUpdate: Restrict, map: "quoteresponse_payeereceiveamountcurrencyid_foreign")
-  quote                                                         quote                        @relation(fields: [quoteId], references: [quoteId], onUpdate: Restrict, map: "quoteresponse_quoteid_foreign")
-  currency_currencyToquoteResponse_transferAmountCurrencyId     currency                     @relation("currencyToquoteResponse_transferAmountCurrencyId", fields: [transferAmountCurrencyId], references: [currencyId], onUpdate: Restrict, map: "quoteresponse_transferamountcurrencyid_foreign")
   quoteError                                                    quoteError[]
   quoteExtension                                                quoteExtension[]
+  currency_currencyToquoteResponse_payeeFspCommissionCurrencyId currency?                    @relation("currencyToquoteResponse_payeeFspCommissionCurrencyId", fields: [payeeFspCommissionCurrencyId], references: [currencyId], onDelete: NoAction, onUpdate: NoAction, map: "quoteresponse_payeefspcommissioncurrencyid_foreign")
+  currency_currencyToquoteResponse_payeeReceiveAmountCurrencyId currency?                    @relation("currencyToquoteResponse_payeeReceiveAmountCurrencyId", fields: [payeeReceiveAmountCurrencyId], references: [currencyId], onDelete: NoAction, onUpdate: NoAction, map: "quoteresponse_payeereceiveamountcurrencyid_foreign")
+  quote                                                         quote                        @relation(fields: [quoteId], references: [quoteId], onDelete: NoAction, onUpdate: NoAction, map: "quoteresponse_quoteid_foreign")
+  currency_currencyToquoteResponse_transferAmountCurrencyId     currency                     @relation("currencyToquoteResponse_transferAmountCurrencyId", fields: [transferAmountCurrencyId], references: [currencyId], onDelete: NoAction, onUpdate: NoAction, map: "quoteresponse_transferamountcurrencyid_foreign")
   quoteResponseDuplicateCheck                                   quoteResponseDuplicateCheck?
   quoteResponseIlpPacket                                        quoteResponseIlpPacket?
 
@@ -564,8 +579,8 @@ model quoteResponseDuplicateCheck {
   quoteId         String        @db.VarChar(36)
   hash            String?       @db.VarChar(255)
   createdDate     DateTime      @default(now()) @db.DateTime(0)
-  quote           quote         @relation(fields: [quoteId], references: [quoteId], onUpdate: Restrict, map: "quoteresponseduplicatecheck_quoteid_foreign")
-  quoteResponse   quoteResponse @relation(fields: [quoteResponseId], references: [quoteResponseId], onUpdate: Restrict, map: "quoteresponseduplicatecheck_quoteresponseid_foreign")
+  quote           quote         @relation(fields: [quoteId], references: [quoteId], onDelete: NoAction, onUpdate: NoAction, map: "quoteresponseduplicatecheck_quoteid_foreign")
+  quoteResponse   quoteResponse @relation(fields: [quoteResponseId], references: [quoteResponseId], onDelete: NoAction, onUpdate: NoAction, map: "quoteresponseduplicatecheck_quoteresponseid_foreign")
 
   @@index([quoteId], map: "quoteresponseduplicatecheck_quoteid_foreign")
 }
@@ -573,7 +588,7 @@ model quoteResponseDuplicateCheck {
 model quoteResponseIlpPacket {
   quoteResponseId BigInt        @id @default(autoincrement()) @db.UnsignedBigInt
   value           String        @db.Text
-  quoteResponse   quoteResponse @relation(fields: [quoteResponseId], references: [quoteResponseId], onUpdate: Restrict, map: "quoteresponseilppacket_quoteresponseid_foreign")
+  quoteResponse   quoteResponse @relation(fields: [quoteResponseId], references: [quoteResponseId], onDelete: NoAction, onUpdate: NoAction, map: "quoteresponseilppacket_quoteresponseid_foreign")
 }
 
 model segment {
@@ -593,8 +608,8 @@ model settlement {
   createdDate                                                                  DateTime                        @default(now()) @db.DateTime(0)
   currentStateChangeId                                                         BigInt?                         @db.UnsignedBigInt
   settlementModelId                                                            Int?                            @db.UnsignedInt
-  settlementStateChange_settlement_currentStateChangeIdTosettlementStateChange settlementStateChange?          @relation("settlement_currentStateChangeIdTosettlementStateChange", fields: [currentStateChangeId], references: [settlementStateChangeId], onDelete: Restrict, onUpdate: Restrict, map: "settlement_currentstatechangeid_foreign")
-  settlementModel                                                              settlementModel?                @relation(fields: [settlementModelId], references: [settlementModelId], onDelete: Restrict, onUpdate: Restrict, map: "settlement_settlementmodelid_foreign")
+  settlementStateChange_settlement_currentStateChangeIdTosettlementStateChange settlementStateChange?          @relation("settlement_currentStateChangeIdTosettlementStateChange", fields: [currentStateChangeId], references: [settlementStateChangeId], onDelete: NoAction, onUpdate: NoAction, map: "settlement_currentstatechangeid_foreign")
+  settlementModel                                                              settlementModel?                @relation(fields: [settlementModelId], references: [settlementModelId], onDelete: NoAction, onUpdate: NoAction, map: "settlement_settlementmodelid_foreign")
   settlementContentAggregation                                                 settlementContentAggregation[]
   settlementParticipantCurrency                                                settlementParticipantCurrency[]
   settlementSettlementWindow                                                   settlementSettlementWindow[]
@@ -616,12 +631,12 @@ model settlementContentAggregation {
   createdDate                    DateTime                    @default(now()) @db.DateTime(0)
   currentStateId                 String                      @db.VarChar(50)
   settlementId                   BigInt?                     @db.UnsignedBigInt
-  settlementWindowState          settlementWindowState       @relation(fields: [currentStateId], references: [settlementWindowStateId], onUpdate: Restrict, map: "settlementcontentaggregation_currentstateid_foreign")
-  ledgerEntryType                ledgerEntryType             @relation(fields: [ledgerEntryTypeId], references: [ledgerEntryTypeId], onUpdate: Restrict, map: "settlementcontentaggregation_ledgerentrytypeid_foreign")
-  participantCurrency            participantCurrency         @relation(fields: [participantCurrencyId], references: [participantCurrencyId], onUpdate: Restrict, map: "settlementcontentaggregation_participantcurrencyid_foreign")
-  settlement                     settlement?                 @relation(fields: [settlementId], references: [settlementId], onDelete: Restrict, onUpdate: Restrict, map: "settlementcontentaggregation_settlementid_foreign")
-  settlementWindowContent        settlementWindowContent     @relation(fields: [settlementWindowContentId], references: [settlementWindowContentId], onUpdate: Restrict, map: "settlementcontentaggregation_settlementwindowcontentid_foreign")
-  transferParticipantRoleType    transferParticipantRoleType @relation(fields: [transferParticipantRoleTypeId], references: [transferParticipantRoleTypeId], onUpdate: Restrict, map: "sca_transferparticipantroletypeid_foreign")
+  transferParticipantRoleType    transferParticipantRoleType @relation(fields: [transferParticipantRoleTypeId], references: [transferParticipantRoleTypeId], onDelete: NoAction, onUpdate: NoAction, map: "sca_transferparticipantroletypeid_foreign")
+  settlementWindowState          settlementWindowState       @relation(fields: [currentStateId], references: [settlementWindowStateId], onDelete: NoAction, onUpdate: NoAction, map: "settlementcontentaggregation_currentstateid_foreign")
+  ledgerEntryType                ledgerEntryType             @relation(fields: [ledgerEntryTypeId], references: [ledgerEntryTypeId], onDelete: NoAction, onUpdate: NoAction, map: "settlementcontentaggregation_ledgerentrytypeid_foreign")
+  participantCurrency            participantCurrency         @relation(fields: [participantCurrencyId], references: [participantCurrencyId], onDelete: NoAction, onUpdate: NoAction, map: "settlementcontentaggregation_participantcurrencyid_foreign")
+  settlement                     settlement?                 @relation(fields: [settlementId], references: [settlementId], onDelete: NoAction, onUpdate: NoAction, map: "settlementcontentaggregation_settlementid_foreign")
+  settlementWindowContent        settlementWindowContent     @relation(fields: [settlementWindowContentId], references: [settlementWindowContentId], onDelete: NoAction, onUpdate: NoAction, map: "settlementcontentaggregation_settlementwindowcontentid_foreign")
 
   @@index([currentStateId], map: "settlementcontentaggregation_currentstateid_index")
   @@index([ledgerEntryTypeId], map: "settlementcontentaggregation_ledgerentrytypeid_index")
@@ -659,24 +674,25 @@ model settlementInterchange {
 }
 
 model settlementModel {
-  settlementModelId       Int                   @id @default(autoincrement()) @db.UnsignedInt
-  name                    String                @unique(map: "settlementmodel_name_unique") @db.VarChar(50)
-  isActive                Boolean               @default(true)
-  settlementGranularityId Int                   @db.UnsignedInt
-  settlementInterchangeId Int                   @db.UnsignedInt
-  settlementDelayId       Int                   @db.UnsignedInt
-  currencyId              String?               @db.VarChar(3)
-  requireLiquidityCheck   Boolean               @default(true)
-  ledgerAccountTypeId     Int                   @db.UnsignedInt
-  autoPositionReset       Boolean               @default(false)
-  adjustPosition          Boolean               @default(false)
+  settlementModelId       Int                       @id @default(autoincrement()) @db.UnsignedInt
+  name                    String                    @unique(map: "settlementmodel_name_unique") @db.VarChar(50)
+  isActive                Boolean                   @default(true)
+  settlementGranularityId Int                       @db.UnsignedInt
+  settlementInterchangeId Int                       @db.UnsignedInt
+  settlementDelayId       Int                       @db.UnsignedInt
+  currencyId              String?                   @db.VarChar(3)
+  requireLiquidityCheck   Boolean                   @default(true)
+  ledgerAccountTypeId     Int                       @db.UnsignedInt
+  autoPositionReset       Boolean                   @default(false)
+  adjustPosition          Boolean                   @default(false)
   settlementAccountTypeId Int
-  currency                currency?             @relation(fields: [currencyId], references: [currencyId], onDelete: Restrict, onUpdate: Restrict, map: "settlementmodel_currencyid_foreign")
-  ledgerAccountType       ledgerAccountType     @relation(fields: [ledgerAccountTypeId], references: [ledgerAccountTypeId], onUpdate: Restrict, map: "settlementmodel_ledgeraccounttypeid_foreign")
-  settlementDelay         settlementDelay       @relation(fields: [settlementDelayId], references: [settlementDelayId], onUpdate: Restrict, map: "settlementmodel_settlementdelayid_foreign")
-  settlementGranularity   settlementGranularity @relation(fields: [settlementGranularityId], references: [settlementGranularityId], onUpdate: Restrict, map: "settlementmodel_settlementgranularityid_foreign")
-  settlementInterchange   settlementInterchange @relation(fields: [settlementInterchangeId], references: [settlementInterchangeId], onUpdate: Restrict, map: "settlementmodel_settlementinterchangeid_foreign")
   settlement              settlement[]
+  currency                currency?                 @relation(fields: [currencyId], references: [currencyId], onDelete: NoAction, onUpdate: NoAction, map: "settlementmodel_currencyid_foreign")
+  ledgerAccountType       ledgerAccountType         @relation(fields: [ledgerAccountTypeId], references: [ledgerAccountTypeId], onDelete: NoAction, onUpdate: NoAction, map: "settlementmodel_ledgeraccounttypeid_foreign")
+  settlementDelay         settlementDelay           @relation(fields: [settlementDelayId], references: [settlementDelayId], onDelete: NoAction, onUpdate: NoAction, map: "settlementmodel_settlementdelayid_foreign")
+  settlementGranularity   settlementGranularity     @relation(fields: [settlementGranularityId], references: [settlementGranularityId], onDelete: NoAction, onUpdate: NoAction, map: "settlementmodel_settlementgranularityid_foreign")
+  settlementInterchange   settlementInterchange     @relation(fields: [settlementInterchangeId], references: [settlementInterchangeId], onDelete: NoAction, onUpdate: NoAction, map: "settlementmodel_settlementinterchangeid_foreign")
+  settlementWindowContent settlementWindowContent[]
 
   @@unique([currencyId, ledgerAccountTypeId], map: "settlementmodel_currencyid_ledgeraccounttypeid_unique")
   @@unique([settlementGranularityId, settlementInterchangeId, settlementDelayId, ledgerAccountTypeId, currencyId], map: "settlementmodel_unique")
@@ -696,9 +712,9 @@ model settlementParticipantCurrency {
   createdDate                                                                                                                                      DateTime                                   @default(now()) @db.DateTime(0)
   currentStateChangeId                                                                                                                             BigInt?                                    @db.UnsignedBigInt
   settlementTransferId                                                                                                                             String?                                    @db.VarChar(36)
-  settlementParticipantCurrencyStateChange_settlementParticipantCurrency_currentStateChangeIdTosettlementParticipantCurrencyStateChange            settlementParticipantCurrencyStateChange?  @relation("settlementParticipantCurrency_currentStateChangeIdTosettlementParticipantCurrencyStateChange", fields: [currentStateChangeId], references: [settlementParticipantCurrencyStateChangeId], onDelete: Restrict, onUpdate: Restrict, map: "spc_currentstatechangeid_foreign")
-  participantCurrency                                                                                                                              participantCurrency                        @relation(fields: [participantCurrencyId], references: [participantCurrencyId], onUpdate: Restrict, map: "settlementparticipantcurrency_participantcurrencyid_foreign")
-  settlement                                                                                                                                       settlement                                 @relation(fields: [settlementId], references: [settlementId], onUpdate: Restrict, map: "settlementparticipantcurrency_settlementid_foreign")
+  participantCurrency                                                                                                                              participantCurrency                        @relation(fields: [participantCurrencyId], references: [participantCurrencyId], onDelete: NoAction, onUpdate: NoAction, map: "settlementparticipantcurrency_participantcurrencyid_foreign")
+  settlement                                                                                                                                       settlement                                 @relation(fields: [settlementId], references: [settlementId], onDelete: NoAction, onUpdate: NoAction, map: "settlementparticipantcurrency_settlementid_foreign")
+  settlementParticipantCurrencyStateChange_settlementParticipantCurrency_currentStateChangeIdTosettlementParticipantCurrencyStateChange            settlementParticipantCurrencyStateChange?  @relation("settlementParticipantCurrency_currentStateChangeIdTosettlementParticipantCurrencyStateChange", fields: [currentStateChangeId], references: [settlementParticipantCurrencyStateChangeId], onDelete: NoAction, onUpdate: NoAction, map: "spc_currentstatechangeid_foreign")
   settlementParticipantCurrencyStateChange_settlementParticipantCurrencyTosettlementParticipantCurrencyStateChange_settlementParticipantCurrencyId settlementParticipantCurrencyStateChange[] @relation("settlementParticipantCurrencyTosettlementParticipantCurrencyStateChange_settlementParticipantCurrencyId")
 
   @@index([participantCurrencyId], map: "settlementparticipantcurrency_participantcurrencyid_index")
@@ -714,9 +730,9 @@ model settlementParticipantCurrencyStateChange {
   reason                                                                                                                                String?                         @db.VarChar(512)
   externalReference                                                                                                                     String?                         @db.VarChar(50)
   createdDate                                                                                                                           DateTime                        @default(now()) @db.DateTime(0)
-  settlementParticipantCurrency_settlementParticipantCurrencyTosettlementParticipantCurrencyStateChange_settlementParticipantCurrencyId settlementParticipantCurrency   @relation("settlementParticipantCurrencyTosettlementParticipantCurrencyStateChange_settlementParticipantCurrencyId", fields: [settlementParticipantCurrencyId], references: [settlementParticipantCurrencyId], onUpdate: Restrict, map: "spcsc_settlementparticipantcurrencyid_foreign")
-  settlementState                                                                                                                       settlementState                 @relation(fields: [settlementStateId], references: [settlementStateId], onUpdate: Restrict, map: "spcsc_settlementstateid_foreign")
   settlementParticipantCurrency_settlementParticipantCurrency_currentStateChangeIdTosettlementParticipantCurrencyStateChange            settlementParticipantCurrency[] @relation("settlementParticipantCurrency_currentStateChangeIdTosettlementParticipantCurrencyStateChange")
+  settlementParticipantCurrency_settlementParticipantCurrencyTosettlementParticipantCurrencyStateChange_settlementParticipantCurrencyId settlementParticipantCurrency   @relation("settlementParticipantCurrencyTosettlementParticipantCurrencyStateChange_settlementParticipantCurrencyId", fields: [settlementParticipantCurrencyId], references: [settlementParticipantCurrencyId], onDelete: NoAction, onUpdate: NoAction, map: "spcsc_settlementparticipantcurrencyid_foreign")
+  settlementState                                                                                                                       settlementState                 @relation(fields: [settlementStateId], references: [settlementStateId], onDelete: NoAction, onUpdate: NoAction, map: "spcsc_settlementstateid_foreign")
 
   @@index([settlementParticipantCurrencyId], map: "spcsc_settlementparticipantcurrencyid_index")
   @@index([settlementStateId], map: "spcsc_settlementstateid_index")
@@ -727,8 +743,8 @@ model settlementSettlementWindow {
   settlementId                 BigInt           @db.UnsignedBigInt
   settlementWindowId           BigInt           @db.UnsignedBigInt
   createdDate                  DateTime         @default(now()) @db.DateTime(0)
-  settlement                   settlement       @relation(fields: [settlementId], references: [settlementId], onUpdate: Restrict, map: "settlementsettlementwindow_settlementid_foreign")
-  settlementWindow             settlementWindow @relation(fields: [settlementWindowId], references: [settlementWindowId], onUpdate: Restrict, map: "settlementsettlementwindow_settlementwindowid_foreign")
+  settlement                   settlement       @relation(fields: [settlementId], references: [settlementId], onDelete: NoAction, onUpdate: NoAction, map: "settlementsettlementwindow_settlementid_foreign")
+  settlementWindow             settlementWindow @relation(fields: [settlementWindowId], references: [settlementWindowId], onDelete: NoAction, onUpdate: NoAction, map: "settlementsettlementwindow_settlementwindowid_foreign")
 
   @@unique([settlementId, settlementWindowId], map: "settlementsettlementwindow_unique")
   @@index([settlementId], map: "settlementsettlementwindow_settlementid_index")
@@ -751,9 +767,9 @@ model settlementStateChange {
   settlementStateId                                                 String          @db.VarChar(50)
   reason                                                            String?         @db.VarChar(512)
   createdDate                                                       DateTime        @default(now()) @db.DateTime(0)
-  settlement_settlementTosettlementStateChange_settlementId         settlement      @relation("settlementTosettlementStateChange_settlementId", fields: [settlementId], references: [settlementId], onUpdate: Restrict, map: "settlementstatechange_settlementid_foreign")
-  settlementState                                                   settlementState @relation(fields: [settlementStateId], references: [settlementStateId], onUpdate: Restrict, map: "settlementstatechange_settlementstateid_foreign")
   settlement_settlement_currentStateChangeIdTosettlementStateChange settlement[]    @relation("settlement_currentStateChangeIdTosettlementStateChange")
+  settlement_settlementTosettlementStateChange_settlementId         settlement      @relation("settlementTosettlementStateChange_settlementId", fields: [settlementId], references: [settlementId], onDelete: NoAction, onUpdate: NoAction, map: "settlementstatechange_settlementid_foreign")
+  settlementState                                                   settlementState @relation(fields: [settlementStateId], references: [settlementStateId], onDelete: NoAction, onUpdate: NoAction, map: "settlementstatechange_settlementstateid_foreign")
 
   @@index([settlementId], map: "settlementstatechange_settlementid_index")
   @@index([settlementStateId], map: "settlementstatechange_settlementstateid_index")
@@ -768,11 +784,11 @@ model settlementTransferParticipant {
   ledgerEntryTypeId               Int                         @db.UnsignedInt
   amount                          Decimal                     @db.Decimal(18, 4)
   createdDate                     DateTime                    @default(now()) @db.DateTime(0)
-  ledgerEntryType                 ledgerEntryType             @relation(fields: [ledgerEntryTypeId], references: [ledgerEntryTypeId], onUpdate: Restrict, map: "settlementtransferparticipant_ledgerentrytypeid_foreign")
-  participantCurrency             participantCurrency         @relation(fields: [participantCurrencyId], references: [participantCurrencyId], onUpdate: Restrict, map: "settlementtransferparticipant_participantcurrencyid_foreign")
-  settlement                      settlement                  @relation(fields: [settlementId], references: [settlementId], onUpdate: Restrict, map: "settlementtransferparticipant_settlementid_foreign")
-  settlementWindow                settlementWindow            @relation(fields: [settlementWindowId], references: [settlementWindowId], onUpdate: Restrict, map: "settlementtransferparticipant_settlementwindowid_foreign")
-  transferParticipantRoleType     transferParticipantRoleType @relation(fields: [transferParticipantRoleTypeId], references: [transferParticipantRoleTypeId], onUpdate: Restrict, map: "stp_transferparticipantroletypeid_foreign")
+  ledgerEntryType                 ledgerEntryType             @relation(fields: [ledgerEntryTypeId], references: [ledgerEntryTypeId], onDelete: NoAction, onUpdate: NoAction, map: "settlementtransferparticipant_ledgerentrytypeid_foreign")
+  participantCurrency             participantCurrency         @relation(fields: [participantCurrencyId], references: [participantCurrencyId], onDelete: NoAction, onUpdate: NoAction, map: "settlementtransferparticipant_participantcurrencyid_foreign")
+  settlement                      settlement                  @relation(fields: [settlementId], references: [settlementId], onDelete: NoAction, onUpdate: NoAction, map: "settlementtransferparticipant_settlementid_foreign")
+  settlementWindow                settlementWindow            @relation(fields: [settlementWindowId], references: [settlementWindowId], onDelete: NoAction, onUpdate: NoAction, map: "settlementtransferparticipant_settlementwindowid_foreign")
+  transferParticipantRoleType     transferParticipantRoleType @relation(fields: [transferParticipantRoleTypeId], references: [transferParticipantRoleTypeId], onDelete: NoAction, onUpdate: NoAction, map: "stp_transferparticipantroletypeid_foreign")
 
   @@index([ledgerEntryTypeId], map: "settlementtransferparticipant_ledgerentrytypeid_index")
   @@index([participantCurrencyId], map: "settlementtransferparticipant_participantcurrencyid_index")
@@ -786,9 +802,10 @@ model settlementWindow {
   reason                                                                                         String?                         @db.VarChar(512)
   createdDate                                                                                    DateTime                        @default(now()) @db.DateTime(0)
   currentStateChangeId                                                                           BigInt?                         @db.UnsignedBigInt
-  settlementWindowStateChange_settlementWindow_currentStateChangeIdTosettlementWindowStateChange settlementWindowStateChange?    @relation("settlementWindow_currentStateChangeIdTosettlementWindowStateChange", fields: [currentStateChangeId], references: [settlementWindowStateChangeId], onDelete: Restrict, onUpdate: Restrict, map: "settlementwindow_currentstatechangeid_foreign")
+  fxTransferFulfilment                                                                           fxTransferFulfilment[]
   settlementSettlementWindow                                                                     settlementSettlementWindow[]
   settlementTransferParticipant                                                                  settlementTransferParticipant[]
+  settlementWindowStateChange_settlementWindow_currentStateChangeIdTosettlementWindowStateChange settlementWindowStateChange?    @relation("settlementWindow_currentStateChangeIdTosettlementWindowStateChange", fields: [currentStateChangeId], references: [settlementWindowStateChangeId], onDelete: NoAction, onUpdate: NoAction, map: "settlementwindow_currentstatechangeid_foreign")
   settlementWindowContent                                                                        settlementWindowContent[]
   settlementWindowStateChange_settlementWindowTosettlementWindowStateChange_settlementWindowId   settlementWindowStateChange[]   @relation("settlementWindowTosettlementWindowStateChange_settlementWindowId")
   transferFulfilment                                                                             transferFulfilment[]
@@ -804,12 +821,14 @@ model settlementWindowContent {
   createdDate                                                                                                              DateTime                             @default(now()) @db.DateTime(0)
   currentStateChangeId                                                                                                     BigInt?                              @db.UnsignedBigInt
   settlementId                                                                                                             BigInt?                              @db.UnsignedBigInt
-  currency                                                                                                                 currency                             @relation(fields: [currencyId], references: [currencyId], onUpdate: Restrict, map: "settlementwindowcontent_currencyid_foreign")
-  settlementWindowContentStateChange_settlementWindowContent_currentStateChangeIdTosettlementWindowContentStateChange      settlementWindowContentStateChange?  @relation("settlementWindowContent_currentStateChangeIdTosettlementWindowContentStateChange", fields: [currentStateChangeId], references: [settlementWindowContentStateChangeId], onDelete: Restrict, onUpdate: Restrict, map: "settlementwindowcontent_currentstatechangeid_foreign")
-  ledgerAccountType                                                                                                        ledgerAccountType                    @relation(fields: [ledgerAccountTypeId], references: [ledgerAccountTypeId], onUpdate: Restrict, map: "settlementwindowcontent_ledgeraccounttypeid_foreign")
-  settlement                                                                                                               settlement?                          @relation(fields: [settlementId], references: [settlementId], onDelete: Restrict, onUpdate: Restrict, map: "settlementwindowcontent_settlementid_foreign")
-  settlementWindow                                                                                                         settlementWindow                     @relation(fields: [settlementWindowId], references: [settlementWindowId], onUpdate: Restrict, map: "settlementwindowcontent_settlementwindowid_foreign")
+  SettlementModelId                                                                                                        Int?                                 @db.UnsignedInt
   settlementContentAggregation                                                                                             settlementContentAggregation[]
+  currency                                                                                                                 currency                             @relation(fields: [currencyId], references: [currencyId], onDelete: NoAction, onUpdate: NoAction, map: "settlementwindowcontent_currencyid_foreign")
+  settlementWindowContentStateChange_settlementWindowContent_currentStateChangeIdTosettlementWindowContentStateChange      settlementWindowContentStateChange?  @relation("settlementWindowContent_currentStateChangeIdTosettlementWindowContentStateChange", fields: [currentStateChangeId], references: [settlementWindowContentStateChangeId], onDelete: NoAction, onUpdate: NoAction, map: "settlementwindowcontent_currentstatechangeid_foreign")
+  ledgerAccountType                                                                                                        ledgerAccountType                    @relation(fields: [ledgerAccountTypeId], references: [ledgerAccountTypeId], onDelete: NoAction, onUpdate: NoAction, map: "settlementwindowcontent_ledgeraccounttypeid_foreign")
+  settlement                                                                                                               settlement?                          @relation(fields: [settlementId], references: [settlementId], onDelete: NoAction, onUpdate: NoAction, map: "settlementwindowcontent_settlementid_foreign")
+  settlementModel                                                                                                          settlementModel?                     @relation(fields: [SettlementModelId], references: [settlementModelId], onDelete: NoAction, onUpdate: NoAction, map: "settlementwindowcontent_settlementmodelid_foreign")
+  settlementWindow                                                                                                         settlementWindow                     @relation(fields: [settlementWindowId], references: [settlementWindowId], onDelete: NoAction, onUpdate: NoAction, map: "settlementwindowcontent_settlementwindowid_foreign")
   settlementWindowContentStateChange_settlementWindowContentTosettlementWindowContentStateChange_settlementWindowContentId settlementWindowContentStateChange[] @relation("settlementWindowContentTosettlementWindowContentStateChange_settlementWindowContentId")
 
   @@index([currencyId], map: "settlementwindowcontent_currencyid_index")
@@ -817,6 +836,7 @@ model settlementWindowContent {
   @@index([ledgerAccountTypeId], map: "settlementwindowcontent_ledgeraccounttypeid_index")
   @@index([settlementId], map: "settlementwindowcontent_settlementid_index")
   @@index([settlementWindowId], map: "settlementwindowcontent_settlementwindowid_index")
+  @@index([SettlementModelId], map: "settlementwindowcontent_settlementmodelid_foreign")
 }
 
 model settlementWindowContentStateChange {
@@ -825,9 +845,9 @@ model settlementWindowContentStateChange {
   settlementWindowStateId                                                                                       String                    @db.VarChar(50)
   reason                                                                                                        String?                   @db.VarChar(512)
   createdDate                                                                                                   DateTime                  @default(now()) @db.DateTime(0)
-  settlementWindowContent_settlementWindowContentTosettlementWindowContentStateChange_settlementWindowContentId settlementWindowContent   @relation("settlementWindowContentTosettlementWindowContentStateChange_settlementWindowContentId", fields: [settlementWindowContentId], references: [settlementWindowContentId], onUpdate: Restrict, map: "swc_settlementwindowcontentid_foreign")
-  settlementWindowState                                                                                         settlementWindowState     @relation(fields: [settlementWindowStateId], references: [settlementWindowStateId], onUpdate: Restrict, map: "sws1_settlementwindowstateid_foreign")
   settlementWindowContent_settlementWindowContent_currentStateChangeIdTosettlementWindowContentStateChange      settlementWindowContent[] @relation("settlementWindowContent_currentStateChangeIdTosettlementWindowContentStateChange")
+  settlementWindowContent_settlementWindowContentTosettlementWindowContentStateChange_settlementWindowContentId settlementWindowContent   @relation("settlementWindowContentTosettlementWindowContentStateChange_settlementWindowContentId", fields: [settlementWindowContentId], references: [settlementWindowContentId], onDelete: NoAction, onUpdate: NoAction, map: "swc_settlementwindowcontentid_foreign")
+  settlementWindowState                                                                                         settlementWindowState     @relation(fields: [settlementWindowStateId], references: [settlementWindowStateId], onDelete: NoAction, onUpdate: NoAction, map: "sws1_settlementwindowstateid_foreign")
 
   @@index([settlementWindowContentId], map: "swcsc_settlementwindowcontentid_index")
   @@index([settlementWindowStateId], map: "swcsc_settlementwindowstateid_index")
@@ -850,9 +870,9 @@ model settlementWindowStateChange {
   settlementWindowStateId                                                             String                @db.VarChar(50)
   reason                                                                              String?               @db.VarChar(512)
   createdDate                                                                         DateTime              @default(now()) @db.DateTime(0)
-  settlementWindow_settlementWindowTosettlementWindowStateChange_settlementWindowId   settlementWindow      @relation("settlementWindowTosettlementWindowStateChange_settlementWindowId", fields: [settlementWindowId], references: [settlementWindowId], onUpdate: Restrict, map: "settlementwindowstatechange_settlementwindowid_foreign")
-  settlementWindowState                                                               settlementWindowState @relation(fields: [settlementWindowStateId], references: [settlementWindowStateId], onUpdate: Restrict, map: "settlementwindowstatechange_settlementwindowstateid_foreign")
   settlementWindow_settlementWindow_currentStateChangeIdTosettlementWindowStateChange settlementWindow[]    @relation("settlementWindow_currentStateChangeIdTosettlementWindowStateChange")
+  settlementWindow_settlementWindowTosettlementWindowStateChange_settlementWindowId   settlementWindow      @relation("settlementWindowTosettlementWindowStateChange_settlementWindowId", fields: [settlementWindowId], references: [settlementWindowId], onDelete: NoAction, onUpdate: NoAction, map: "settlementwindowstatechange_settlementwindowid_foreign")
+  settlementWindowState                                                               settlementWindowState @relation(fields: [settlementWindowStateId], references: [settlementWindowStateId], onDelete: NoAction, onUpdate: NoAction, map: "settlementwindowstatechange_settlementwindowstateid_foreign")
 
   @@index([settlementWindowId], map: "settlementwindowstatechange_settlementwindowid_index")
   @@index([settlementWindowStateId], map: "settlementwindowstatechange_settlementwindowstateid_index")
@@ -864,7 +884,7 @@ model token {
   value         String      @unique(map: "token_value_unique") @db.VarChar(256)
   expiration    BigInt?
   createdDate   DateTime    @default(now()) @db.DateTime(0)
-  participant   participant @relation(fields: [participantId], references: [participantId], onUpdate: Restrict, map: "token_participantid_foreign")
+  participant   participant @relation(fields: [participantId], references: [participantId], onDelete: NoAction, onUpdate: NoAction, map: "token_participantid_foreign")
 
   @@index([participantId], map: "token_participantid_index")
 }
@@ -889,10 +909,9 @@ model transactionReference {
   transactionReferenceId                                   String               @id @db.VarChar(36)
   quoteId                                                  String?              @db.VarChar(36)
   createdDate                                              DateTime             @default(now()) @db.DateTime(0)
-  quoteDuplicateCheck                                      quoteDuplicateCheck? @relation(fields: [quoteId], references: [quoteId], onDelete: Restrict, onUpdate: Restrict, map: "transactionreference_quoteid_foreign")
   quote_quote_transactionReferenceIdTotransactionReference quote[]              @relation("quote_transactionReferenceIdTotransactionReference")
-  quote_quote_transactionRequestIdTotransactionReference   quote[]              @relation("quote_transactionRequestIdTotransactionReference")
   quoteExtension                                           quoteExtension[]
+  quoteDuplicateCheck                                      quoteDuplicateCheck? @relation(fields: [quoteId], references: [quoteId], onDelete: NoAction, onUpdate: NoAction, map: "transactionreference_quoteid_foreign")
 
   @@index([quoteId], map: "transactionreference_quoteid_index")
 }
@@ -920,10 +939,10 @@ model transfer {
   ilpCondition                     String                            @unique(map: "transfer_ilpCondition_unique") @db.VarChar(256)
   expirationDate                   DateTime                          @db.DateTime(0)
   createdDate                      DateTime                          @default(now()) @db.DateTime(0)
-  currency                         currency                          @relation(fields: [currencyId], references: [currencyId], onUpdate: Restrict, map: "transfer_currencyid_foreign")
-  transferDuplicateCheck           transferDuplicateCheck            @relation(fields: [transferId], references: [transferId], onUpdate: Restrict, map: "transfer_transferid_foreign")
   expiringTransfer                 expiringTransfer?
   ilpPacket                        ilpPacket?
+  currency                         currency                          @relation(fields: [currencyId], references: [currencyId], onDelete: NoAction, onUpdate: NoAction, map: "transfer_currencyid_foreign")
+  transferDuplicateCheck           transferDuplicateCheck            @relation(fields: [transferId], references: [transferId], onDelete: NoAction, onUpdate: NoAction, map: "transfer_transferid_foreign")
   transferErrorDuplicateCheck      transferErrorDuplicateCheck?
   transferExtension                transferExtension[]
   transferFulfilmentDuplicateCheck transferFulfilmentDuplicateCheck?
@@ -947,7 +966,7 @@ model transferError {
   errorCode             Int                 @db.UnsignedInt
   errorDescription      String              @db.VarChar(128)
   createdDate           DateTime            @default(now()) @db.DateTime(0)
-  transferStateChange   transferStateChange @relation(fields: [transferStateChangeId], references: [transferStateChangeId], onUpdate: Restrict, map: "transfererror_transferstatechangeid_foreign")
+  transferStateChange   transferStateChange @relation(fields: [transferStateChangeId], references: [transferStateChangeId], onDelete: NoAction, onUpdate: NoAction, map: "transfererror_transferstatechangeid_foreign")
 
   @@index([transferStateChangeId], map: "transfererror_transferstatechangeid_foreign")
 }
@@ -956,7 +975,7 @@ model transferErrorDuplicateCheck {
   transferId  String   @id @db.VarChar(36)
   hash        String?  @db.VarChar(256)
   createdDate DateTime @default(now()) @db.DateTime(0)
-  transfer    transfer @relation(fields: [transferId], references: [transferId], onUpdate: Restrict, map: "transfererrorduplicatecheck_transferid_foreign")
+  transfer    transfer @relation(fields: [transferId], references: [transferId], onDelete: NoAction, onUpdate: NoAction, map: "transfererrorduplicatecheck_transferid_foreign")
 }
 
 model transferExtension {
@@ -967,7 +986,7 @@ model transferExtension {
   isFulfilment        Boolean  @default(false)
   isError             Boolean  @default(false)
   createdDate         DateTime @default(now()) @db.DateTime(0)
-  transfer            transfer @relation(fields: [transferId], references: [transferId], onUpdate: Restrict, map: "transferextension_transferid_foreign")
+  transfer            transfer @relation(fields: [transferId], references: [transferId], onDelete: NoAction, onUpdate: NoAction, map: "transferextension_transferid_foreign")
 
   @@index([transferId], map: "transferextension_transferid_foreign")
 }
@@ -979,8 +998,8 @@ model transferFulfilment {
   isValid                          Boolean?
   settlementWindowId               BigInt?                          @db.UnsignedBigInt
   createdDate                      DateTime                         @default(now()) @db.DateTime(0)
-  settlementWindow                 settlementWindow?                @relation(fields: [settlementWindowId], references: [settlementWindowId], onDelete: Restrict, onUpdate: Restrict, map: "transferfulfilment_settlementwindowid_foreign")
-  transferFulfilmentDuplicateCheck transferFulfilmentDuplicateCheck @relation(fields: [transferId], references: [transferId], onUpdate: Restrict, map: "transferfulfilment_transferid_foreign")
+  settlementWindow                 settlementWindow?                @relation(fields: [settlementWindowId], references: [settlementWindowId], onDelete: NoAction, onUpdate: NoAction, map: "transferfulfilment_settlementwindowid_foreign")
+  transferFulfilmentDuplicateCheck transferFulfilmentDuplicateCheck @relation(fields: [transferId], references: [transferId], onDelete: NoAction, onUpdate: NoAction, map: "transferfulfilment_transferid_foreign")
 
   @@index([settlementWindowId], map: "transferfulfilment_settlementwindowid_foreign")
 }
@@ -989,28 +1008,30 @@ model transferFulfilmentDuplicateCheck {
   transferId         String              @id @db.VarChar(36)
   hash               String?             @db.VarChar(256)
   createdDate        DateTime            @default(now()) @db.DateTime(0)
-  transfer           transfer            @relation(fields: [transferId], references: [transferId], onUpdate: Restrict, map: "transferfulfilmentduplicatecheck_transferid_foreign")
   transferFulfilment transferFulfilment?
+  transfer           transfer            @relation(fields: [transferId], references: [transferId], onDelete: NoAction, onUpdate: NoAction, map: "transferfulfilmentduplicatecheck_transferid_foreign")
 }
 
 model transferParticipant {
   transferParticipantId         BigInt                      @id @default(autoincrement()) @db.UnsignedBigInt
   transferId                    String                      @db.VarChar(36)
-  participantCurrencyId         Int                         @db.UnsignedInt
+  participantCurrencyId         Int?                        @db.UnsignedInt
   transferParticipantRoleTypeId Int                         @db.UnsignedInt
   ledgerEntryTypeId             Int                         @db.UnsignedInt
   amount                        Decimal                     @db.Decimal(18, 4)
   createdDate                   DateTime                    @default(now()) @db.DateTime(0)
-  ledgerEntryType               ledgerEntryType             @relation(fields: [ledgerEntryTypeId], references: [ledgerEntryTypeId], onUpdate: Restrict, map: "transferparticipant_ledgerentrytypeid_foreign")
-  participantCurrency           participantCurrency         @relation(fields: [participantCurrencyId], references: [participantCurrencyId], onUpdate: Restrict, map: "transferparticipant_participantcurrencyid_foreign")
-  transfer                      transfer                    @relation(fields: [transferId], references: [transferId], onUpdate: Restrict, map: "transferparticipant_transferid_foreign")
-  transferParticipantRoleType   transferParticipantRoleType @relation(fields: [transferParticipantRoleTypeId], references: [transferParticipantRoleTypeId], onUpdate: Restrict, map: "transferparticipant_transferparticipantroletypeid_foreign")
+  participantId                 Int                         @db.UnsignedInt
+  ledgerEntryType               ledgerEntryType             @relation(fields: [ledgerEntryTypeId], references: [ledgerEntryTypeId], onDelete: NoAction, onUpdate: NoAction, map: "transferparticipant_ledgerentrytypeid_foreign")
+  participantCurrency           participantCurrency?        @relation(fields: [participantCurrencyId], references: [participantCurrencyId], onDelete: NoAction, onUpdate: NoAction, map: "transferparticipant_participantcurrencyid_foreign")
+  transfer                      transfer                    @relation(fields: [transferId], references: [transferId], onDelete: NoAction, onUpdate: NoAction, map: "transferparticipant_transferid_foreign")
+  transferParticipantRoleType   transferParticipantRoleType @relation(fields: [transferParticipantRoleTypeId], references: [transferParticipantRoleTypeId], onDelete: NoAction, onUpdate: NoAction, map: "transferparticipant_transferparticipantroletypeid_foreign")
 
   @@index([transferId, transferParticipantRoleTypeId, ledgerEntryTypeId], map: "getTransferInfoToChangePosition")
   @@index([ledgerEntryTypeId], map: "transferparticipant_ledgerentrytypeid_index")
   @@index([participantCurrencyId], map: "transferparticipant_participantcurrencyid_index")
   @@index([transferId], map: "transferparticipant_transferid_index")
   @@index([transferParticipantRoleTypeId], map: "transferparticipant_transferparticipantroletypeid_index")
+  @@index([participantId], map: "transferparticipant_participantid_index")
 }
 
 model transferParticipantRoleType {
@@ -1019,6 +1040,7 @@ model transferParticipantRoleType {
   description                   String?                         @db.VarChar(512)
   isActive                      Boolean                         @default(true)
   createdDate                   DateTime                        @default(now()) @db.DateTime(0)
+  fxTransferParticipant         fxTransferParticipant[]
   quoteParty                    quoteParty[]
   settlementContentAggregation  settlementContentAggregation[]
   settlementTransferParticipant settlementTransferParticipant[]
@@ -1035,12 +1057,13 @@ model transferRules {
 }
 
 model transferState {
-  transferStateId     String                @id @db.VarChar(50)
-  enumeration         String                @db.VarChar(50)
-  description         String?               @db.VarChar(512)
-  isActive            Boolean               @default(true)
-  createdDate         DateTime              @default(now()) @db.DateTime(0)
-  transferStateChange transferStateChange[]
+  transferStateId       String                  @id @db.VarChar(50)
+  enumeration           String                  @db.VarChar(50)
+  description           String?                 @db.VarChar(512)
+  isActive              Boolean                 @default(true)
+  createdDate           DateTime                @default(now()) @db.DateTime(0)
+  fxTransferStateChange fxTransferStateChange[]
+  transferStateChange   transferStateChange[]
 }
 
 model transferStateChange {
@@ -1049,10 +1072,10 @@ model transferStateChange {
   transferStateId           String                      @db.VarChar(50)
   reason                    String?                     @db.VarChar(512)
   createdDate               DateTime                    @default(now()) @db.DateTime(0)
-  transfer                  transfer                    @relation(fields: [transferId], references: [transferId], onUpdate: Restrict, map: "transferstatechange_transferid_foreign")
-  transferState             transferState               @relation(fields: [transferStateId], references: [transferStateId], onUpdate: Restrict, map: "transferstatechange_transferstateid_foreign")
   participantPositionChange participantPositionChange[]
   transferError             transferError[]
+  transfer                  transfer                    @relation(fields: [transferId], references: [transferId], onDelete: NoAction, onUpdate: NoAction, map: "transferstatechange_transferid_foreign")
+  transferState             transferState               @relation(fields: [transferStateId], references: [transferStateId], onDelete: NoAction, onUpdate: NoAction, map: "transferstatechange_transferstateid_foreign")
 
   @@index([transferId], map: "transferstatechange_transferid_index")
   @@index([transferStateId], map: "transferstatechange_transferstateid_index")
@@ -1063,5 +1086,319 @@ model transferTimeout {
   transferId        String   @unique(map: "transfertimeout_transferid_unique") @db.VarChar(36)
   expirationDate    DateTime @db.DateTime(0)
   createdDate       DateTime @default(now()) @db.DateTime(0)
-  transfer          transfer @relation(fields: [transferId], references: [transferId], onUpdate: Restrict, map: "transfertimeout_transferid_foreign")
+  transfer          transfer @relation(fields: [transferId], references: [transferId], onDelete: NoAction, onUpdate: NoAction, map: "transfertimeout_transferid_foreign")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model fxCharge {
+  fxChargeId                     BigInt                         @id @default(autoincrement()) @db.UnsignedBigInt
+  chargeType                     String                         @db.VarChar(32)
+  conversionId                   String                         @db.VarChar(36)
+  sourceAmount                   Decimal?                       @db.Decimal(18, 4)
+  sourceCurrency                 String?                        @db.VarChar(3)
+  targetAmount                   Decimal?                       @db.Decimal(18, 4)
+  targetCurrency                 String?                        @db.VarChar(3)
+  fxQuoteResponseConversionTerms fxQuoteResponseConversionTerms @relation(fields: [conversionId], references: [conversionId], onDelete: NoAction, onUpdate: NoAction, map: "fxcharge_conversionid_foreign")
+
+  @@index([conversionId], map: "fxcharge_conversionid_foreign")
+}
+
+model fxParticipantCurrencyType {
+  fxParticipantCurrencyTypeId Int                     @id @default(autoincrement()) @db.UnsignedInt
+  name                        String                  @unique(map: "fxparticipantcurrencytype_name_unique") @db.VarChar(50)
+  description                 String?                 @db.VarChar(512)
+  createdDate                 DateTime                @default(now()) @db.DateTime(0)
+  fxTransferParticipant       fxTransferParticipant[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model fxQuote {
+  conversionRequestId            String                           @id @db.VarChar(36)
+  createdDate                    DateTime                         @default(now()) @db.DateTime(0)
+  fxQuoteConversionTerms         fxQuoteConversionTerms[]
+  fxQuoteError                   fxQuoteError[]
+  fxQuoteResponse                fxQuoteResponse[]
+  fxQuoteResponseConversionTerms fxQuoteResponseConversionTerms[]
+  fxQuoteResponseDuplicateCheck  fxQuoteResponseDuplicateCheck[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model fxQuoteConversionTerms {
+  conversionId                                             String                            @id @db.VarChar(255)
+  determiningTransferId                                    String?                           @db.VarChar(36)
+  conversionRequestId                                      String                            @db.VarChar(36)
+  amountTypeId                                             Int                               @db.UnsignedInt
+  initiatingFsp                                            String?                           @db.VarChar(255)
+  counterPartyFsp                                          String?                           @db.VarChar(255)
+  sourceAmount                                             Decimal                           @db.Decimal(18, 4)
+  sourceCurrency                                           String                            @db.VarChar(3)
+  targetAmount                                             Decimal?                          @db.Decimal(18, 4)
+  targetCurrency                                           String                            @db.VarChar(3)
+  expirationDate                                           DateTime                          @db.DateTime(0)
+  createdDate                                              DateTime                          @default(now()) @db.DateTime(0)
+  amountType                                               amountType                        @relation(fields: [amountTypeId], references: [amountTypeId], onDelete: NoAction, onUpdate: NoAction, map: "fxquoteconversionterms_amounttypeid_foreign")
+  fxQuote                                                  fxQuote                           @relation(fields: [conversionRequestId], references: [conversionRequestId], onDelete: NoAction, onUpdate: NoAction, map: "fxquoteconversionterms_conversionrequestid_foreign")
+  currency_fxQuoteConversionTerms_sourceCurrencyTocurrency currency                          @relation("fxQuoteConversionTerms_sourceCurrencyTocurrency", fields: [sourceCurrency], references: [currencyId], onDelete: NoAction, onUpdate: NoAction, map: "fxquoteconversionterms_sourcecurrency_foreign")
+  currency_fxQuoteConversionTerms_targetCurrencyTocurrency currency                          @relation("fxQuoteConversionTerms_targetCurrencyTocurrency", fields: [targetCurrency], references: [currencyId], onDelete: NoAction, onUpdate: NoAction, map: "fxquoteconversionterms_targetcurrency_foreign")
+  fxQuoteConversionTermsExtension                          fxQuoteConversionTermsExtension[]
+
+  @@index([amountTypeId], map: "fxquoteconversionterms_amounttypeid_foreign")
+  @@index([conversionRequestId], map: "fxquoteconversionterms_conversionrequestid_foreign")
+  @@index([sourceCurrency], map: "fxquoteconversionterms_sourcecurrency_foreign")
+  @@index([targetCurrency], map: "fxquoteconversionterms_targetcurrency_foreign")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model fxQuoteConversionTermsExtension {
+  fxQuoteConversionTermExtension BigInt                 @id @default(autoincrement()) @db.UnsignedBigInt
+  conversionId                   String                 @db.VarChar(36)
+  key                            String                 @db.VarChar(128)
+  value                          String                 @db.Text
+  createdDate                    DateTime               @default(now()) @db.DateTime(0)
+  fxQuoteConversionTerms         fxQuoteConversionTerms @relation(fields: [conversionId], references: [conversionId], onDelete: NoAction, onUpdate: NoAction, map: "fxquoteconversiontermsextension_conversionid_foreign")
+
+  @@index([conversionId], map: "fxquoteconversiontermsextension_conversionid_foreign")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model fxQuoteDuplicateCheck {
+  conversionRequestId String   @id @db.VarChar(36)
+  hash                String?  @db.VarChar(1024)
+  createdDate         DateTime @default(now()) @db.DateTime(0)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model fxQuoteError {
+  fxQuoteErrorId      BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  conversionRequestId String           @db.VarChar(36)
+  fxQuoteResponseId   BigInt?          @db.UnsignedBigInt
+  errorCode           Int              @db.UnsignedInt
+  errorDescription    String           @db.VarChar(128)
+  createdDate         DateTime         @default(now()) @db.DateTime(0)
+  fxQuote             fxQuote          @relation(fields: [conversionRequestId], references: [conversionRequestId], onDelete: NoAction, onUpdate: NoAction, map: "fxquoteerror_conversionrequestid_foreign")
+  fxQuoteResponse     fxQuoteResponse? @relation(fields: [fxQuoteResponseId], references: [fxQuoteResponseId], onDelete: NoAction, onUpdate: NoAction, map: "fxquoteerror_fxquoteresponseid_foreign")
+
+  @@index([conversionRequestId], map: "fxquoteerror_conversionrequestid_foreign")
+  @@index([fxQuoteResponseId], map: "fxquoteerror_fxquoteresponseid_foreign")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model fxQuoteResponse {
+  fxQuoteResponseId              BigInt                           @id @default(autoincrement()) @db.UnsignedBigInt
+  conversionRequestId            String                           @db.VarChar(36)
+  ilpCondition                   String                           @db.VarChar(256)
+  createdDate                    DateTime                         @default(now()) @db.DateTime(0)
+  fxQuoteError                   fxQuoteError[]
+  fxQuote                        fxQuote                          @relation(fields: [conversionRequestId], references: [conversionRequestId], onDelete: NoAction, onUpdate: NoAction, map: "fxquoteresponse_conversionrequestid_foreign")
+  fxQuoteResponseConversionTerms fxQuoteResponseConversionTerms[]
+  fxQuoteResponseDuplicateCheck  fxQuoteResponseDuplicateCheck?
+
+  @@index([conversionRequestId], map: "fxquoteresponse_conversionrequestid_foreign")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model fxQuoteResponseConversionTerms {
+  conversionId                                                     String                                    @id @db.VarChar(255)
+  determiningTransferId                                            String?                                   @db.VarChar(36)
+  conversionRequestId                                              String                                    @db.VarChar(36)
+  fxQuoteResponseId                                                BigInt                                    @db.UnsignedBigInt
+  amountTypeId                                                     Int                                       @db.UnsignedInt
+  initiatingFsp                                                    String?                                   @db.VarChar(255)
+  counterPartyFsp                                                  String?                                   @db.VarChar(255)
+  sourceAmount                                                     Decimal                                   @db.Decimal(18, 4)
+  sourceCurrency                                                   String                                    @db.VarChar(3)
+  targetAmount                                                     Decimal                                   @db.Decimal(18, 4)
+  targetCurrency                                                   String                                    @db.VarChar(3)
+  expirationDate                                                   DateTime                                  @db.DateTime(0)
+  createdDate                                                      DateTime                                  @default(now()) @db.DateTime(0)
+  fxCharge                                                         fxCharge[]
+  amountType                                                       amountType                                @relation(fields: [amountTypeId], references: [amountTypeId], onDelete: NoAction, onUpdate: NoAction, map: "fxquoteresponseconversionterms_amounttypeid_foreign")
+  fxQuote                                                          fxQuote                                   @relation(fields: [conversionRequestId], references: [conversionRequestId], onDelete: NoAction, onUpdate: NoAction, map: "fxquoteresponseconversionterms_conversionrequestid_foreign")
+  fxQuoteResponse                                                  fxQuoteResponse                           @relation(fields: [fxQuoteResponseId], references: [fxQuoteResponseId], onDelete: NoAction, onUpdate: NoAction, map: "fxquoteresponseconversionterms_fxquoteresponseid_foreign")
+  currency_fxQuoteResponseConversionTerms_sourceCurrencyTocurrency currency                                  @relation("fxQuoteResponseConversionTerms_sourceCurrencyTocurrency", fields: [sourceCurrency], references: [currencyId], onDelete: NoAction, onUpdate: NoAction, map: "fxquoteresponseconversionterms_sourcecurrency_foreign")
+  currency_fxQuoteResponseConversionTerms_targetCurrencyTocurrency currency                                  @relation("fxQuoteResponseConversionTerms_targetCurrencyTocurrency", fields: [targetCurrency], references: [currencyId], onDelete: NoAction, onUpdate: NoAction, map: "fxquoteresponseconversionterms_targetcurrency_foreign")
+  fxQuoteResponseConversionTermsExtension                          fxQuoteResponseConversionTermsExtension[]
+
+  @@index([amountTypeId], map: "fxquoteresponseconversionterms_amounttypeid_foreign")
+  @@index([conversionRequestId], map: "fxquoteresponseconversionterms_conversionrequestid_foreign")
+  @@index([fxQuoteResponseId], map: "fxquoteresponseconversionterms_fxquoteresponseid_foreign")
+  @@index([sourceCurrency], map: "fxquoteresponseconversionterms_sourcecurrency_foreign")
+  @@index([targetCurrency], map: "fxquoteresponseconversionterms_targetcurrency_foreign")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model fxQuoteResponseConversionTermsExtension {
+  fxQuoteResponseConversionTermsExtension BigInt                         @id @default(autoincrement()) @db.UnsignedBigInt
+  conversionId                            String                         @db.VarChar(36)
+  key                                     String                         @db.VarChar(128)
+  value                                   String                         @db.Text
+  createdDate                             DateTime                       @default(now()) @db.DateTime(0)
+  fxQuoteResponseConversionTerms          fxQuoteResponseConversionTerms @relation(fields: [conversionId], references: [conversionId], onDelete: NoAction, onUpdate: NoAction, map: "fxquoteresponseconversiontermsextension_conversionid_foreign")
+
+  @@index([conversionId], map: "fxquoteresponseconversiontermsextension_conversionid_foreign")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model fxQuoteResponseDuplicateCheck {
+  fxQuoteResponseId   BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  conversionRequestId String          @db.VarChar(36)
+  hash                String?         @db.VarChar(255)
+  createdDate         DateTime        @default(now()) @db.DateTime(0)
+  fxQuote             fxQuote         @relation(fields: [conversionRequestId], references: [conversionRequestId], onDelete: NoAction, onUpdate: NoAction, map: "fxquoteresponseduplicatecheck_conversionrequestid_foreign")
+  fxQuoteResponse     fxQuoteResponse @relation(fields: [fxQuoteResponseId], references: [fxQuoteResponseId], onDelete: NoAction, onUpdate: NoAction, map: "fxquoteresponseduplicatecheck_fxquoteresponseid_foreign")
+
+  @@index([conversionRequestId], map: "fxquoteresponseduplicatecheck_conversionrequestid_foreign")
+}
+
+model fxTransfer {
+  commitRequestId                              String                              @id @db.VarChar(36)
+  determiningTransferId                        String?                             @db.VarChar(36)
+  sourceAmount                                 Decimal                             @db.Decimal(18, 4)
+  targetAmount                                 Decimal                             @db.Decimal(18, 4)
+  sourceCurrency                               String                              @db.VarChar(3)
+  targetCurrency                               String                              @db.VarChar(3)
+  ilpCondition                                 String                              @db.VarChar(256)
+  expirationDate                               DateTime                            @db.DateTime(0)
+  createdDate                                  DateTime                            @default(now()) @db.DateTime(0)
+  fxTransferDuplicateCheck                     fxTransferDuplicateCheck            @relation(fields: [commitRequestId], references: [commitRequestId], onDelete: NoAction, onUpdate: NoAction, map: "fxtransfer_commitrequestid_foreign")
+  currency_fxTransfer_sourceCurrencyTocurrency currency                            @relation("fxTransfer_sourceCurrencyTocurrency", fields: [sourceCurrency], references: [currencyId], onDelete: NoAction, onUpdate: NoAction, map: "fxtransfer_sourcecurrency_foreign")
+  currency_fxTransfer_targetCurrencyTocurrency currency                            @relation("fxTransfer_targetCurrencyTocurrency", fields: [targetCurrency], references: [currencyId], onDelete: NoAction, onUpdate: NoAction, map: "fxtransfer_targetcurrency_foreign")
+  fxTransferFulfilment                         fxTransferFulfilment?
+  fxTransferFulfilmentDuplicateCheck           fxTransferFulfilmentDuplicateCheck?
+  fxTransferParticipant                        fxTransferParticipant[]
+  fxTransferStateChange                        fxTransferStateChange[]
+  fxTransferTimeout                            fxTransferTimeout?
+  fxWatchList                                  fxWatchList[]
+
+  @@index([sourceCurrency], map: "fxtransfer_sourcecurrency_index")
+  @@index([targetCurrency], map: "fxtransfer_targetcurrency_index")
+}
+
+model fxTransferDuplicateCheck {
+  commitRequestId String      @id @db.VarChar(36)
+  hash            String      @db.VarChar(256)
+  createdDate     DateTime    @default(now()) @db.DateTime(0)
+  fxTransfer      fxTransfer?
+}
+
+model fxTransferError {
+  commitRequestId         String                @id @db.VarChar(36)
+  fxTransferStateChangeId BigInt                @db.UnsignedBigInt
+  errorCode               Int                   @db.UnsignedInt
+  errorDescription        String                @db.VarChar(128)
+  createdDate             DateTime              @default(now()) @db.DateTime(0)
+  fxTransferStateChange   fxTransferStateChange @relation(fields: [fxTransferStateChangeId], references: [fxTransferStateChangeId], onDelete: NoAction, onUpdate: NoAction, map: "fxtransfererror_fxtransferstatechangeid_foreign")
+
+  @@index([fxTransferStateChangeId], map: "fxtransfererror_fxtransferstatechangeid_index")
+}
+
+model fxTransferErrorDuplicateCheck {
+  commitRequestId String   @id @db.VarChar(36)
+  hash            String   @db.VarChar(256)
+  createdDate     DateTime @default(now()) @db.DateTime(0)
+}
+
+model fxTransferFulfilment {
+  commitRequestId    String            @id @db.VarChar(36)
+  ilpFulfilment      String?           @db.VarChar(256)
+  completedDate      DateTime          @db.DateTime(0)
+  isValid            Boolean?
+  settlementWindowId BigInt?           @db.UnsignedBigInt
+  createdDate        DateTime          @default(now()) @db.DateTime(0)
+  fxTransfer         fxTransfer        @relation(fields: [commitRequestId], references: [commitRequestId], onDelete: NoAction, onUpdate: NoAction, map: "fxtransferfulfilment_commitrequestid_foreign")
+  settlementWindow   settlementWindow? @relation(fields: [settlementWindowId], references: [settlementWindowId], onDelete: NoAction, onUpdate: NoAction, map: "fxtransferfulfilment_settlementwindowid_foreign")
+
+  @@unique([commitRequestId, ilpFulfilment], map: "fxtransferfulfilment_commitrequestid_ilpfulfilment_unique")
+  @@index([commitRequestId], map: "fxtransferfulfilment_commitrequestid_index")
+  @@index([settlementWindowId], map: "fxtransferfulfilment_settlementwindowid_index")
+}
+
+model fxTransferFulfilmentDuplicateCheck {
+  commitRequestId String     @id @db.VarChar(36)
+  hash            String?    @db.VarChar(256)
+  createdDate     DateTime   @default(now()) @db.DateTime(0)
+  fxTransfer      fxTransfer @relation(fields: [commitRequestId], references: [commitRequestId], onDelete: NoAction, onUpdate: NoAction, map: "fxtransferfulfilmentduplicatecheck_commitrequestid_foreign")
+
+  @@index([commitRequestId], map: "fxtransferfulfilmentduplicatecheck_commitrequestid_index")
+}
+
+model fxTransferParticipant {
+  fxTransferParticipantId       BigInt                      @id @default(autoincrement()) @db.UnsignedBigInt
+  commitRequestId               String                      @db.VarChar(36)
+  participantCurrencyId         Int?                        @db.UnsignedInt
+  transferParticipantRoleTypeId Int                         @db.UnsignedInt
+  ledgerEntryTypeId             Int                         @db.UnsignedInt
+  fxParticipantCurrencyTypeId   Int?                        @db.UnsignedInt
+  amount                        Decimal                     @db.Decimal(18, 4)
+  createdDate                   DateTime                    @default(now()) @db.DateTime(0)
+  participantId                 Int                         @db.UnsignedInt
+  fxTransfer                    fxTransfer                  @relation(fields: [commitRequestId], references: [commitRequestId], onDelete: NoAction, onUpdate: NoAction, map: "fxtransferparticipant_commitrequestid_foreign")
+  fxParticipantCurrencyType     fxParticipantCurrencyType?  @relation(fields: [fxParticipantCurrencyTypeId], references: [fxParticipantCurrencyTypeId], onDelete: NoAction, onUpdate: NoAction, map: "fxtransferparticipant_fxparticipantcurrencytypeid_foreign")
+  ledgerEntryType               ledgerEntryType             @relation(fields: [ledgerEntryTypeId], references: [ledgerEntryTypeId], onDelete: NoAction, onUpdate: NoAction, map: "fxtransferparticipant_ledgerentrytypeid_foreign")
+  participantCurrency           participantCurrency?        @relation(fields: [participantCurrencyId], references: [participantCurrencyId], onDelete: NoAction, onUpdate: NoAction, map: "fxtransferparticipant_participantcurrencyid_foreign")
+  transferParticipantRoleType   transferParticipantRoleType @relation(fields: [transferParticipantRoleTypeId], references: [transferParticipantRoleTypeId], onDelete: NoAction, onUpdate: NoAction, map: "fxtransferparticipant_transferparticipantroletypeid_foreign")
+
+  @@index([commitRequestId], map: "fxtransferparticipant_commitrequestid_index")
+  @@index([fxParticipantCurrencyTypeId], map: "fxtransferparticipant_fxparticipantcurrencytypeid_foreign")
+  @@index([ledgerEntryTypeId], map: "fxtransferparticipant_ledgerentrytypeid_index")
+  @@index([participantCurrencyId], map: "fxtransferparticipant_participantcurrencyid_index")
+  @@index([participantId], map: "fxtransferparticipant_participantid_index")
+  @@index([transferParticipantRoleTypeId], map: "fxtransferparticipant_transferparticipantroletypeid_index")
+}
+
+model fxTransferStateChange {
+  fxTransferStateChangeId   BigInt                      @id @default(autoincrement()) @db.UnsignedBigInt
+  commitRequestId           String                      @db.VarChar(36)
+  transferStateId           String                      @db.VarChar(50)
+  reason                    String?                     @db.VarChar(512)
+  createdDate               DateTime                    @default(now()) @db.DateTime(0)
+  fxTransferError           fxTransferError[]
+  fxTransfer                fxTransfer                  @relation(fields: [commitRequestId], references: [commitRequestId], onDelete: NoAction, onUpdate: NoAction, map: "fxtransferstatechange_commitrequestid_foreign")
+  transferState             transferState               @relation(fields: [transferStateId], references: [transferStateId], onDelete: NoAction, onUpdate: NoAction, map: "fxtransferstatechange_transferstateid_foreign")
+  participantPositionChange participantPositionChange[]
+
+  @@index([commitRequestId], map: "fxtransferstatechange_commitrequestid_index")
+  @@index([transferStateId], map: "fxtransferstatechange_transferstateid_index")
+}
+
+model fxTransferTimeout {
+  fxTransferTimeoutId BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
+  commitRequestId     String     @unique(map: "fxtransfertimeout_commitrequestid_unique") @db.VarChar(36)
+  expirationDate      DateTime   @db.DateTime(0)
+  createdDate         DateTime   @default(now()) @db.DateTime(0)
+  fxTransfer          fxTransfer @relation(fields: [commitRequestId], references: [commitRequestId], onDelete: NoAction, onUpdate: NoAction, map: "fxtransfertimeout_commitrequestid_foreign")
+}
+
+model fxTransferType {
+  fxTransferTypeId Int           @id @default(autoincrement()) @db.UnsignedInt
+  name             String        @unique(map: "fxtransfertype_name_unique") @db.VarChar(50)
+  description      String?       @db.VarChar(512)
+  createdDate      DateTime      @default(now()) @db.DateTime(0)
+  fxWatchList      fxWatchList[]
+}
+
+model fxWatchList {
+  fxWatchListId         BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
+  commitRequestId       String         @db.VarChar(36)
+  determiningTransferId String         @db.VarChar(36)
+  fxTransferTypeId      Int            @db.UnsignedInt
+  createdDate           DateTime       @default(now()) @db.DateTime(0)
+  fxTransfer            fxTransfer     @relation(fields: [commitRequestId], references: [commitRequestId], onDelete: NoAction, onUpdate: NoAction, map: "fxwatchlist_commitrequestid_foreign")
+  fxTransferType        fxTransferType @relation(fields: [fxTransferTypeId], references: [fxTransferTypeId], onDelete: NoAction, onUpdate: NoAction, map: "fxwatchlist_fxtransfertypeid_foreign")
+
+  @@index([commitRequestId], map: "fxwatchlist_commitrequestid_index")
+  @@index([determiningTransferId], map: "fxwatchlist_determiningtransferid_index")
+  @@index([fxTransferTypeId], map: "fxwatchlist_fxtransfertypeid_foreign")
+}
+
+model migration {
+  id             Int       @id @default(autoincrement()) @db.UnsignedInt
+  name           String?   @db.VarChar(255)
+  batch          Int?
+  migration_time DateTime? @db.Timestamp(0)
+}
+
+model migration_lock {
+  index     Int  @id @default(autoincrement()) @db.UnsignedInt
+  is_locked Int?
 }

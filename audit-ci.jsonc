@@ -4,5 +4,20 @@
   // Only use one of ["low": true, "moderate": true, "high": true, "critical": true]
   "moderate": true,
   "allowlist": [ // NOTE: Please add as much information as possible to any items added to the allowList
+    "GHSA-67hx-6x53-jw92",
+    "GHSA-wf5p-g6vw-rhxx",
+    "GHSA-grv7-fg5c-xmjg",
+    "GHSA-rv95-896h-c2vc",
+    "GHSA-jchw-25xp-jwwc",
+    "GHSA-cxjh-pqwp-8mfp",
+    "GHSA-pfrx-2q88-qq97",
+    "GHSA-9pv7-vfvm-6vr7",
+    "GHSA-2p57-rm9w-gvfp",
+    "GHSA-952p-6rrq-rcjv",
+    "GHSA-vxvm-qww3-2fh7",
+    "GHSA-c2qf-rxjj-qqgw",
+    "GHSA-72xf-g2v4-qvf3",
+    "GHSA-j8xg-fqg3-53r7",
+    "GHSA-3h5v-q93c-6h6q"
   ]
 }
