@@ -5,6 +5,6 @@ test('able to create schema', async () => {
     await import('@app/schema');
   } catch (error) {
     console.error(error);
-    fail('Unable to create schema');
+    throw new Error('Unable to create schema');
   }
 });
