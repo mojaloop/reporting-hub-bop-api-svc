@@ -1025,6 +1025,7 @@ model transferParticipant {
   participantCurrency           participantCurrency?        @relation(fields: [participantCurrencyId], references: [participantCurrencyId], onDelete: NoAction, onUpdate: NoAction, map: "transferparticipant_participantcurrencyid_foreign")
   transfer                      transfer                    @relation(fields: [transferId], references: [transferId], onDelete: NoAction, onUpdate: NoAction, map: "transferparticipant_transferid_foreign")
   transferParticipantRoleType   transferParticipantRoleType @relation(fields: [transferParticipantRoleTypeId], references: [transferParticipantRoleTypeId], onDelete: NoAction, onUpdate: NoAction, map: "transferparticipant_transferparticipantroletypeid_foreign")
+  participant                   participant                 @relation(fields: [participantId], references: [participantId], onDelete: NoAction, onUpdate: NoAction, map: "participant_participantid_foreign")
 
   @@index([transferId, transferParticipantRoleTypeId, ledgerEntryTypeId], map: "getTransferInfoToChangePosition")
   @@index([ledgerEntryTypeId], map: "transferparticipant_ledgerentrytypeid_index")
