@@ -13,7 +13,7 @@ import { objectType } from 'nexus';
 const TransferSummary = objectType({
   name: 'TransferSummary',
   definition(t) {
-    t.nonNull.int('count');
+    t.nonNull.bigInt('count');
     t.nonNull.decimal('amount');
     t.field('errorCode', { type: 'Int' });
     t.field('payerDFSP', { type: 'String' });
