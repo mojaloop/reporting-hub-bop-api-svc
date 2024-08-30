@@ -30,31 +30,20 @@ const findDfsps = async (ctx: Context, transferIds: string[], type: DFSPType) =>
     },
     select: {
       transferId: true,
-      participantCurrency: {
-        include: {
-          participant: true,
-        },
-      },
+      participant: true
     },
   });
   return Object.fromEntries(
     transferParticipant.map((t) => {
-      const p = t.participantCurrency?.participant;
+      const p = t.participant;
       return [
         t.transferId,
-        p
-          ? {
-              id: p?.participantId,
-              name: p?.name,
-              description: p?.description,
-              active: p?.isActive,
-            }
-          : {
-              id: 0,
-              name: 'Unknown',
-              description: 'Unknown',
-              active: false,
-            },
+        {
+          id: p?.participantId || 0,
+          name: p?.name || '-',
+          description: p?.description || '-',
+          active: p?.isActive || false,
+        },
       ];
     })
   );

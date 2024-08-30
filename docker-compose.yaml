@@ -20,6 +20,18 @@ services:
       retries: 30
       interval: 15s
 
+  reporting-hub-bop-api-svc:
+    build:
+      context: .
+    environment:
+      - LOG_LEVEL=debug
+    volumes:
+       - ./config/default.json:/opt/reporting/config/default.json
+    ports:
+      - "3000:3000"
+    # Important to specify the network_mode as host to allow the service to connect to the host machine
+    network_mode: host
+
   ## TODO: The following sections are provided as future proof and can be enabled later.
   ## Currently we can't query the event information from api service as there is no functionality in ml-core-test-harness to push the audit messages to kafka notification topic.
   ## When it's implemented, we can enable the following services to process and store the events and run queries on that data from api service.

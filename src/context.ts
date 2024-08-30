@@ -49,14 +49,14 @@ export interface Context {
   getRequestFields: typeof getRequestFields;
 }
 
-const csMongoDBObj = new ConnectionString()
+const csMongoDBObj = new ConnectionString();
 csMongoDBObj.setDefaults({
   protocol: 'mongodb',
-  hosts: [{ name: Config.EVENT_STORE_DB.HOST, port: Config.EVENT_STORE_DB.PORT}],
+  hosts: [{ name: Config.EVENT_STORE_DB.HOST, port: Config.EVENT_STORE_DB.PORT }],
   user: Config.EVENT_STORE_DB.USER,
   password: Config.EVENT_STORE_DB.PASSWORD,
-  path: [Config.EVENT_STORE_DB.DATABASE]
-})
+  path: [Config.EVENT_STORE_DB.DATABASE],
+});
 
 export const createContext = async (ctx: any): Promise<Context> => ({
   ...ctx,

@@ -29,7 +29,11 @@ import bodyParser from 'body-parser';
 const app = express();
 const httpServer = http.createServer(app);
 
-const authMiddleware = createAuthMiddleware(Config.USER_ID_HEADER, Config.ORY_KETO_READ_URL, Config.AUTH_CHECK_PARTICIPANTS);
+const authMiddleware = createAuthMiddleware(
+  Config.USER_ID_HEADER,
+  Config.ORY_KETO_READ_URL,
+  Config.AUTH_CHECK_PARTICIPANTS
+);
 
 const loggerPlugin = {
   // Fires whenever a GraphQL request is received from a client.
@@ -43,17 +47,21 @@ const loggerPlugin = {
 const startServer = async () => {
   const server = new ApolloServer<Context>({
     schema: applyMiddleware(schema, authMiddleware),
-    plugins: [ApolloServerPluginLandingPageGraphQLPlayground(), loggerPlugin, ApolloServerPluginDrainHttpServer({ httpServer })],
+    plugins: [
+      ApolloServerPluginLandingPageGraphQLPlayground(),
+      loggerPlugin,
+      ApolloServerPluginDrainHttpServer({ httpServer }),
+    ],
     // healthCheckPath: '/health',
   });
   await server.start();
   const corsOptions = {
     origin: Config.CORS_WHITELIST,
-    credentials: Config.ALLOW_CREDENTIALS
-  }
+    credentials: Config.ALLOW_CREDENTIALS,
+  };
   app.get('/health', (req, res) => {
     res.json({
-      status: 'OK'
+      status: 'OK',
     });
   });
   app.use(
@@ -65,13 +73,12 @@ const startServer = async () => {
     // an Apollo Server instance and optional configuration options
     expressMiddleware(server, {
       context: createContext,
-    }),
+    })
   );
-  
+
   // Modified server startup
   await new Promise<void>((resolve) => httpServer.listen({ port: Config.PORT }, resolve));
   console.log(`🚀 Server ready at http://localhost:${Config.PORT}/`);
+};
 
-}
-
-startServer()
+startServer();
