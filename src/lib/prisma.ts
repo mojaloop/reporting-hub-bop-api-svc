@@ -42,6 +42,7 @@ const createEventStoreClient = (logQuery = false): EventStoreClient => {
     password: Config.EVENT_STORE_DB.PASSWORD,
     path: [Config.EVENT_STORE_DB.DATABASE],
   });
+  
   return new EventStoreClient({
     datasources: {
       db: {
@@ -51,5 +52,4 @@ const createEventStoreClient = (logQuery = false): EventStoreClient => {
     log: logQuery ? ['query'] : [],
   });
 };
-
 export { createCentralLedgerClient, createEventStoreClient, CentralLedgerClient, EventStoreClient };

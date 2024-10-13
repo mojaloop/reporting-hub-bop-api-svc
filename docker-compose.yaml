@@ -5,33 +5,24 @@ networks:
     name: mojaloop-net
 
 services:
-  reporting-hub-bop-trx-ui:
-    image: mojaloop/reporting-hub-bop-trx-ui:v1.7.2
-    environment:
-      - REACT_APP_API_BASE_URL=http://localhost:3000/
-      - REACT_APP_MOCK_API=false
+  mongodb:
+    image: mongo:latest
     ports:
-      - "8082:8082"
-    networks:
-      - mojaloop-net
-    healthcheck:
-      test: wget -q http://172.17.0.1:8082 -O /dev/null || exit 1
-      timeout: 20s
-      retries: 30
-      interval: 15s
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
 
   reporting-hub-bop-api-svc:
     build:
       context: .
     environment:
       - LOG_LEVEL=debug
-    volumes:
-       - ./config/default.json:/opt/reporting/config/default.json
     ports:
       - "3000:3000"
-    # Important to specify the network_mode as host to allow the service to connect to the host machine
-    network_mode: host
-
+    depends_on:
+      - mongodb
+    volumes:
+      - ./config/default.json:/opt/reporting/config/default.json
   ## TODO: The following sections are provided as future proof and can be enabled later.
   ## Currently we can't query the event information from api service as there is no functionality in ml-core-test-harness to push the audit messages to kafka notification topic.
   ## When it's implemented, we can enable the following services to process and store the events and run queries on that data from api service.
@@ -68,5 +59,4 @@ services:
 
 
 volumes:
-  db-data:
-    driver: local
+  mongo-data:

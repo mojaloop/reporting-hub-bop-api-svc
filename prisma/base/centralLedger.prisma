@@ -18,6 +18,8 @@ model amountType {
   quote                          quote[]
 }
 
+
+
 model balanceOfPayments {
   balanceOfPaymentsId Int      @id @db.UnsignedInt
   name                String   @unique(map: "balanceofpayments_name_unique") @db.VarChar(256)

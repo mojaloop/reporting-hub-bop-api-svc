@@ -13,7 +13,7 @@ cp .env.example .env
 ```
 Run docker container
 ```sh
-docker run -p 3000:3000 --env-file=.env reporting-api
+docker run -p :30003000 --env-file=.env reporting-api
 ```
 where `reporting-api` is the image name from the build stage:
 
