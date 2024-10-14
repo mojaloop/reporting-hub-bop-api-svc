@@ -11,40 +11,32 @@
 import { Context } from '@app/context';
 import DataLoader from 'dataloader';
 
-const ID = Symbol();
+const transferTermsID = Symbol();
 
 const findTransferTerms = async (ctx: Context, transferIds: string[]) => {
-  const trStates = await ctx.centralLedger.transferStateChange.findMany({
+  const entries = await ctx.centralLedger.transferTerms.findMany({
     where: {
       transferId: {
         in: transferIds,
       },
     },
-    select: {
-      transferId: true,
-      transferState: {
-        select: {
-          enumeration: true,
-        },
-      },
-    },
   });
-  return Object.fromEntries(trStates.map((e) => [e.transferId, e.transferState.enumeration]));
+  return Object.fromEntries(entries.map((e) => [e.transferId, e]));
 };
 
 export const  getTransferTermsDataloader = (ctx: Context) => {
   const { loaders } = ctx;
 
   // initialize DataLoader for getting payers by transfer IDs
-  let dl = loaders.get(ID);
+  let dl = loaders.get(transferTermsID);
   if (!dl) {
     dl = new DataLoader(async (transferIds: readonly string[]) => {
-      const states = await findTransferTerms(ctx, transferIds as string[]);
+      const result = await findTransferTerms(ctx, transferIds as string[]);
       // IMPORTANT: sort data in the same order as transferIds
-      return transferIds.map((tid) => states[tid]);
+      return transferIds.map((tid) => result[tid]);
     });
     // Put instance of dataloader in WeakMap for future reuse
-    loaders.set(ID, dl);
+    loaders.set(transferTermsID, dl);
   }
   return dl;
 };
