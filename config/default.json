@@ -1,15 +1,15 @@
 {
   "PORT": 3000,
   "REPORTING_DB": {
-    "DIALECT": "mongodb",
+    "DIALECT": "mysql",
     "HOST": "localhost",
     "PORT": 3306,
-    "USER": "",
-    "PASSWORD": "",
-    "SCHEMA": "reporting"
+    "USER": "central_ledger",
+    "PASSWORD": "password",
+    "SCHEMA": "central_ledger"
   },
   "EVENT_STORE_DB": {
-    "HOST": "mongodb",
+    "HOST": "localhost",
     "PORT": 27017,
     "USER": "",
     "PASSWORD": "",
