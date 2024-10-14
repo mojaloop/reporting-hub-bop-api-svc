@@ -15,3 +15,6 @@ export * from './TransferState';
 export * from './Quote';
 export * from './TransactionType';
 export * from './Settlement';
+export * from './TransferTerms';
+export * from './Conversions';
+export * from './ConversionTerms';

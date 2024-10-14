@@ -13,7 +13,7 @@ import DataLoader from 'dataloader';
 
 const ID = Symbol();
 
-const findTransferStates = async (ctx: Context, transferIds: string[]) => {
+const findConversions = async (ctx: Context, transferIds: string[]) => {
   const trStates = await ctx.centralLedger.transferStateChange.findMany({
     where: {
       transferId: {
@@ -32,14 +32,14 @@ const findTransferStates = async (ctx: Context, transferIds: string[]) => {
   return Object.fromEntries(trStates.map((e) => [e.transferId, e.transferState.enumeration]));
 };
 
-export const  getTransferStateDataloader = (ctx: Context) => {
+export const  getConversionsDataloader = (ctx: Context) => {
   const { loaders } = ctx;
 
   // initialize DataLoader for getting payers by transfer IDs
   let dl = loaders.get(ID);
   if (!dl) {
     dl = new DataLoader(async (transferIds: readonly string[]) => {
-      const states = await findTransferStates(ctx, transferIds as string[]);
+      const states = await findConversions(ctx, transferIds as string[]);
       // IMPORTANT: sort data in the same order as transferIds
       return transferIds.map((tid) => states[tid]);
     });
