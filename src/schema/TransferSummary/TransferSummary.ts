@@ -19,6 +19,7 @@ const TransferSummary = objectType({
     t.field('payerDFSP', { type: 'String' });
     t.field('payeeDFSP', { type: 'String' });
     t.field('currency', { type: 'Currency' });
+    t.field('sourceCurrency', { type: 'String' });
     // t.nonNull.list.nonNull.field('dfsps', {
     //   type: 'DFSP',
     //   resolve: (parent, _, context) =>
