@@ -14,7 +14,7 @@ import DataLoader from 'dataloader';
 const conversionTermsID = Symbol();
 
 const findConversionTerms = async (ctx: Context, transferIds: string[]) => {
-  const trStates = await ctx.centralLedger.conversionTerms.findMany({
+  const trStates = await ctx.eventStore.conversionTerms.findMany({
     where: {
       transferId: {
         in: transferIds,
