@@ -20,7 +20,6 @@ const TransferSummaryFilter = inputObjectType({
     t.field('payerDFSP', { type: 'String' });
     t.field('payeeDFSP', { type: 'String' });
     t.field('currency', { type: 'Currency' });
-    t.field('sourceCurrency', { type: 'String' });
   },
 });
 
