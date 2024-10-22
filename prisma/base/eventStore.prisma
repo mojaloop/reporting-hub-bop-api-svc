@@ -1,6 +1,6 @@
 datasource db {
   provider = "mongodb"
-  url      = "mongodb+srv://test:test@localhost/test"
+  url      = "mongodb://localhost:27017/reporting"
 }
 
 generator client {
@@ -10,7 +10,166 @@ generator client {
 }
 
 model reportingData {
-  id    String  @id @default(auto()) @map("_id") @db.ObjectId
-  event Json
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  event    Json
   metadata Json
+}
+
+model Party {
+  id                  Int     @id @default(autoincrement())
+  partyIdType         String
+  partyIdentifier     String
+  partyName           String
+  supportedCurrencies String
+}
+
+model QuoteRequest {
+  id         Int     @id @default(autoincrement())
+  quoteId    String
+  amountType String
+  amount     Amount
+  fees       Amount
+  transactionId Int @unique
+  Transaction Transaction @relation(fields: [transactionId], references: [id])
+}
+
+model Amount {
+  id       Int     @id @default(autoincrement())
+  currency String
+  amount   Float
+}
+
+model TransferTerms {
+  id                Int     @id @default(autoincrement())
+  transferAmount    Amount
+  payeeReceiveAmount Amount
+  payeeFspFee       Amount
+  payeeFspCommission Amount
+  expiration        DateTime
+  geoCode           GeoCode
+  ilpPacket         String
+  transactionId     Int @unique
+  Transaction       Transaction @relation(fields: [transactionId], references: [id])
+}
+
+model GeoCode {
+  id        Int     @id @default(autoincrement())
+  latitude  String
+  longitude String
+}
+
+model ConversionTerms {
+  id                  Int     @id @default(autoincrement())
+  conversionId        String
+  determiningTransferId String
+  initiatingFsp       String
+  counterPartyFsp     String
+  amountType          String
+  sourceAmount        Amount
+  targetAmount        Amount
+  expiration          DateTime
+  charges             Charge[]
+  ilpPacket           String
+  conversionIdRef     Int @unique
+  Conversion          Conversion @relation(fields: [conversionIdRef], references: [id])
+}
+
+model Charge {
+  id            Int     @id @default(autoincrement())
+  chargeType    String
+  sourceAmount  Amount
+  targetAmount  Amount
+  conversionId  Int
+  Conversion    Conversion @relation(fields: [conversionId], references: [id])
+}
+
+model Conversion {
+  id                       Int     @id @default(autoincrement())
+  conversionRequestId       String
+  conversionId              String
+  conversionCommitRequestId String
+  conversionState           String
+  conversionStateChanges    ConversionStateChange[]
+  counterPartyFSP           String
+  conversionType            String
+  conversionSettlementWindowId Int
+  conversionTerms           ConversionTerms?
+  transactionId             Int
+  Transaction               Transaction @relation(fields: [transactionId], references: [id])
+}
+
+model ConversionStateChange {
+  id             Int     @id @default(autoincrement())
+  conversionState String
+  dateTime       DateTime
+  reason         String?
+  conversionId   Int
+  Conversion     Conversion @relation(fields: [conversionId], references: [id])
+}
+
+model Transaction {
+  id                       Int     @id @default(autoincrement())
+  transferId               String  @unique
+  transactionId            String  @unique
+  sourceAmount             Float
+  sourceCurrency           String
+  targetAmount             Float
+  targetCurrency           String
+  createdAt                DateTime @index
+  lastUpdated              DateTime
+  transferState            String   @index
+  transferStateChanges     TransferStateChange[]
+  transactionType          String   @index
+  errorCode                String?  @index
+  transferSettlementWindowId Int
+  payerDFSP                String   @index
+  payerDFSPProxy           String?  @index
+  payeeDFSP                String   @index
+  payeeDFSPProxy           String?  @index
+  positionChanges          PositionChange[]
+  payerPartyId             Int?     @relation("PayerParty", fields: [payerPartyId], references: [id])
+  payeePartyId             Int?     @relation("PayeeParty", fields: [payeePartyId], references: [id])
+  quoteRequestId           Int?     @relation(fields: [quoteRequestId], references: [id])
+  quoteRequest             QuoteRequest?
+  transferTermsId          Int?     @relation(fields: [transferTermsId], references: [id])
+  transferTerms            TransferTerms?
+  conversions              Conversion[]
+}
+
+model TransferStateChange {
+  id           Int     @id @default(autoincrement())
+  transferState String
+  dateTime     DateTime
+  reason       String?
+  transactionId Int
+  Transaction  Transaction @relation(fields: [transactionId], references: [id])
+}
+
+model PositionChange {
+  id               Int     @id @default(autoincrement())
+  participantName  String
+  currency         String
+  ledgerType       String
+  dateTime         DateTime
+  updatedPosition  String
+  change           String
+  transactionId    Int
+  Transaction      Transaction @relation(fields: [transactionId], references: [id])
+}
+
+model SettlementWindow {
+  id                 Int     @id @default(autoincrement())
+  settlementWindowId Int     @unique
+  settlementId       Int
+  Settlement         Settlement @relation(fields: [settlementId], references: [id])
+}
+
+model Settlement {
+  id              Int     @id @default(autoincrement())
+  settlementId    Int     @unique
+  createdAt       DateTime
+  lastUpdatedAt   DateTime
+  settlementModel String
+  settlementStatus String
+  settlementWindows SettlementWindow[]
 }

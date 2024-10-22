@@ -44,7 +44,7 @@ const Query = extendType({
         transferId: nonNull(stringArg()),
       },
       resolve: async (parent, args, ctx) => {
-        const tr = await ctx.centralLedger.transfer.findUnique({
+        const tr = await ctx.eventStore.transfer.findUnique({
           where: {
             transferId: args.transferId,
           },
@@ -72,7 +72,7 @@ const Query = extendType({
       resolve: async (parent, args, ctx) => {
         const transferFilter = createTransferFilter(ctx.participants, args.filter);
 
-        const transfers = await ctx.centralLedger.transfer.findMany({
+        const transfers = await ctx.eventStore.transfer.findMany({
           take: args.limit ?? 100,
           skip: args.offset || undefined,
           orderBy: [{ createdDate: 'desc' }],

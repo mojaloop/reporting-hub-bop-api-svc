@@ -18,6 +18,9 @@ import {
   getSettlementDataloader,
   getTransactionTypeDataloader,
   getTransferStateDataloader,
+  getTransferTermsDataloader,
+  getConversionsDataloader,
+  getConversionTermsDataloader,
 } from './dataloaders';
 import { Context } from '@app/context';
 import { getTransferErrorDataloader } from '@app/schema/Transfer/dataloaders/TransferError';
@@ -64,13 +67,17 @@ const Transfer = objectType({
     });
     t.decimal('amount');
     t.currency('currency');
-    t.string('createdAt');
+    t.dateTime('createdAt');
+    t.dateTime('lastUpdated')
     t.field('transferState', {
       type: 'String', // 'TransferState'
       resolve: (parent, _, ctx) => {
         return getTransferStateDataloader(ctx).load(parent.transferId);
       },
     });
+    t.field('transferStateChanges', {
+      type: TransferStateChange
+    })
     t.field('transactionType', {
       type: 'String', // TransactionType
       resolve: async (parent, _, ctx) => {
@@ -114,6 +121,9 @@ const Transfer = objectType({
         return getDFSPDataloader(ctx, 'PAYEE_DFSP').load(parent.transferId);
       },
     });
+
+    // New fields
+    /********************************************************************************************/
     t.field('payerParty', {
       type: 'Party',
       resolve: (parent, _, ctx) => {
@@ -126,6 +136,39 @@ const Transfer = objectType({
         return getPartyDataloader(ctx, 'PAYEE').load(parent.transferId);
       },
     });
+    t.field('transferTerms', {
+      type: TransferTerms,
+      resolve: async (parent, _, ctx) => {
+        return getTransferTermsDataloader(ctx).load(parent.transferId);
+      },
+    });
+
+    t.field('conversions', {
+      type: Conversion,
+      resolve: async (parent, _, ctx) => {
+        return getConversionsDataloader(ctx).load(parent.transferId);
+      },
+    });
+    t.field('conversionTerms', {
+      type: ConversionTerms,
+      resolve: async (parent, _, ctx) => {
+        return getConversionTermsDataloader(ctx).load(parent.transferId);
+      },
+    });
+    t.field('fxQuotes', {
+      type: FxQuotes,
+      resolve: async (parent, _, ctx) => {
+        return getConversionTermsDataloader(ctx).load(parent.transferId);
+      },
+    });
+    t.field('fxTransfers', {
+      type: FxTransfers,
+      resolve: async (parent, _, ctx) => {
+        return getConversionTermsDataloader(ctx).load(parent.transferId);
+      },
+    });
+    /********************************************************************************************/
+
     t.list.jsonObject('partyLookupEvents', {
       resolve: async (parent, _, ctx) => {
         return getEvents(ctx, parent.transferId, 'PartyLookup');
@@ -145,6 +188,180 @@ const Transfer = objectType({
       resolve: async (parent, _, ctx) => {
         return getEvents(ctx, parent.transferId, 'Settlement');
       },
+    });
+  },
+});
+
+
+// required types for the new fields
+const TransferStateChange = objectType({
+  name: 'TransferStateChange',
+  definition(t) {
+    t.string('transferState');
+    t.dateTime('dateTime');
+    t.string('reason');
+    t.string('transactionId');
+  },
+});
+
+const PositionChange = objectType({
+  name: 'PositionChange',
+  definition(t) {
+    t.string('participationName');
+    t.string('currency');
+    t.string('ledgerType');
+    t.dateTime('dateTime');
+    t.float('updatedPosition');
+    t.float('change');
+    t.int('transactionId');
+  },
+});
+
+const Party = objectType({
+  name: 'Party',
+  definition(t) {
+    t.string('partyIdType');
+    t.string('partyIdentifier');
+    t.string('partyName');
+    t.string('supportedCurrencies');
+  },
+});
+
+const TransferTerms = objectType({
+  name: 'TransferTerms',
+  definition(t) {
+    t.field('quoteAmount', {
+      type: Amount,
+    });
+    t.string('quoteAmountType');
+    t.field('transferAmount', {
+      type: Amount,
+    });
+    t.field('payeeReceiveAmount', {
+      type: Amount,
+    });
+    t.field('payeeFspFee', {
+      type: Amount,
+    });
+    t.field('payeeFspCommission', {
+      type: Amount,
+    });
+    t.string('expirationDate');
+    t.field('geoCode', {
+      type: GeoCode,
+    });
+    t.string('ilpPacket');
+    t.int('transactionId');
+  },
+});
+
+const Conversion = objectType({
+  name: 'Conversion',
+  definition(t) {
+    t.string('conversionRequestId');
+    t.string('conversionId');
+    t.string('conversionCommitRequestId');
+    t.string('conversionState');
+    t.list.field('conversionStateChanges', {
+      type: ConversionStateChange,
+    });
+    t.string('counterPartyFSP');
+    t.int('conversionSettlementWindowId');
+    t.field('conversionTerms', { 
+      type: ConversionTerms, });
+    t.int('transactionId');
+    t.string('conversionType');
+  },
+});
+
+const ConversionTerms = objectType({
+  name: 'ConversionTerms',
+  definition(t) {
+    t.string('conversionId');
+    t.string('determiningTransferId');
+    t.string('initiatingFsp');
+    t.string('counterPartyFsp');
+    t.string('amountType')
+    t.field('transferAmount', {
+      type: TransferAmount,
+    });
+    t.dateTime('expiration');
+    t.field('charges', {
+      type: Charges,
+    });
+    t.string('ilpPacket');
+    t.int('conversionIdRef');
+  },
+});
+
+const ConversionStateChange = objectType({
+  name: 'ConversionStateChange',
+  definition(t) {
+    t.string('conversionState');
+    t.date('dateTime');
+    t.string('reason');
+    t.int('conversionId');
+    t.field ('conversion', {
+      type: Conversion
+    })
+  },
+});
+
+const FxQuotes = objectType({
+  name: 'FxQuotes',
+  definition(t) {
+    t.field('Amount', {
+      type: Amount
+    });
+  },
+});
+
+const FxTransfers = objectType({
+  name: 'FxTransfers',
+  definition(t) {
+    t.field('Amount', {
+      type: Amount
+    });
+  },
+});
+
+const GeoCode = objectType({
+  name: 'GeoCode',
+  definition(t) {
+    t.string('latitude');
+    t.string('longitude');
+  },
+});
+
+const Amount = objectType({
+  name: 'Amount',
+  definition(t) {
+    t.string('currency');
+    t.decimal('amount');
+  },
+});
+
+const Charges = objectType({
+  name: 'Charges',
+  definition(t) {
+    t.field('totalSourceCurrencyCharges', {
+      type: Amount,
+    });
+    t.field('totalTargetCurrencyCharges', {
+      type: Amount,
+    });
+  },
+});
+
+
+const TransferAmount = objectType({
+  name: 'TransferAmount',
+  definition(t) {
+    t.field('sourceAmount', {
+      type: Amount,
+    });
+    t.field('targetAmount', {
+      type: Amount,
     });
   },
 });
