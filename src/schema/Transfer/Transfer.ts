@@ -155,6 +155,18 @@ const Transfer = objectType({
         return getConversionTermsDataloader(ctx).load(parent.transferId);
       },
     });
+    t.field('fxQuotes', {
+      type: FxQuotes,
+      resolve: async (parent, _, ctx) => {
+        return getConversionTermsDataloader(ctx).load(parent.transferId);
+      },
+    });
+    t.field('fxTransfers', {
+      type: FxTransfers,
+      resolve: async (parent, _, ctx) => {
+        return getConversionTermsDataloader(ctx).load(parent.transferId);
+      },
+    });
     /********************************************************************************************/
 
     t.list.jsonObject('partyLookupEvents', {
@@ -292,6 +304,24 @@ const ConversionStateChange = objectType({
     t.field ('conversion', {
       type: Conversion
     })
+  },
+});
+
+const FxQuotes = objectType({
+  name: 'FxQuotes',
+  definition(t) {
+    t.field('Amount', {
+      type: Amount
+    });
+  },
+});
+
+const FxTransfers = objectType({
+  name: 'FxTransfers',
+  definition(t) {
+    t.field('Amount', {
+      type: Amount
+    });
   },
 });
 
