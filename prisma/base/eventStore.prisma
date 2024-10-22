@@ -21,8 +21,6 @@ model Party {
   partyIdentifier     String
   partyName           String
   supportedCurrencies String
-  TransactionPayer    Transaction? @relation("PayerParty", fields: [transactionId], references: [id])
-  TransactionPayee    Transaction? @relation("PayeeParty", fields: [transactionId], references: [id])
 }
 
 model QuoteRequest {
@@ -117,17 +115,17 @@ model Transaction {
   sourceCurrency           String
   targetAmount             Float
   targetCurrency           String
-  createdAt                DateTime @index
+  createdAt                DateTime 
   lastUpdated              DateTime
-  transferState            String   @index
+  transferState            String   
   transferStateChanges     TransferStateChange[]
-  transactionType          String   @index
-  errorCode                String?  @index
+  transactionType          String   
+  errorCode                String?  
   transferSettlementWindowId Int
-  payerDFSP                String   @index
-  payerDFSPProxy           String?  @index
-  payeeDFSP                String   @index
-  payeeDFSPProxy           String?  @index
+  payerDFSP                String   
+  payerDFSPProxy           String?  
+  payeeDFSP                String   
+  payeeDFSPProxy           String?  
   positionChanges          PositionChange[]
   payerPartyId             Int?     @relation("PayerParty", fields: [payerPartyId], references: [id])
   payeePartyId             Int?     @relation("PayeeParty", fields: [payeePartyId], references: [id])
@@ -153,8 +151,8 @@ model PositionChange {
   currency         String
   ledgerType       String
   dateTime         DateTime
-  updatedPosition  Float
-  change           Float
+  updatedPosition  String
+  change           String
   transactionId    Int
   Transaction      Transaction @relation(fields: [transactionId], references: [id])
 }

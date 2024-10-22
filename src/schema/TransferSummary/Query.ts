@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 /**************************************************************************
  *  (C) Copyright Mojaloop Foundation 2020                                *
  *                                                                        *
@@ -19,7 +20,7 @@ const TransferSummaryFilter = inputObjectType({
     t.field('errorCode', { type: 'Int' });
     t.field('payerDFSP', { type: 'String' });
     t.field('payeeDFSP', { type: 'String' });
-    t.field('currency', { type: 'Currency' });
+    t.field('targetCurrency', { type: 'String' });
     t.field('sourceCurrency', { type: 'String' });
   },
 });
@@ -37,43 +38,189 @@ const Query = extendType({
       resolve: async (parent, args, ctx, info) => {
         const fields = ctx.getRequestFields(info) as NexusGenObjects['TransferSummary'];
 
-        return ctx.centralLedger.$queryRawUnsafe(`
-          SELECT
-            COUNT(t.transferId) as count,
-            SUM(t.amount) as amount,
-            IF(${!!fields.payerDFSP}, pPayer.name, NULL) AS payerDFSP,
-            IF(${!!fields.payeeDFSP}, pPayee.name, NULL) AS payeeDFSP,
-            IF(${!!fields.currency}, c.currencyId, NULL) AS currency,
-            IF(${!!fields.errorCode}, tE.errorCode, NULL) AS errorCode
-        FROM
-            transfer t
-            LEFT JOIN transferFulfilment tF ON t.transferId = tF.transferId
-            LEFT JOIN transferParticipant tPPayer ON tPPayer.transferId = t.transferId
-                AND tPPayer.transferParticipantRoleTypeId = (SELECT transferParticipantRoleTypeId from transferParticipantRoleType WHERE name = 'PAYER_DFSP')
-                LEFT JOIN participant pPayer ON pPayer.participantId = tPPayer.participantId
-            LEFT JOIN transferParticipant tPPayee ON tPPayee.transferId = t.transferId
-                AND tPPayee.transferParticipantRoleTypeId = (SELECT transferParticipantRoleTypeId from transferParticipantRoleType WHERE name = 'PAYEE_DFSP')
-                LEFT JOIN participant pPayee ON pPayee.participantId = tPPayee.participantId
-            LEFT JOIN currency c on t.currencyId = c.currencyId
-            LEFT JOIN transferError tE on t.transferId = tE.transferId
-        WHERE TRUE
-            AND IF(${!!args.filter?.startDate}, t.createdDate >= '${args.filter?.startDate}', TRUE)
-            AND IF(${!!args.filter?.endDate}, t.createdDate < '${args.filter?.endDate}', TRUE)
-            AND IF(${!!args.filter?.payerDFSP}, pPayer.name = '${args.filter?.payerDFSP}', TRUE)
-            AND IF(${!!args.filter?.payeeDFSP}, pPayee.name = '${args.filter?.payerDFSP}', TRUE)
-            AND IF(${!!args.filter?.currency}, c.currencyId = '${args.filter?.currency}', TRUE)
-            AND IF(${!!args.filter?.errorCode}, tE.errorCode = '${args.filter?.errorCode}', TRUE)
-        GROUP BY
-            IF(${!!fields.payerDFSP}, pPayer.name, NULL),
-            IF(${!!fields.payeeDFSP}, pPayee.name, NULL),
-            IF(${!!fields.currency}, c.currencyId, NULL),
-            IF(${!!fields.errorCode}, tE.errorCode, NULL)
-        LIMIT ${args.limit || 100}
-        OFFSET ${args.offset || 0}
-        `);
+        // Build pipeline stages
+        const pipeline = [
+          // Joins
+          {
+            $lookup: {
+              from: 'transferFulfilment',
+              localField: 'transferId',
+              foreignField: 'transferId',
+              as: 'fulfilment',
+            },
+          },
+          {
+            $lookup: {
+              from: 'transferParticipant',
+              let: { transferId: '$transferId' },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: {
+                      $and: [
+                        { $eq: ['$transferId', '$$transferId'] },
+                        { $eq: ['$transferParticipantRoleTypeId', 'PAYER_DFSP'] },
+                      ],
+                    },
+                  },
+                },
+                {
+                  $lookup: {
+                    from: 'participant',
+                    localField: 'participantId',
+                    foreignField: 'participantId',
+                    as: 'participant',
+                  },
+                },
+                { $unwind: '$participant' },
+              ],
+              as: 'payerParticipant',
+            },
+          },
+          {
+            $lookup: {
+              from: 'transferParticipant',
+              let: { transferId: '$transferId' },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: {
+                      $and: [
+                        { $eq: ['$transferId', '$$transferId'] },
+                        { $eq: ['$transferParticipantRoleTypeId', 'PAYEE_DFSP'] },
+                      ],
+                    },
+                  },
+                },
+                {
+                  $lookup: {
+                    from: 'participant',
+                    localField: 'participantId',
+                    foreignField: 'participantId',
+                    as: 'participant',
+                  },
+                },
+                { $unwind: '$participant' },
+              ],
+              as: 'payeeParticipant',
+            },
+          },
+          {
+            $lookup: {
+              from: 'currency',
+              localField: 'currencyId',
+              foreignField: 'currencyId',
+              as: 'currency',
+            },
+          },
+          {
+            $lookup: {
+              from: 'transferError',
+              localField: 'transferId',
+              foreignField: 'transferId',
+              as: 'error',
+            },
+          },
+          { $unwind: { path: '$payerParticipant', preserveNullAndEmptyArrays: true } },
+          { $unwind: { path: '$payeeParticipant', preserveNullAndEmptyArrays: true } },
+          { $unwind: { path: '$currency', preserveNullAndEmptyArrays: true } },
+          { $unwind: { path: '$error', preserveNullAndEmptyArrays: true } },
+
+          // Match conditions
+          {
+            $match: {
+              $and: [...buildMatchConditions(args.filter)],
+            },
+          },
+
+          // Group
+          {
+            $group: {
+              _id: buildGroupId(fields),
+              count: { $sum: 1 },
+              amount: { $sum: '$amount' },
+              payerDFSP: {
+                $first: fields.payerDFSP ? '$payerParticipant.participant.name' : null,
+              },
+              payeeDFSP: {
+                $first: fields.payeeDFSP ? '$payeeParticipant.participant.name' : null,
+              },
+              sourceCurrency: {
+                $first: fields.sourceCurrency ? '$sourceCurrency.currencyId' : null,
+              },
+              targetCurrency: {
+                $first: fields.targetCurrency ? '$targetCurrency.currencyId' : null,
+              },
+              errorCode: {
+                $first: fields.errorCode ? '$error.errorCode' : null,
+              },
+            },
+          },
+
+          // Pagination
+          { $skip: args.offset || 0 },
+          { $limit: args.limit || 100 },
+        ];
+
+        return ctx.db.collection('transfer').aggregate(pipeline).toArray();
       },
     });
   },
 });
+
+function buildMatchConditions(filter: any): Record<string, any>[] {
+  const conditions: Record<string, any>[] = [];
+
+  if (filter?.startDate) {
+    conditions.push({ createdDate: { $gte: new Date(filter.startDate) } });
+  }
+
+  if (filter?.endDate) {
+    conditions.push({ createdDate: { $lt: new Date(filter.endDate) } });
+  }
+
+  if (filter?.payerDFSP) {
+    conditions.push({
+      'payerParticipant.participant.name': filter.payerDFSP,
+    });
+  }
+
+  if (filter?.payeeDFSP) {
+    conditions.push({
+      'payeeParticipant.participant.name': filter.payeeDFSP,
+    });
+  }
+
+  if (filter?.currency) {
+    conditions.push({
+      'currency.currencyId': filter.currency,
+    });
+  }
+
+  if (filter?.errorCode) {
+    conditions.push({
+      'error.errorCode': filter.errorCode,
+    });
+  }
+
+  return conditions.length ? conditions : [{}];
+}
+
+function buildGroupId(fields: any): Record<string, string> {
+  return {
+    ...(fields.payerDFSP && {
+      payerDFSP: '$payerParticipant.participant.name',
+    }),
+    ...(fields.payeeDFSP && {
+      payeeDFSP: '$payeeParticipant.participant.name',
+    }),
+    ...(fields.currency && {
+      currency: '$currency.currencyId',
+    }),
+    ...(fields.errorCode && {
+      errorCode: '$error.errorCode',
+    }),
+  };
+}
 
 export default [Query, TransferSummaryFilter];
