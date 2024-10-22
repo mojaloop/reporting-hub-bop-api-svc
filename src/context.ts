@@ -39,6 +39,7 @@ eventStore.$on('query', async (e) => {
 centralLedger.$use(createCacheMiddleware());
 
 export interface Context {
+  db: any;
   log: typeof Logger;
   centralLedger: typeof centralLedger;
   eventStore: typeof eventStore;
