@@ -117,6 +117,7 @@ model Conversion {
   @@unique([conversionRequestId])
   @@unique([conversionId])
   @@index([conversionState])
+  Charge Charge[]
 }
 
 model ConversionStateChange {

@@ -15,10 +15,11 @@ import { join, dirname } from 'path';
 import Scalar from './Scalar';
 import DFSP from './DFSP';
 import Transaction from './Transfer';
+import Settlement from './Transfer';
 import Party from './Party';
 import TransactionSummary from './TransferSummary';
 
-const types = [Scalar, DFSP, Transaction, Party, TransactionSummary];
+const types = [Scalar, DFSP, Transaction, Party, TransactionSummary, Transaction, Settlement];
 
 const Query = queryType({
   definition(t) {

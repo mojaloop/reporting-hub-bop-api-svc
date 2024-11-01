@@ -107,10 +107,18 @@ const Query = extendType({
           },
           {
             $lookup: {
-              from: 'currency',
+              from: 'sourceCurrency',
               localField: 'currencyId',
               foreignField: 'currencyId',
-              as: 'currency',
+              as: 'sourceCurrency',
+            },
+          },
+          {
+            $lookup: {
+              from: 'targetCurrency',
+              localField: 'currencyId',
+              foreignField: 'currencyId',
+              as: 'targetCurrency',
             },
           },
           {
@@ -123,7 +131,8 @@ const Query = extendType({
           },
           { $unwind: { path: '$payerParticipant', preserveNullAndEmptyArrays: true } },
           { $unwind: { path: '$payeeParticipant', preserveNullAndEmptyArrays: true } },
-          { $unwind: { path: '$currency', preserveNullAndEmptyArrays: true } },
+          { $unwind: { path: '$sourceCurrency', preserveNullAndEmptyArrays: true } },
+          { $unwind: { path: '$targetCurrency', preserveNullAndEmptyArrays: true } },
           { $unwind: { path: '$error', preserveNullAndEmptyArrays: true } },
 
           // Match conditions
@@ -191,9 +200,15 @@ function buildMatchConditions(filter: any): Record<string, any>[] {
     });
   }
 
-  if (filter?.currency) {
+  if (filter?.sourceCurrency) {
     conditions.push({
-      'currency.currencyId': filter.currency,
+      'sourceCurrency.currencyId': filter.sourceCurrency,
+    });
+  }
+
+  if (filter?.targetCurrency) {
+    conditions.push({
+      'targetCurrency.currencyId': filter.targetCurrency,
     });
   }
 
@@ -214,8 +229,11 @@ function buildGroupId(fields: any): Record<string, string> {
     ...(fields.payeeDFSP && {
       payeeDFSP: '$payeeParticipant.participant.name',
     }),
-    ...(fields.currency && {
-      currency: '$currency.currencyId',
+    ...(fields.sourceCurrency && {
+      sourceCurrency: '$sourceCurrency.currencyId',
+    }),
+    ...(fields.targetCurrency && {
+      targetCurrency: '$targetCurrency.currencyId',
     }),
     ...(fields.errorCode && {
       errorCode: '$error.errorCode',

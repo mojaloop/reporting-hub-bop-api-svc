@@ -28,6 +28,7 @@ const TransferFilter = inputObjectType({
     t.field('errorCode', { type: 'Int' });
     t.field('payer', { type: 'PartyFilter' });
     t.field('payee', { type: 'PartyFilter' });
+    t.field('sourceCurrency', { type: 'SourceCurrency' });
     t.field('currency', { type: 'Currency' });
     t.field('transferState', { type: 'TransferState' });
     t.field('settlementWindowId', { type: 'Int' });
@@ -44,20 +45,20 @@ const Query = extendType({
         transferId: nonNull(stringArg()),
       },
       resolve: async (parent, args, ctx) => {
-        const tr = await ctx.centralLedger.transfer.findUnique({
+        const tr = await ctx.eventStore.reportingData.findUnique({
           where: {
-            transferId: args.transferId,
+            id: args.transferId,
           },
         });
         if (!tr) {
           return null;
         }
         return {
-          transferId: tr.transferId,
-          amount: tr.amount.toNumber(),
-          currency: tr.currencyId,
-          createdAt: tr.createdDate.toISOString(),
-          ilpCondition: tr.ilpCondition,
+          transferId: tr.id,
+          // amount: tr.amount.toNumber(),
+          // currency: tr.currencyId,
+          // createdAt: tr.createdDate.toISOString(),
+          // ilpCondition: tr.ilpCondition,
         };
       },
     });
