@@ -1,16 +1,198 @@
 datasource db {
   provider = "mongodb"
-  url      = "mongodb+srv://test:test@localhost/test"
+  url      = "mongodb://localhost:27017/reporting"
 }
-
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["mongoDb"]
+  provider = "prisma-client-js"
   output   = "eventStore"
 }
-
-model reportingData {
-  id    String  @id @default(auto()) @map("_id") @db.ObjectId
-  event Json
+model ReportingData {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  event    Json
   metadata Json
+  createdAt DateTime @default(now())
+}
+type Amount {
+  currency String
+  amount   Float
+}
+type GeoCode {
+  latitude  String
+  longitude String
+}
+type DFSP {
+  id String
+  name String
+  description String
+}
+model Party {
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  partyIdType        String
+  partyIdentifier    String
+  partyName          String
+  supportedCurrencies String[]
+  transactionsAsPayer Transaction[] @relation("PayerParty")
+  transactionsAsPayee Transaction[] @relation("PayeeParty")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  @@index([partyIdentifier])
+}
+model QuoteRequest {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  quoteId    String
+  amountType String
+  amount     Amount
+  fees       Amount?
+  transaction Transaction @relation(fields: [transactionId], references: [id])
+  transactionId String @unique @db.ObjectId
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@unique([quoteId])
+}
+model TransferTerms {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  transferAmount     Amount
+  payeeReceiveAmount Amount
+  payeeFspFee       Amount?
+  payeeFspCommission Amount?
+  expiration        DateTime
+  geoCode           GeoCode?
+  ilpPacket         String
+  transaction       Transaction @relation(fields: [transactionId], references: [id])
+  transactionId     String @unique @db.ObjectId
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+model ConversionTerms {
+  id                   String   @id @default(auto()) @map("_id") @db.ObjectId
+  conversionId         String   @db.ObjectId
+  determiningTransferId String
+  initiatingFsp        String
+  counterPartyFsp      String
+  amountType           String
+  sourceAmount         Amount
+  targetAmount         Amount
+  expiration           DateTime
+  charges              Charge[]
+  ilpPacket            String
+  conversion           Conversion @relation(fields: [conversionId], references: [id])
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  @@unique([conversionId])
+}
+model Charge {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  chargeType    String
+  sourceAmount  Amount
+  targetAmount  Amount
+  conversion    Conversion @relation(fields: [conversionId], references: [id])
+  conversionId  String @db.ObjectId
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+model Conversion {
+  id                          String   @id @default(auto()) @map("_id") @db.ObjectId
+  conversionRequestId         String
+  conversionId                String
+  conversionCommitRequestId   String
+  conversionState             String
+  conversionStateChanges      ConversionStateChange[]
+  counterPartyFSP            String
+  conversionType             String
+  conversionSettlementWindowId Int
+  conversionTerms            ConversionTerms?
+  transaction                Transaction @relation(fields: [transactionId], references: [id])
+  transactionId              String @db.ObjectId
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+  @@unique([conversionRequestId])
+  @@unique([conversionId])
+  @@index([conversionState])
+  Charge Charge[]
+}
+model ConversionStateChange {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  conversionState String
+  dateTime        DateTime
+  reason          String?
+  conversion      Conversion @relation(fields: [conversionId], references: [id])
+  conversionId    String @db.ObjectId
+  createdAt       DateTime @default(now())
+  @@index([conversionState])
+}
+model Transaction {
+  id                        String   @id @default(auto()) @map("_id") @db.ObjectId
+  transferId                String
+  transactionId             String
+  sourceAmount              Float
+  sourceCurrency           String
+  targetAmount             Float
+  targetCurrency           String
+  transferState            String
+  transferStateChanges     TransferStateChange[]
+  transactionType          String
+  errorCode                String?
+  transferSettlementWindowId Int
+  payerDFSP               DFSP?
+  payerDFSPProxy          String?
+  payeeDFSP               DFSP?
+  payeeDFSPProxy          String?
+  positionChanges         PositionChange[]
+  payerParty              Party?   @relation("PayerParty", fields: [payerPartyId], references: [id])
+  payerPartyId            String? @db.ObjectId
+  payeeParty              Party?   @relation("PayeeParty", fields: [payeePartyId], references: [id])
+  payeePartyId            String? @db.ObjectId
+  quoteRequest            QuoteRequest?
+  transferTerms           TransferTerms?
+  conversions             Conversion[]
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+  @@unique([transferId])
+  @@unique([transactionId])
+  @@index([transferState])
+  @@index([transactionType])
+}
+model TransferStateChange {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  transferState String
+  dateTime      DateTime
+  reason        String?
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  transactionId String @db.ObjectId
+  createdAt     DateTime @default(now())
+  @@index([transferState])
+}
+model PositionChange {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  participantName  String
+  currency         String
+  ledgerType       String
+  dateTime         DateTime
+  updatedPosition  String
+  change           String
+  transaction      Transaction @relation(fields: [transactionId], references: [id])
+  transactionId    String @db.ObjectId
+  createdAt        DateTime @default(now())
+  @@index([participantName])
+  @@index([currency])
+}
+model SettlementWindow {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  settlementWindowId Int
+  settlement         Settlement @relation(fields: [settlementId], references: [id])
+  settlementId       String @db.ObjectId
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  @@unique([settlementWindowId])
+}
+model Settlement {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  settlementId      Int
+  settlementModel   String
+  settlementStatus  String
+  settlementWindows SettlementWindow[]
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  @@unique([settlementId])
+  @@index([settlementStatus])
 }

@@ -28,7 +28,9 @@ const TransferFilter = inputObjectType({
     t.field('errorCode', { type: 'Int' });
     t.field('payer', { type: 'PartyFilter' });
     t.field('payee', { type: 'PartyFilter' });
-    t.field('currency', { type: 'Currency' });
+    t.field('amount', { type: 'Int' });
+    t.field('sourceCurrency', { type: 'Currency' });
+    t.field('targetCurrency', { type: 'Currency' });
     t.field('transferState', { type: 'TransferState' });
     t.field('settlementWindowId', { type: 'Int' });
     t.field('settlementId', { type: 'Int' });
@@ -44,9 +46,9 @@ const Query = extendType({
         transferId: nonNull(stringArg()),
       },
       resolve: async (parent, args, ctx) => {
-        const tr = await ctx.centralLedger.transfer.findUnique({
+        const tr = await ctx.eventStore.transaction.findMany({
           where: {
-            transferId: args.transferId,
+            transactionId: args.transferId,
           },
         });
         if (!tr) {
@@ -54,9 +56,10 @@ const Query = extendType({
         }
         return {
           transferId: tr.transferId,
-          amount: tr.amount.toNumber(),
-          currency: tr.currencyId,
-          createdAt: tr.createdDate.toISOString(),
+          amount: tr.amount, //.toNumber()
+          sourceCurrency: tr.sourceCurrency,
+          targetCurrency: tr.targetCurrency,
+          createdAt: tr.createdDate, //.toISOString(),
           ilpCondition: tr.ilpCondition,
         };
       },
@@ -72,7 +75,7 @@ const Query = extendType({
       resolve: async (parent, args, ctx) => {
         const transferFilter = createTransferFilter(ctx.participants, args.filter);
 
-        const transfers = await ctx.centralLedger.transfer.findMany({
+        const transfers = await ctx.eventStore.reportingData.findMany({
           take: args.limit ?? 100,
           skip: args.offset || undefined,
           orderBy: [{ createdDate: 'desc' }],
@@ -81,7 +84,8 @@ const Query = extendType({
         return transfers.map((tr) => ({
           transferId: tr.transferId,
           amount: tr.amount.toNumber(),
-          currency: tr.currencyId,
+          sourceCurrency: tr.currencyId,
+          targetCurrency: tr.currencyId,
           createdAt: tr.createdDate.toISOString(),
           ilpCondition: tr.ilpCondition,
         }));

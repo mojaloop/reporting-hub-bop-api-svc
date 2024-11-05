@@ -63,7 +63,8 @@ const Transfer = objectType({
       },
     });
     t.decimal('amount');
-    t.currency('currency');
+    t.string('sourceCurrency');
+    t.string('targetCurrency');
     t.string('createdAt');
     t.field('transferState', {
       type: 'String', // 'TransferState'
@@ -105,7 +106,12 @@ const Transfer = objectType({
     t.field('payerDFSP', {
       type: 'DFSP',
       resolve: (parent, _, ctx) => {
-        return getDFSPDataloader(ctx, 'PAYER_DFSP').load(parent.transferId);
+        console.log(parent.transferId);
+        if(parent.transferId !== undefined) {
+          return getDFSPDataloader(ctx, 'PAYER_DFSP').load(parent.transferId);
+        } else {
+          return null;
+        }
       },
     });
     t.field('payeeDFSP', {
