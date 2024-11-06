@@ -51,7 +51,12 @@ const Transfer = objectType({
     t.field('transactionId', {
       type: 'String',
       resolve: async (parent, _, ctx) => {
-        const quote = await getQuotesDataloader(ctx).load(parent.transferId);
+        let quote;
+        if(parent.transferId !== undefined) {
+         quote = await getQuotesDataloader(ctx).load(parent.transferId);
+        } else {
+          quote = null;
+        }
         return quote?.transactionReferenceId;
       },
     });
@@ -117,19 +122,31 @@ const Transfer = objectType({
     t.field('payeeDFSP', {
       type: 'DFSP',
       resolve: (parent, _, ctx) => {
-        return getDFSPDataloader(ctx, 'PAYEE_DFSP').load(parent.transferId);
+        if(parent.transferId !== undefined) {
+          return getDFSPDataloader(ctx, 'PAYEE_DFSP').load(parent.transferId);
+        } else {
+          return null;
+        }
       },
     });
     t.field('payerParty', {
       type: 'Party',
       resolve: (parent, _, ctx) => {
-        return getPartyDataloader(ctx, 'PAYER').load(parent.transferId);
+        if(parent.transferId !== undefined) {
+          return getPartyDataloader(ctx, 'PAYER').load(parent.transferId);
+        } else {
+          return null;
+        }
       },
     });
     t.field('payeeParty', {
       type: 'Party',
       resolve: async (parent, _, ctx) => {
-        return getPartyDataloader(ctx, 'PAYEE').load(parent.transferId);
+        if(parent.transferId !== undefined) {
+          return getPartyDataloader(ctx, 'PAYEE').load(parent.transferId); 
+        } else {
+          return null;
+        }
       },
     });
     t.list.jsonObject('partyLookupEvents', {

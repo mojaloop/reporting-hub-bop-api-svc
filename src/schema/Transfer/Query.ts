@@ -75,12 +75,14 @@ const Query = extendType({
       resolve: async (parent, args, ctx) => {
         const transferFilter = createTransferFilter(ctx.participants, args.filter);
 
-        const transfers = await ctx.eventStore.reportingData.findMany({
-          take: args.limit ?? 100,
-          skip: args.offset || undefined,
-          orderBy: [{ createdDate: 'desc' }],
-          where: transferFilter,
-        });
+        const transfers = await ctx.eventStore.reportingData.findMany();
+
+        // {
+        //   take: args.limit ?? 100,
+        //   skip: args.offset || undefined,
+        //   orderBy: [{ createdDate: 'desc' }],
+        //   where: transferFilter,
+        // }
         return transfers.map((tr) => ({
           transferId: tr.transferId,
           amount: tr.amount.toNumber(),
