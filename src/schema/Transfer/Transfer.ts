@@ -52,8 +52,8 @@ const Transfer = objectType({
       type: 'String',
       resolve: async (parent, _, ctx) => {
         let quote;
-        if(parent.transferId !== undefined) {
-         quote = await getQuotesDataloader(ctx).load(parent.transferId);
+        if (parent.transferId !== undefined) {
+          quote = await getQuotesDataloader(ctx).load(parent.transferId);
         } else {
           quote = null;
         }
@@ -112,7 +112,7 @@ const Transfer = objectType({
       type: 'DFSP',
       resolve: (parent, _, ctx) => {
         console.log(parent.transferId);
-        if(parent.transferId !== undefined) {
+        if (parent.transferId !== undefined) {
           return getDFSPDataloader(ctx, 'PAYER_DFSP').load(parent.transferId);
         } else {
           return null;
@@ -122,7 +122,7 @@ const Transfer = objectType({
     t.field('payeeDFSP', {
       type: 'DFSP',
       resolve: (parent, _, ctx) => {
-        if(parent.transferId !== undefined) {
+        if (parent.transferId !== undefined) {
           return getDFSPDataloader(ctx, 'PAYEE_DFSP').load(parent.transferId);
         } else {
           return null;
@@ -132,7 +132,7 @@ const Transfer = objectType({
     t.field('payerParty', {
       type: 'Party',
       resolve: (parent, _, ctx) => {
-        if(parent.transferId !== undefined) {
+        if (parent.transferId !== undefined) {
           return getPartyDataloader(ctx, 'PAYER').load(parent.transferId);
         } else {
           return null;
@@ -142,8 +142,8 @@ const Transfer = objectType({
     t.field('payeeParty', {
       type: 'Party',
       resolve: async (parent, _, ctx) => {
-        if(parent.transferId !== undefined) {
-          return getPartyDataloader(ctx, 'PAYEE').load(parent.transferId); 
+        if (parent.transferId !== undefined) {
+          return getPartyDataloader(ctx, 'PAYEE').load(parent.transferId);
         } else {
           return null;
         }
@@ -151,22 +151,44 @@ const Transfer = objectType({
     });
     t.list.jsonObject('partyLookupEvents', {
       resolve: async (parent, _, ctx) => {
-        return getEvents(ctx, parent.transferId, 'PartyLookup');
+        if (parent.transferId !== undefined) {
+          return getPartyDataloader(ctx, 'PARTY_LOOKUP').load(parent.transferId);
+        } else {
+          return null;
+        }
       },
     });
     t.list.jsonObject('quoteEvents', {
       resolve: async (parent, _, ctx) => {
-        return getEvents(ctx, parent.transferId, 'Quote');
+        if (parent.transferId !== undefined) {
+          return getPartyDataloader(ctx, 'QUOTE').load(parent.transferId);
+        } else {
+          return null;
+        }
       },
     });
     t.list.jsonObject('transferEvents', {
       resolve: async (parent, _, ctx) => {
-        return getEvents(ctx, parent.transferId, 'Transfer');
+        if (parent.transferId !== undefined) {
+          return getPartyDataloader(ctx, 'TRANSFER').load(parent.transferId);
+        } else {
+          return null;
+        }
       },
     });
     t.list.jsonObject('settlementEvents', {
+      /*************  ✨ Codeium Command ⭐  *************/
+      /**
+       * Get the settlement events for this transfer.
+       * @returns Array of event objects or null if no transferId is given.
+       */
+      /******  967f9927-6395-4bf9-9180-c8fbc86dd7ab  *******/
       resolve: async (parent, _, ctx) => {
-        return getEvents(ctx, parent.transferId, 'Settlement');
+        if (parent.transferId !== undefined) {
+          return getPartyDataloader(ctx, 'SETTLEMENT').load(parent.transferId);
+        } else {
+          return null;
+        }
       },
     });
   },

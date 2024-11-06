@@ -11,7 +11,7 @@
 import { Context } from '@app/context';
 import DataLoader from 'dataloader';
 
-type PartyType = 'PAYEE' | 'PAYER';
+type PartyType = 'PAYER' | 'PAYEE' | 'PARTY_LOOKUP' | 'QUOTE' | 'SETTLEMENT' | 'TRANSFER';
 
 const ID = (type: PartyType) => Symbol.for(`PARTY_DL_${type}`);
 
