@@ -17,8 +17,9 @@ import DFSP from './DFSP';
 import Transaction from './Transfer';
 import Party from './Party';
 import TransactionSummary from './TransferSummary';
+import Event from './EventStore';
 
-const types = [Scalar, DFSP, Transaction, Party, TransactionSummary];
+const types = [Scalar, DFSP, Transaction, Party, TransactionSummary, Event];
 
 const Query = queryType({
   definition(t) {

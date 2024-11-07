@@ -13,12 +13,13 @@ import { Collection, MongoClient } from 'mongodb';
 let collection: Collection;
 let client: MongoClient;
 
-const getMongoClient = async (uri: string): Promise<Collection> => {
+const getMongoClient = async (uri: string, collectionName: string): Promise<Collection> => {
   if (!collection) {
     client = new MongoClient(uri);
     await client.connect();
-    collection = client.db().collection('reporting');
+    collection = client.db().collection(collectionName);
   }
+  // console.log('Connected to client', client)
   return collection;
 };
 
