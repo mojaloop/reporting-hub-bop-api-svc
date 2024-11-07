@@ -55,12 +55,12 @@ const Query = extendType({
           return null;
         }
         return {
-          transferId: tr.transferId,
-          amount: tr.amount, //.toNumber()
+          transferId: tr.transactionId,
+          amount: tr.sourceAmount, //.toNumber()
           sourceCurrency: tr.sourceCurrency,
           targetCurrency: tr.targetCurrency,
-          createdAt: tr.createdDate, //.toISOString(),
-          ilpCondition: tr.ilpCondition,
+          createdAt: tr.createdAt, //.toISOString(),
+          // ilpCondition: tr.ilpCondition,
         };
       },
     });
@@ -75,21 +75,20 @@ const Query = extendType({
       resolve: async (parent, args, ctx) => {
         const transferFilter = createTransferFilter(ctx.participants, args.filter);
 
-        const transfers = await ctx.eventStore.reportingData.findMany();
+        const transfers = await ctx.eventStore.transaction.findMany({
+          take: args.limit ?? 100,
+          skip: args.offset || undefined,
+          orderBy: [{ createdAt: 'desc' }],
+          where: transferFilter,
+        });
 
-        // {
-        //   take: args.limit ?? 100,
-        //   skip: args.offset || undefined,
-        //   orderBy: [{ createdDate: 'desc' }],
-        //   where: transferFilter,
-        // }
         return transfers.map((tr) => ({
           transferId: tr.transferId,
-          amount: tr.amount.toNumber(),
-          sourceCurrency: tr.currencyId,
-          targetCurrency: tr.currencyId,
-          createdAt: tr.createdDate.toISOString(),
-          ilpCondition: tr.ilpCondition,
+          amount: tr.sourceAmount,
+          sourceCurrency: tr.sourceCurrency,
+          targetCurrency: tr.targetCurrency,
+          createdAt: tr.createdAt.toISOString(),
+          // ilpCondition: tr.ilpCondition,
         }));
       },
     });

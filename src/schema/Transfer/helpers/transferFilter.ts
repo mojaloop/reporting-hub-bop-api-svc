@@ -79,9 +79,9 @@ export const createTransferFilter = (participants?: string[], filter?: NexusGenI
     };
   }
 
-  if (filter?.currency) {
+  if (filter?.sourceCurrency) {
     transferFilter.currency = {
-      currencyId: filter?.currency,
+      currencyId: filter?.sourceCurrency,
     };
   }
 

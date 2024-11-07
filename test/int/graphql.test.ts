@@ -1,8 +1,10 @@
-// TransferSummary.test.ts
 import { ObjectId } from 'mongodb';
 import { getMongoClient, Collection, closeMongoClientConnection } from '../../src/lib/mongo';
-import TransferSummary from '../../src/schema/TransferSummary';
-import { objectType, extendType, queryField } from 'nexus';
+import Transfer from '../../src/schema/Transfer';
+import { objectType, extendType, queryField, makeSchema } from 'nexus';
+import Query from '../../src/schema/Transfer/Query';
+import { graphql } from 'graphql';
+import TransferSummary from '@app/schema/TransferSummary/TransferSummary';
 const testTransfers = require('./data/reporting.transfers.json');
 
 describe('TransferSummary Integration Tests', () => {
@@ -13,7 +15,7 @@ describe('TransferSummary Integration Tests', () => {
         try {
             collection = await getMongoClient(MONGO_URI);
             await collection.deleteMany({});
-            
+
             console.log('Test database setup completed');
         } catch (error) {
             console.error('Database setup failed:', error);
@@ -49,10 +51,28 @@ describe('TransferSummary Integration Tests', () => {
         });
     });
 
-    describe('Send sample graphql queries', () => {
-        it('should fetch a transfer using 4 fields', async () => {
-            console.log("I am not seeing handlers and their respective graphql methods.");
-            
+
+});
+
+describe('Send sample graphql queries', () => {
+    it('should send a transfer query', async () => {
+        const schema = makeSchema({
+            types: [Transfer, Query, objectType, extendType, queryField],
         });
+
+        const query = `
+            query {
+                transaction {
+                    count
+                    amount
+                    payerDFSP
+                    payeeDFSP
+                    currency
+                    errorCode
+                }
+            }`;
+
+        const result = await graphql({ schema, source: query });
+        expect(result).toMatchSnapshot();
     });
 });
