@@ -8,33 +8,51 @@
  *       Yevhen Kyriukha <yevhen.kyriukha@modusbox.com>                   *
  **************************************************************************/
 
-import { queryType, stringArg, jsonArg, extendType, nonNull } from 'nexus';
+import { stringArg, extendType, nonNull, list } from 'nexus';
 
 const Query = extendType({
   type: 'Query',
   definition(t) {
-    t.field('getAllEvent', {
+    // Resolver to get a specific event by ID
+    t.field('getEventById', {
       type: 'Event',
       args: {
         id: nonNull(stringArg()),
       },
       resolve: async (parent, args, ctx) => {
-        const event = await ctx.eventStore.reportingData.findMany({
+        console.log('Fetching event with ID:', args.id);
+        const event = await ctx.eventStore.reportingData.findUnique({
           where: {
             id: args.id,
           },
         });
+        console.log('event value', event);
         if (!event) {
-          console.log('NO event found ');
+          console.log('NO event found');
           return null;
         }
         return {
-          event: event[0].event,
-          metadata: event[0].metadata,
+          event: event,
+          metadata: event,
         };
+      },
+    });
+
+    // Resolver to get all events
+    t.field('getAllEvents', {
+      type: nonNull(list(nonNull('Event'))),
+      resolve: async (parent, args, ctx) => {
+        console.log('Fetching all events');
+        const events = await ctx.eventStore.reportingData.findMany();
+        console.log('events fetched', events);
+        return events.map(event => ({
+          event: event.event,
+          metadata: event.metadata,
+        }));
       },
     });
   },
 });
+
 
 export default Query;
