@@ -9,16 +9,18 @@ const Query = extendType({
         transferId: nonNull(stringArg()),
       },
       resolve: async (parent, args, ctx) => {
-        const transaction = await ctx.transaction.transaction.findMany({
+        console.log("Transfer resolver called for transferId", args.transferId);
+        const transaction = await ctx.transaction.transaction.findUnique({
           where: {
             transferId: args.transferId,
           },
         });
         if (!transaction) {
-          console.log('NO event found ');
+          console.log('no transaction found ');
           return null;
         }
-        console.log('event',transaction);
+        console.log('transaction data:',transaction);
+        return transaction;
       },
     });
   },
