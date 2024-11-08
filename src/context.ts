@@ -32,9 +32,18 @@ eventStore.$on('query', async (e) => {
   console.log(`${e.query} ${e.params}`);
 });
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+transaction.$on('query', async (e) => {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  console.log(`${e.query} ${e.params}`);
+});
+
 export interface Context {
   log: typeof Logger;
   eventStore: typeof eventStore;
+  transaction: typeof transaction;
   config: typeof Config;
   loaders: Map<any, any>;
   eventStoreMongo: Collection;
@@ -56,6 +65,7 @@ export const createContext = async (ctx: any): Promise<Context> => ({
   config: Config,
   log: Logger,
   eventStore,
+  transaction,
   loaders: new Map(),
   eventStoreMongo: await getMongoClient(csMongoDBObj.toString(), 'reporting'),
   transactionMongo: await getMongoClient(csMongoDBObj.toString(), 'transaction'),

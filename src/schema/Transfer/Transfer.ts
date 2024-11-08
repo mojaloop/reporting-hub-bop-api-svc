@@ -1,197 +1,36 @@
-/**************************************************************************
- *  (C) Copyright Mojaloop Foundation 2020                                *
- *                                                                        *
- *  This file is made available under the terms of the license agreement  *
- *  specified in the corresponding source code repository.                *
- *                                                                        *
- *  ORIGINAL AUTHOR:                                                      *
- *       Yevhen Kyriukha <yevhen.kyriukha@modusbox.com>                   *
- **************************************************************************/
-
 import { enumType, objectType } from 'nexus';
-import {
-  EventType,
-  getDFSPDataloader,
-  getEventsDataloader,
-  getPartyDataloader,
-  getQuotesDataloader,
-  getSettlementDataloader,
-  getTransactionTypeDataloader,
-  getTransferStateDataloader,
-} from './dataloaders';
-import { Context } from '@app/context';
-import { getTransferErrorDataloader } from '@app/schema/Transfer/dataloaders/TransferError';
-
-const TransferState = enumType({
-  name: 'TransferState',
-  members: ['ABORTED', 'COMMITTED', 'RESERVED', 'SETTLED'],
-});
-
-const TransactionType = enumType({
-  name: 'TransactionType',
-  members: ['TRANSFER', 'DEPOSIT', 'WITHDRAWAL', 'PAYMENT', 'REFUND'],
-});
-
-const getEvents = async (ctx: Context, transferId: string, eventType: EventType) => {
-  const [settlement, quote] = await Promise.all([
-    getSettlementDataloader(ctx).load(transferId),
-    getQuotesDataloader(ctx).load(transferId),
-  ]);
-  return getEventsDataloader(ctx, eventType).load({
-    transactionId: quote?.transactionReferenceId,
-    settlementId: settlement?.settlementId?.toString(),
-    settlementWindowId: settlement?.settlementWindowId?.toString(),
-  });
-};
 
 const Transfer = objectType({
   name: 'Transfer',
   definition(t) {
     t.nonNull.string('transferId');
-    t.field('transactionId', {
-      type: 'String',
-      resolve: async (parent, _, ctx) => {
-        let quote;
-        if (parent.transferId !== undefined) {
-          quote = await getQuotesDataloader(ctx).load(parent.transferId);
-        } else {
-          quote = null;
-        }
-        return quote?.transactionReferenceId;
-      },
-    });
-    t.field('quoteId', {
-      type: 'String',
-      resolve: async (parent, _, ctx) => {
-        const quote = await getQuotesDataloader(ctx).load(parent.transferId);
-        return quote?.quoteId;
-      },
-    });
-    t.decimal('amount');
+    t.string('transactionId');
+    t.decimal('sourceAmount');
     t.string('sourceCurrency');
+    t.decimal('targetAmount');
     t.string('targetCurrency');
     t.string('createdAt');
-    t.field('transferState', {
-      type: 'String', // 'TransferState'
-      resolve: (parent, _, ctx) => {
-        return getTransferStateDataloader(ctx).load(parent.transferId);
-      },
-    });
-    t.field('transactionType', {
-      type: 'String', // TransactionType
-      resolve: async (parent, _, ctx) => {
-        const quote = await getQuotesDataloader(ctx).load(parent.transferId);
-        if (quote?.transactionScenarioId) {
-          const txType = await getTransactionTypeDataloader(ctx).load(quote.transactionScenarioId);
-          return txType.name;
-        }
-        return null;
-      },
-    });
-    t.field('errorCode', {
-      type: 'Int', // 'TransferState'
-      resolve: (parent, _, ctx) => {
-        return getTransferErrorDataloader(ctx).load(parent.transferId);
-      },
-    });
-    t.field('settlementWindowId', {
-      type: 'BigInt',
-      resolve: async (parent, _, ctx) => {
-        const settlement = await getSettlementDataloader(ctx).load(parent.transferId);
-        return settlement?.settlementWindowId;
-      },
-    });
-    t.field('settlementId', {
-      type: 'BigInt',
-      resolve: async (parent, _, ctx) => {
-        const settlement = await getSettlementDataloader(ctx).load(parent.transferId);
-        return settlement?.settlementId;
-      },
-    });
-    t.field('payerDFSP', {
-      type: 'DFSP',
-      resolve: (parent, _, ctx) => {
-        console.log(parent.transferId);
-        if (parent.transferId !== undefined) {
-          return getDFSPDataloader(ctx, 'PAYER_DFSP').load(parent.transferId);
-        } else {
-          return null;
-        }
-      },
-    });
-    t.field('payeeDFSP', {
-      type: 'DFSP',
-      resolve: (parent, _, ctx) => {
-        if (parent.transferId !== undefined) {
-          return getDFSPDataloader(ctx, 'PAYEE_DFSP').load(parent.transferId);
-        } else {
-          return null;
-        }
-      },
-    });
-    t.field('payerParty', {
-      type: 'Party',
-      resolve: (parent, _, ctx) => {
-        if (parent.transferId !== undefined) {
-          return getPartyDataloader(ctx, 'PAYER').load(parent.transferId);
-        } else {
-          return null;
-        }
-      },
-    });
-    t.field('payeeParty', {
-      type: 'Party',
-      resolve: async (parent, _, ctx) => {
-        if (parent.transferId !== undefined) {
-          return getPartyDataloader(ctx, 'PAYEE').load(parent.transferId);
-        } else {
-          return null;
-        }
-      },
-    });
-    t.list.jsonObject('partyLookupEvents', {
-      resolve: async (parent, _, ctx) => {
-        if (parent.transferId !== undefined) {
-          return getPartyDataloader(ctx, 'PARTY_LOOKUP').load(parent.transferId);
-        } else {
-          return null;
-        }
-      },
-    });
-    t.list.jsonObject('quoteEvents', {
-      resolve: async (parent, _, ctx) => {
-        if (parent.transferId !== undefined) {
-          return getPartyDataloader(ctx, 'QUOTE').load(parent.transferId);
-        } else {
-          return null;
-        }
-      },
-    });
-    t.list.jsonObject('transferEvents', {
-      resolve: async (parent, _, ctx) => {
-        if (parent.transferId !== undefined) {
-          return getPartyDataloader(ctx, 'TRANSFER').load(parent.transferId);
-        } else {
-          return null;
-        }
-      },
-    });
-    t.list.jsonObject('settlementEvents', {
-      /*************  ✨ Codeium Command ⭐  *************/
-      /**
-       * Get the settlement events for this transfer.
-       * @returns Array of event objects or null if no transferId is given.
-       */
-      /******  967f9927-6395-4bf9-9180-c8fbc86dd7ab  *******/
-      resolve: async (parent, _, ctx) => {
-        if (parent.transferId !== undefined) {
-          return getPartyDataloader(ctx, 'SETTLEMENT').load(parent.transferId);
-        } else {
-          return null;
-        }
-      },
-    });
+    t.string('lastUpdated');
+    t.string('transferState'); // Simple string field
+    // TODO: transaferStateChanges array
+    t.string('transactionType'); // Simple string field
+    t.int('errorCode'); // Integer field Maybe a JSON type
+    t.string('transferSettlementWindowId'); // BigInt field
+    t.string('payerDFSP');
+    t.string('payerDFSPProxy');
+    t.string('payeeDFSP');
+    t.string('payeeDFSPProxy');
+    // TODO pos changes jsonObject
+    t.field('payerParty', { type: 'Party' }); // TODO update and check party model once
+    t.field('payeeParty', { type: 'Party' });
+    t.list.jsonObject('quoteRequest'); // TODO create a quoteRequest type
+    t.list.jsonObject('transferTerms'); // TODO create a quoteRequest type
+    // t.list.jsonObject('conversions'); // TODO
+    t.list.jsonObject('partyLookupEvents');
+    t.list.jsonObject('quoteEvents');
+    t.list.jsonObject('transferEvents');
+    t.list.jsonObject('settlementEvents');
   },
 });
 
-export default [Transfer, TransactionType, TransferState];
+export default [Transfer];
