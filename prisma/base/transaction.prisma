@@ -29,7 +29,6 @@ model Party {
   transactionsAsPayer Transaction[] @relation("PayerParty")
   transactionsAsPayee Transaction[] @relation("PayeeParty")
   createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
   @@index([partyIdentifier])
 }
 
@@ -42,7 +41,6 @@ model QuoteRequest {
   transaction Transaction @relation(fields: [transactionId], references: [id])
   transactionId String @unique @db.ObjectId
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
   @@unique([quoteId])
 }
 
@@ -58,7 +56,6 @@ model TransferTerms {
   transaction       Transaction @relation(fields: [transactionId], references: [id])
   transactionId     String @unique @db.ObjectId
   createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
 }
 
 model ConversionTerms {
@@ -75,7 +72,6 @@ model ConversionTerms {
   ilpPacket            String
   conversion           Conversion @relation(fields: [conversionId], references: [id])
   createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
   @@unique([conversionId])
 }
 
@@ -87,7 +83,6 @@ model Charge {
   conversion    Conversion @relation(fields: [conversionId], references: [id])
   conversionId  String @db.ObjectId
   createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
 }
 
 model Conversion {
@@ -104,7 +99,6 @@ model Conversion {
   transaction                Transaction @relation(fields: [transactionId], references: [id])
   transactionId              String @db.ObjectId
   createdAt                  DateTime @default(now())
-  updatedAt                  DateTime @updatedAt
   @@unique([conversionRequestId])
   @@unique([conversionId])
   @@index([conversionState])
@@ -133,11 +127,11 @@ model Transaction {
   transferState            String
   transferStateChanges     TransferStateChange[]
   transactionType          String
-  errorCode                String?
+  errorCode                Int?
   transferSettlementWindowId Int
-  payerDFSP               DFSP?
+  payerDFSP               String?
   payerDFSPProxy          String?
-  payeeDFSP               DFSP?
+  payeeDFSP               String?
   payeeDFSPProxy          String?
   positionChanges         PositionChange[]
   payerParty              Party?   @relation("PayerParty", fields: [payerPartyId], references: [id])
@@ -148,7 +142,7 @@ model Transaction {
   transferTerms           TransferTerms?
   conversions             Conversion[]
   createdAt               DateTime @default(now())
-  updatedAt               DateTime @updatedAt
+  lastUpdated               DateTime? @updatedAt
   @@unique([transferId])
   @@unique([transactionId])
   @@index([transferState])
@@ -174,8 +168,8 @@ model PositionChange {
   currency         String
   ledgerType       String
   dateTime         DateTime
-  updatedPosition  String
-  change           String
+  updatedPosition  Float
+  change           Float
   transaction      Transaction @relation(fields: [transactionId], references: [id])
   transactionId    String @db.ObjectId
   createdAt        DateTime @default(now())
@@ -188,8 +182,6 @@ model SettlementWindow {
   settlementWindowId Int
   settlement         Settlement @relation(fields: [settlementId], references: [id])
   settlementId       String @db.ObjectId
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
   @@unique([settlementWindowId])
 }
 
@@ -200,7 +192,7 @@ model Settlement {
   settlementStatus  String
   settlementWindows SettlementWindow[]
   createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  lastUpdatedAt         DateTime @updatedAt
   @@unique([settlementId])
   @@index([settlementStatus])
 }
