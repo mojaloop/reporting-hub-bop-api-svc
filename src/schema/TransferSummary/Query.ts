@@ -9,17 +9,25 @@
  **************************************************************************/
 
 import { arg, extendType, inputObjectType, intArg } from 'nexus';
-import { NexusGenObjects } from 'nexus-typegen';
+
+// const TransferSummaryFilter = inputObjectType({
+//   name: 'TransferSummaryFilter',
+//   definition(t) {
+//     t.field('startDate', { type: 'DateTimeFlexible' });
+//     t.field('endDate', { type: 'DateTimeFlexible' });
+//     t.field('errorCode', { type: 'Int' });
+//     t.field('payerDFSP', { type: 'String' });
+//     t.field('payeeDFSP', { type: 'String' });
+//     t.field('currency', { type: 'Currency' });
+//   },
+// });
+
 
 const TransferSummaryFilter = inputObjectType({
   name: 'TransferSummaryFilter',
   definition(t) {
     t.field('startDate', { type: 'DateTimeFlexible' });
     t.field('endDate', { type: 'DateTimeFlexible' });
-    t.field('errorCode', { type: 'Int' });
-    t.field('payerDFSP', { type: 'String' });
-    t.field('payeeDFSP', { type: 'String' });
-    t.field('currency', { type: 'Currency' });
   },
 });
 
@@ -29,47 +37,48 @@ const Query = extendType({
     t.nonNull.list.nonNull.field('transferSummary', {
       type: 'TransferSummary',
       args: {
-        filter: arg({ type: 'TransferSummaryFilter' }),
         limit: intArg(),
         offset: intArg(),
+        filter: TransferSummaryFilter,
       },
-      resolve: async (parent, args, ctx, info) => {
-        const fields = ctx.getRequestFields(info) as NexusGenObjects['TransferSummary'];
+      resolve: async (parent, args, ctx) => {
+        try {
+          const { limit = 10, offset = 0 } = args;
+          console.log('Resolving transferSummary query');
+          const aggregateResult = await ctx.transaction.transaction.groupBy({
+            by: ['sourceCurrency', 'targetCurrency'],
+            _count: {
+              transferId: true,
+            },
+            _sum: {
+              sourceAmount: true,
+              targetAmount: true,
+            },
+            skip: offset ?? 0,
+            take: limit ?? 5,
+            orderBy: {
+              sourceCurrency: 'asc',
+            },
+          });
 
-        return ctx.centralLedger.$queryRawUnsafe(`
-          SELECT
-            COUNT(t.transferId) as count,
-            SUM(t.amount) as amount,
-            IF(${!!fields.payerDFSP}, pPayer.name, NULL) AS payerDFSP,
-            IF(${!!fields.payeeDFSP}, pPayee.name, NULL) AS payeeDFSP,
-            IF(${!!fields.currency}, c.currencyId, NULL) AS currency,
-            IF(${!!fields.errorCode}, tE.errorCode, NULL) AS errorCode
-        FROM
-            transfer t
-            LEFT JOIN transferFulfilment tF ON t.transferId = tF.transferId
-            LEFT JOIN transferParticipant tPPayer ON tPPayer.transferId = t.transferId
-                AND tPPayer.transferParticipantRoleTypeId = (SELECT transferParticipantRoleTypeId from transferParticipantRoleType WHERE name = 'PAYER_DFSP')
-                LEFT JOIN participant pPayer ON pPayer.participantId = tPPayer.participantId
-            LEFT JOIN transferParticipant tPPayee ON tPPayee.transferId = t.transferId
-                AND tPPayee.transferParticipantRoleTypeId = (SELECT transferParticipantRoleTypeId from transferParticipantRoleType WHERE name = 'PAYEE_DFSP')
-                LEFT JOIN participant pPayee ON pPayee.participantId = tPPayee.participantId
-            LEFT JOIN currency c on t.currencyId = c.currencyId
-            LEFT JOIN transferError tE on t.transferId = tE.transferId
-        WHERE TRUE
-            AND IF(${!!args.filter?.startDate}, t.createdDate >= '${args.filter?.startDate}', TRUE)
-            AND IF(${!!args.filter?.endDate}, t.createdDate < '${args.filter?.endDate}', TRUE)
-            AND IF(${!!args.filter?.payerDFSP}, pPayer.name = '${args.filter?.payerDFSP}', TRUE)
-            AND IF(${!!args.filter?.payeeDFSP}, pPayee.name = '${args.filter?.payerDFSP}', TRUE)
-            AND IF(${!!args.filter?.currency}, c.currencyId = '${args.filter?.currency}', TRUE)
-            AND IF(${!!args.filter?.errorCode}, tE.errorCode = '${args.filter?.errorCode}', TRUE)
-        GROUP BY
-            IF(${!!fields.payerDFSP}, pPayer.name, NULL),
-            IF(${!!fields.payeeDFSP}, pPayee.name, NULL),
-            IF(${!!fields.currency}, c.currencyId, NULL),
-            IF(${!!fields.errorCode}, tE.errorCode, NULL)
-        LIMIT ${args.limit || 100}
-        OFFSET ${args.offset || 0}
-        `);
+          const transfersSummary = aggregateResult.map((group) => ({
+            sourceCurrency: group.sourceCurrency,
+            targetCurrency: group.targetCurrency,
+            count: group._count.transferId,
+            sourceAmount: group._sum.sourceAmount || 0,
+            targetAmount: group._sum.targetAmount || 0,
+          }));
+
+          if (transfersSummary.length === 0) {
+            console.log('No transfers found');
+          } else {
+            console.log('TransferSummary is: ', transfersSummary);
+          }
+          return transfersSummary;
+        } catch (error) {
+          console.error('Error fetching transfers', error);
+          throw new Error('Error fetching transfers data');
+        }
       },
     });
   },
