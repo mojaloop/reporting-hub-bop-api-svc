@@ -8,7 +8,14 @@
  *       Yevhen Kyriukha <yevhen.kyriukha@modusbox.com>                   *
  **************************************************************************/
 
-export * from './prisma';
-export * from './auth';
-export * from './mongo';
-export * from './requestInfoParser';
+import { objectType } from 'nexus';
+
+const Event = objectType({
+  name: 'Event',
+  definition(t) {
+    t.field('event', { type: 'JSONObject' });
+    t.field('metadata', { type: 'JSONObject' });
+  },
+});
+
+export default [Event];

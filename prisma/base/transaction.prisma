@@ -1,0 +1,52 @@
+datasource db {
+  provider = "mongodb"
+  url      = "mongodb://localhost:27017/reporting"
+}
+generator client {
+  provider = "prisma-client-js"
+  output   = "transaction"
+}
+
+model Transaction {
+  id                        String   @id @default(auto()) @map("_id") @db.ObjectId
+  transferId                String
+  transactionId             String
+  sourceAmount              Float
+  sourceCurrency           String
+  targetAmount             Float
+  targetCurrency           String
+  transferState            String
+  transferStateChanges     TransferStateChange[]
+  transactionType          String
+  errorCode                Int?
+  transferSettlementWindowId Int
+  payerDFSP               String?
+  payerDFSPProxy          String?
+  payeeDFSP               String?
+  payeeDFSPProxy          String?
+  positionChanges         Json
+  payerParty              Json
+  payeeParty              Json
+  quoteRequest            Json
+  transferTerms           Json
+  conversions             Json
+  createdAt               DateTime @default(now())
+  lastUpdated               DateTime? @updatedAt
+  @@unique([transferId])
+  @@unique([transactionId])
+  @@index([transferState])
+  @@index([transactionType])
+
+  @@map("transfer")
+}
+
+model TransferStateChange {
+  id                        String   @id @default(auto()) @map("_id") @db.ObjectId
+  transferState             String
+  dateTime                  DateTime
+  reason                    String?
+  transactionId             String   @db.ObjectId
+  transaction               Transaction @relation(fields: [transactionId], references: [id])
+  createdAt                 DateTime @default(now())
+  @@index([transferState])
+}
