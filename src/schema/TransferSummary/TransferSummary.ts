@@ -13,23 +13,11 @@ import { objectType } from 'nexus';
 const TransferSummary = objectType({
   name: 'TransferSummary',
   definition(t) {
-    t.nonNull.bigInt('count');
-    t.nonNull.decimal('amount');
-    t.field('errorCode', { type: 'Int' });
-    t.field('payerDFSP', { type: 'String' });
-    t.field('payeeDFSP', { type: 'String' });
-    t.field('currency', { type: 'Currency' });
-    // t.nonNull.list.nonNull.field('dfsps', {
-    //   type: 'DFSP',
-    //   resolve: (parent, _, context) =>
-    //     context.centralLedger.membership
-    //       .findUnique({
-    //         where: {
-    //           id: parent.id,
-    //         },
-    //       })
-    //       .user(),
-    // });
+    t.nonNull.int('count');
+    t.nonNull.float('sourceAmount');
+    t.nonNull.string('sourceCurrency');
+    t.nonNull.float('targetAmount');
+    t.nonNull.string('targetCurrency');
   },
 });
 
