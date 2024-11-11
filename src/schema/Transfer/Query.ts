@@ -17,7 +17,7 @@ const Query = extendType({
       args: {
         transferId: nonNull(stringArg()),
       },
-      resolve: async (parent, args, ctx) => {
+      resolve: async (parent, args, ctx): Promise<any> => {
         try {
           const transaction = await ctx.transaction.transaction.findUnique({
             where: {
@@ -44,7 +44,7 @@ const Query = extendType({
         limit: intArg(),
         offset: intArg(),
       },
-      resolve: async (parent, args, ctx) => {
+      resolve: async (parent, args, ctx): Promise<any> => {
         try {
           const { limit = 10, offset = 0 } = args;
           const transfers = await ctx.transaction.transaction.findMany({
