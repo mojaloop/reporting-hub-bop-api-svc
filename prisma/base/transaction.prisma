@@ -24,12 +24,12 @@ model Transaction {
   payerDFSPProxy          String?
   payeeDFSP               String?
   payeeDFSPProxy          String?
-  positionChanges         Json
-  payerParty              Json
-  payeeParty              Json
-  quoteRequest            Json
-  transferTerms           Json
-  conversions             Json
+  positionChanges         PositionChange[]
+  payerParty              Party
+  payeeParty              Party
+  quoteRequest            QuoteRequest
+  transferTerms           TransferTerms
+  conversions             Conversions[]
   createdAt               DateTime @default(now())
   lastUpdated               DateTime? @updatedAt
   @@unique([transferId])
@@ -39,14 +39,86 @@ model Transaction {
 
   @@map("transfer")
 }
+type TransferStateChange {
+  transferState  String
+  dateTime       DateTime @db.Date
+  reason         String?
+}
 
-model TransferStateChange {
-  id                        String   @id @default(auto()) @map("_id") @db.ObjectId
-  transferState             String
-  dateTime                  DateTime
-  reason                    String?
-  transactionId             String   @db.ObjectId
-  transaction               Transaction @relation(fields: [transactionId], references: [id])
-  createdAt                 DateTime @default(now())
-  @@index([transferState])
+type PositionChange {
+  change          Float
+  currency        String
+  dateTime        DateTime @db.Date
+  ledgerType      String
+  participantName String
+  updatedPosition Float
+}
+
+type TransferTerms {
+  expiration         DateTime @db.Date
+  geoCode            GeoCode
+  ilpPacket          String
+  payeeFspCommission Amount
+  payeeFspFee        Amount
+  payeeReceiveAmount Amount
+  transferAmount     Amount
+}
+type GeoCode {
+  latitude  String
+  longitude String
+}
+type Amount {
+  amount  Float
+  currency String
+}
+
+type Conversions {
+  conversionCommitRequestId    String
+  conversionId                 String
+  conversionRequestId          String
+  conversionSettlementWindowId BigInt
+  conversionState              String
+  conversionStateChanges       ConversionStateChanges[]
+  conversionTerms              ConversionTerms
+  conversionType               String
+  counterPartyFSP              String
+}
+
+type ConversionStateChanges {
+  conversionState String
+  dateTime        DateTime @db.Date
+  reason          String
+}
+
+type ConversionTerms {
+  amountType            String
+  charges               ConversionTermsCharges[]
+  conversionId          String
+  counterPartyFsp       String
+  determiningTransferId String
+  expiration            DateTime @db.Date
+  ilpPacket             String
+  initiatingFsp         String
+  sourceAmount          Amount
+  targetAmount          Amount
+}
+
+type ConversionTermsCharges {
+  chargeType   String
+  sourceAmount Amount
+  targetAmount Amount
+}
+
+type QuoteRequest {
+  amount     Amount
+  amountType String
+  fees       Amount
+  quoteId    String
+}
+
+type Party {
+  partyIdType         String
+  partyIdentifier     String
+  partyName           String
+  supportedCurrencies String
 }

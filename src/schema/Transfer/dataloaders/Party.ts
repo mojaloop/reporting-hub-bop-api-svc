@@ -16,7 +16,8 @@ type PartyType = 'PAYER' | 'PAYEE' | 'PARTY_LOOKUP' | 'QUOTE' | 'SETTLEMENT' | '
 const ID = (type: PartyType) => Symbol.for(`PARTY_DL_${type}`);
 
 const findParties = async (ctx: Context, transferIds: string[], type: PartyType) => {
-  const transfers = await ctx.centralLedger.transfer.findMany({
+  console.log("Inside findParties for transferIds",transferIds);
+  const transfers = await ctx.transaction.transaction.findMany({
     where: {
       transferId: {
         in: transferIds,
@@ -24,36 +25,40 @@ const findParties = async (ctx: Context, transferIds: string[], type: PartyType)
     },
     select: {
       transferId: true,
-      quote: {
+      payerParty: {
         select: {
-          quoteParty: {
-            select: {
-              partyIdentifierType: true,
-              partyIdentifierValue: true,
-              party: true,
-              partyType: true,
-            },
-          },
+          id: true,
+          partyIdType: true,
+          partyIdentifier: true,
+          partyName: true,
+          supportedCurrencies: true,
+        },
+      },
+      payeeParty: {
+        select: {
+          id: true,
+          partyIdType: true,
+          partyIdentifier: true,
+          partyName: true,
+          supportedCurrencies: true,
         },
       },
     },
   });
 
+  console.log("Inside findParties transfers",transfers);
   return Object.fromEntries(
     transfers.map((t) => {
-      // Search the quote for the party that matches that party type
-      const qp = t.quote[0]?.quoteParty.find((item) => item.partyType.name === type);
-      const p = qp?.party[0];
+      // Determine the correct party based on the type
+      const party = type === 'PAYER' ? t.payerParty : t.payeeParty;
       return [
         t.transferId,
         {
-          id: p?.partyId,
-          firstName: p?.firstName,
-          lastName: p?.lastName,
-          middleName: p?.middleName,
-          dateOfBirth: p?.dateOfBirth,
-          idType: qp?.partyIdentifierType?.name,
-          idValue: qp?.partyIdentifierValue,
+          id: party?.id,
+          partyIdType: party?.partyIdType,
+          partyIdentifier: party?.partyIdentifier,
+          partyName: party?.partyName,
+          supportedCurrencies: party?.supportedCurrencies,
         },
       ];
     })
@@ -63,16 +68,16 @@ const findParties = async (ctx: Context, transferIds: string[], type: PartyType)
 export const getPartyDataloader = (ctx: Context, partyType: PartyType) => {
   const { loaders } = ctx;
 
-  // initialize DataLoader for getting payers by transfer IDs
+  // Initialize DataLoader for getting parties by transfer IDs
   let dl = loaders.get(ID(partyType));
   if (!dl) {
     dl = new DataLoader(async (transferIds: readonly string[]) => {
-      // Get DFSP by Transfer IDs
+      // Get parties by Transfer IDs
       const parties = await findParties(ctx, transferIds as string[], partyType);
-      // IMPORTANT: sort data in the same order as transferIds
+      // Sort data in the same order as transferIds
       return transferIds.map((id) => parties[id]);
     });
-    // Put instance of dataloader in WeakMap for future reuse
+    // Store DataLoader instance in WeakMap for future reuse
     loaders.set(ID(partyType), dl);
   }
   return dl;

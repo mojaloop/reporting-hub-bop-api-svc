@@ -14,7 +14,8 @@ import DataLoader from 'dataloader';
 const ID = Symbol();
 
 const findTransferStates = async (ctx: Context, transferIds: string[]) => {
-  const trStates = await ctx.centralLedger.transferStateChange.findMany({
+  console.log("findTransferStates for transferIds", transferIds);
+  const trStates = await ctx.transaction.transaction.findMany({
     where: {
       transferId: {
         in: transferIds,
@@ -22,28 +23,33 @@ const findTransferStates = async (ctx: Context, transferIds: string[]) => {
     },
     select: {
       transferId: true,
-      transferState: {
+      transferStateChanges:{
         select: {
-          enumeration: true,
+          transferState: true,
+          dateTime: true,
+          reason: true,
         },
       },
     },
   });
-  return Object.fromEntries(trStates.map((e) => [e.transferId, e.transferState.enumeration]));
+  console.log("findTransferStates trStates", trStates);
+  
+  return Object.fromEntries(trStates.map((e) => [e.transferId, e.transferStateChanges
+  ]));
 };
 
 export const getTransferStateDataloader = (ctx: Context) => {
   const { loaders } = ctx;
 
-  // initialize DataLoader for getting payers by transfer IDs
+  // initialize DataLoader for getting transfer states by transfer IDs
   let dl = loaders.get(ID);
   if (!dl) {
     dl = new DataLoader(async (transferIds: readonly string[]) => {
       const states = await findTransferStates(ctx, transferIds as string[]);
-      // IMPORTANT: sort data in the same order as transferIds
-      return transferIds.map((tid) => states[tid]);
+      // Handle missing transfer states by returning null for unmatched IDs
+      return transferIds.map((tid) => states[tid] || null);
     });
-    // Put instance of dataloader in WeakMap for future reuse
+    // Store DataLoader instance in WeakMap for reuse
     loaders.set(ID, dl);
   }
   return dl;
