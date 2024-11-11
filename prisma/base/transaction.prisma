@@ -16,7 +16,7 @@ model Transaction {
   targetAmount             Float
   targetCurrency           String
   transferState            String
-  transferStateChanges     TransferStateChange[]
+  transferStateChanges     Json
   transactionType          String
   errorCode                Int?
   transferSettlementWindowId Int
@@ -38,15 +38,4 @@ model Transaction {
   @@index([transactionType])
 
   @@map("transfer")
-}
-
-model TransferStateChange {
-  id                        String   @id @default(auto()) @map("_id") @db.ObjectId
-  transferState             String
-  dateTime                  DateTime
-  reason                    String?
-  transactionId             String   @db.ObjectId
-  transaction               Transaction @relation(fields: [transactionId], references: [id])
-  createdAt                 DateTime @default(now())
-  @@index([transferState])
 }
