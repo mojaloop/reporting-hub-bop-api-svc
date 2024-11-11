@@ -1,21 +1,128 @@
-import { objectType } from 'nexus';
+/**************************************************************************
+ *  (C) Copyright Mojaloop Foundation 2020                                *
+ *                                                                        *
+ *  This file is made available under the terms of the license agreement  *
+ *  specified in the corresponding source code repository.                *
+ *                                                                        *
+ *  ORIGINAL AUTHOR:                                                      *
+ *       Yevhen Kyriukha <yevhen.kyriukha@modusbox.com>                   *
+ **************************************************************************/
 
+import { objectType } from 'nexus';
 const TransferStateChange = objectType({
   name: 'TransferStateChange',
   definition(t) {
     t.nonNull.string('transferState');
-
-    t.nonNull.dateTime('dateTime', {
-      resolve: (parent) => {
-        const date = parent.dateTime;
-        if (date && typeof date === 'object' && date.$date) {
-          return new Date(date.$date).toISOString();
-        }
-        return date ? new Date(date).toISOString() : null;
-      },
-    });
-
+    t.nonNull.dateTime('dateTime');
     t.string('reason');
+  },
+});
+const PositionChange = objectType({
+  name: 'PositionChange',
+  definition(t) {
+    t.float('change');
+    t.string('currency');
+    t.string('ledgerType');
+    t.string('participantName');
+    t.nonNull.dateTime('dateTime');
+    t.float('updatedPosition');
+  },
+});
+
+const GeoCode = objectType({
+  name: 'GeoCode',
+  definition(t) {
+    t.nonNull.string('latitude');
+    t.nonNull.string('longitude');
+  },
+});
+
+const Amount = objectType({
+  name: 'Amount',
+  definition(t) {
+    t.nonNull.float('amount');
+    t.nonNull.string('currency');
+  },
+});
+
+const TransferTerms = objectType({
+  name: 'TransferTerms',
+  definition(t) {
+    t.nonNull.dateTime('expiration');
+    t.nonNull.field('geoCode', { type: 'GeoCode' });
+    t.nonNull.string('ilpPacket');
+    t.nonNull.field('payeeFspCommission', { type: 'Amount' });
+    t.nonNull.field('payeeFspFee', { type: 'Amount' });
+    t.nonNull.field('payeeReceiveAmount', { type: 'Amount' });
+    t.nonNull.field('transferAmount', { type: 'Amount' });
+  },
+});
+
+const ConversionStateChanges = objectType({
+  name: 'ConversionStateChanges',
+  definition(t) {
+    t.nonNull.string('conversionState');
+    t.nonNull.dateTime('dateTime');
+    t.nonNull.string('reason');
+  },
+});
+
+const ConversionTermsCharges = objectType({
+  name: 'ConversionTermsCharges',
+  definition(t) {
+    t.nonNull.string('chargeType');
+    t.nonNull.field('sourceAmount', { type: 'Amount' });
+    t.nonNull.field('targetAmount', { type: 'Amount' });
+  },
+});
+
+const ConversionTerms = objectType({
+  name: 'ConversionTerms',
+  definition(t) {
+    t.nonNull.string('amountType');
+    t.nonNull.list.field('charges', { type: 'ConversionTermsCharges' });
+    t.nonNull.string('conversionId');
+    t.nonNull.string('counterPartyFsp');
+    t.nonNull.string('determiningTransferId');
+    t.nonNull.dateTime('expiration');
+    t.nonNull.string('ilpPacket');
+    t.nonNull.string('initiatingFsp');
+    t.nonNull.field('sourceAmount', { type: 'Amount' });
+    t.nonNull.field('targetAmount', { type: 'Amount' });
+  },
+});
+
+const Conversions = objectType({
+  name: 'Conversions',
+  definition(t) {
+    t.nonNull.string('conversionCommitRequestId');
+    t.nonNull.string('conversionId');
+    t.nonNull.string('conversionRequestId');
+    t.nonNull.bigInt('conversionSettlementWindowId');
+    t.nonNull.string('conversionState');
+    t.list.field('conversionStateChanges', { type: 'ConversionStateChanges' });
+    t.nonNull.field('conversionTerms', { type: 'ConversionTerms' });
+    t.nonNull.string('conversionType');
+    t.nonNull.string('counterPartyFSP');
+  },
+});
+const QuoteRequest = objectType({
+  name: 'QuoteRequest',
+  definition(t) {
+    t.nonNull.string('quoteId');
+    t.nonNull.string('amountType');
+    t.field('amount', { type: 'Amount' });
+    t.field('fees', { type: 'Amount' });
+  },
+});
+
+const TransferParty = objectType({
+  name: 'TransferParty',
+  definition(t) {
+    t.nonNull.string('partyIdType');
+    t.nonNull.string('partyIdentifier');
+    t.nonNull.string('partyName');
+    t.nonNull.string('supportedCurrencies');
   },
 });
 
@@ -29,7 +136,7 @@ const Transfer = objectType({
     t.string('sourceCurrency');
     t.decimal('targetAmount');
     t.string('targetCurrency');
-    t.dateTime('createdAt'); 
+    t.dateTime('createdAt');
     t.dateTime('lastUpdated');
     t.string('transferState');
     t.string('transactionType');
@@ -39,33 +146,14 @@ const Transfer = objectType({
     t.string('payerDFSPProxy');
     t.string('payeeDFSP');
     t.string('payeeDFSPProxy');
-    t.field('payerParty', { type: 'JSONObject' });
-    t.field('payeeParty', { type: 'JSONObject' });
-    t.field('quoteRequest', { type: 'JSONObject' });
-    t.field('transferTerms', { type: 'JSONObject' });
-
-    t.list.field('positionChanges', { type: 'JSONObject' });
-
-    t.list.field('transferStateChanges', {
-      type: 'TransferStateChange',
-      resolve: (parent) => {
-        const transferStateChanges = parent.transferStateChanges;
-
-        if (typeof transferStateChanges === 'string') {
-          try {
-            return JSON.parse(transferStateChanges);
-          } catch (error) {
-            console.error('Error parsing transferStateChanges:', error);
-            return [];
-          }
-        }
-
-        return transferStateChanges || [];
-      },
-    });
-
-    t.list.field('conversions', { type: 'JSONObject' });
+    t.field('payerParty', { type: 'TransferParty' });
+    t.field('payeeParty', { type: 'TransferParty' });
+    t.field('quoteRequest', { type: 'QuoteRequest' });
+    t.field('transferTerms', { type: 'TransferTerms' });
+    t.list.field('positionChanges', { type: 'PositionChange' });
+    t.list.field('transferStateChanges', { type: 'TransferStateChange' });
+    t.list.field('conversions', { type: 'Conversions' });
   },
 });
 
-export default [Transfer, TransferStateChange];
+export default [Transfer, TransferStateChange, PositionChange, GeoCode, Amount, TransferTerms, Conversions, ConversionStateChanges, ConversionTerms, ConversionTermsCharges, QuoteRequest, TransferParty];
