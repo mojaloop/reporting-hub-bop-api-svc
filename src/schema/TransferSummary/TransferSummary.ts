@@ -15,9 +15,12 @@ const TransferSummary = objectType({
   definition(t) {
     t.nonNull.int('count');
     t.nonNull.float('sourceAmount');
-    t.nonNull.string('sourceCurrency');
+    t.string('sourceCurrency');
     t.nonNull.float('targetAmount');
-    t.nonNull.string('targetCurrency');
+    t.string('targetCurrency');
+    t.field('errorCode', { type: 'Int' });
+    t.field('payerDFSP', { type: 'String' });
+    t.field('payeeDFSP', { type: 'String' });
   },
 });
 
