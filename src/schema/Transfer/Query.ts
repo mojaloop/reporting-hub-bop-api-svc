@@ -77,7 +77,7 @@ const Query = extendType({
           const whereCondition = createWhereCondition(filter);
           const transfers = await ctx.transaction.transaction.findMany({
             skip: offset ?? 0,
-            take: limit ?? 5,
+            take: limit ?? 100,
             orderBy: {
               createdAt: 'desc',
             },
