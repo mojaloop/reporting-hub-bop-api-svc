@@ -7,7 +7,6 @@
  *  ORIGINAL AUTHOR:                                                      *
  *       Yevhen Kyriukha <yevhen.kyriukha@modusbox.com>                   *
  **************************************************************************/
-
 import { objectType } from 'nexus';
 const TransferStateChange = objectType({
   name: 'TransferStateChange',
@@ -132,9 +131,9 @@ const Transfer = objectType({
     t.nonNull.string('id');
     t.nonNull.string('transferId');
     t.string('transactionId');
-    t.decimal('sourceAmount');
+    t.float('sourceAmount');
     t.string('sourceCurrency');
-    t.decimal('targetAmount');
+    t.float('targetAmount');
     t.string('targetCurrency');
     t.dateTime('createdAt');
     t.dateTime('lastUpdated');
@@ -156,4 +155,17 @@ const Transfer = objectType({
   },
 });
 
-export default [Transfer, TransferStateChange, PositionChange, GeoCode, Amount, TransferTerms, Conversions, ConversionStateChanges, ConversionTerms, ConversionTermsCharges, QuoteRequest, TransferParty];
+export default [
+  Transfer,
+  TransferStateChange,
+  PositionChange,
+  GeoCode,
+  Amount,
+  TransferTerms,
+  Conversions,
+  ConversionStateChanges,
+  ConversionTerms,
+  ConversionTermsCharges,
+  QuoteRequest,
+  TransferParty,
+];

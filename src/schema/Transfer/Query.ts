@@ -8,11 +8,37 @@
  *       Yevhen Kyriukha <yevhen.kyriukha@modusbox.com>                   *
  **************************************************************************/
 
-import { extendType, intArg, nonNull, stringArg } from 'nexus';
+import { extendType, intArg, nonNull, stringArg, inputObjectType } from 'nexus';
+import { createWhereCondition } from './helpers/TransferFilter';
+const PartyFilter = inputObjectType({
+  name: 'PartyFilter',
+  definition(t) {
+    t.field('partyIdType', { type: 'String' });
+    t.field('partyIdentifier', { type: 'String' });
+  },
+});
+
+const TransferFilter = inputObjectType({
+  name: 'TransferFilter',
+  definition(t) {
+    t.nonNull.field('startDate', { type: 'DateTimeFlexible' });
+    t.nonNull.field('endDate', { type: 'DateTimeFlexible' });
+    t.field('errorCode', { type: 'Int' });
+    t.field('payer', { type: 'PartyFilter' });
+    t.field('payee', { type: 'PartyFilter' });
+    t.field('sourceCurrency', { type: 'String' });
+    t.field('targetCurrency', { type: 'String' });
+    t.field('transferState', { type: 'String' });
+    t.field('conversionState', { type: 'String' });
+    t.field('transactionType', { type: 'String' });
+    t.field('transferSettlementWindowId', { type: 'Int' });
+  },
+});
+
 const Query = extendType({
   type: 'Query',
   definition(t) {
-    t.field('transfers', {
+    t.field('transfer', {
       type: 'Transfer',
       args: {
         transferId: nonNull(stringArg()),
@@ -38,27 +64,30 @@ const Query = extendType({
       },
     });
 
-    t.nonNull.list.nonNull.field('getAllTransfers', {
+    t.nonNull.list.nonNull.field('transfers', {
       type: 'Transfer',
       args: {
+        filter: TransferFilter,
         limit: intArg(),
         offset: intArg(),
       },
       resolve: async (parent, args, ctx): Promise<any> => {
         try {
-          const { limit = 10, offset = 0 } = args;
+          const { limit = 100, offset = 0, filter = {} } = args;
+          const whereCondition = createWhereCondition(filter);
           const transfers = await ctx.transaction.transaction.findMany({
             skip: offset ?? 0,
-            take: limit ?? 5,
+            take: limit ?? 100,
             orderBy: {
               createdAt: 'desc',
             },
+            where: whereCondition,
           });
 
           if (transfers.length === 0) {
             console.log(`No transfers found with limit: ${limit} and offset: ${offset}`);
           }
-
+          console.log('Transfer data fetched is : ', transfers);
           return transfers;
         } catch (error) {
           console.error('Error fetching transfers', error);
@@ -69,4 +98,4 @@ const Query = extendType({
   },
 });
 
-export default Query;
+export default [Query, PartyFilter, TransferFilter];

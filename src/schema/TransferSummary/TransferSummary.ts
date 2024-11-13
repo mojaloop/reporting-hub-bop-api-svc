@@ -10,18 +10,32 @@
 
 import { objectType } from 'nexus';
 
-const TransferSummary = objectType({
-  name: 'TransferSummary',
+export const TransferGroup = objectType({
+  name: 'TransferGroup',
   definition(t) {
-    t.nonNull.int('count');
-    t.nonNull.float('sourceAmount');
+    t.int('errorCode');
     t.string('sourceCurrency');
-    t.nonNull.float('targetAmount');
     t.string('targetCurrency');
-    t.field('errorCode', { type: 'Int' });
-    t.field('payerDFSP', { type: 'String' });
-    t.field('payeeDFSP', { type: 'String' });
+    t.string('payerDFSP');
+    t.string('payeeDFSP');
   },
 });
 
-export default [TransferSummary];
+export const TransferSummary = objectType({
+  name: 'TransferSummary',
+  definition(t) {
+    t.nonNull.int('count');
+    t.nonNull.field('group', { type: 'TransferGroup' });
+    t.nonNull.field('sum', { type: 'TransferSummarySum' });
+  },
+});
+
+export const TransferSummarySum = objectType({
+  name: 'TransferSummarySum',
+  definition(t) {
+    t.nonNull.float('sourceAmount');
+    t.nonNull.float('targetAmount');
+  },
+});
+
+export default [TransferSummary, TransferGroup, TransferSummarySum];
