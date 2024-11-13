@@ -8,74 +8,83 @@
  *       Yevhen Kyriukha <yevhen.kyriukha@modusbox.com>                   *
  **************************************************************************/
 
-import { extendType, inputObjectType, intArg } from 'nexus';
-import { createWhereCondition, createGroupByCondition } from './helpers/TransferSummaryFilter';
+import { list, stringArg, extendType, intArg, inputObjectType } from 'nexus';
+
 const TransferSummaryFilter = inputObjectType({
   name: 'TransferSummaryFilter',
   definition(t) {
     t.field('startDate', { type: 'DateTimeFlexible' });
     t.field('endDate', { type: 'DateTimeFlexible' });
-    t.field('errorCode', { type: 'Int' });
-    t.field('payerDFSP', { type: 'String' });
-    t.field('payeeDFSP', { type: 'String' });
-    t.field('sourceCurrency', { type: 'String' });
-    t.field('targetCurrency', { type: 'String' });
   },
 });
+
+const createWhereCondition = (filter: any) => {
+  const whereCondition: any = {};
+
+  if (filter?.startDate) {
+    whereCondition.createdAt = {
+      gte: new Date(filter.startDate),
+    };
+  }
+
+  if (filter?.endDate) {
+    whereCondition.createdAt = {
+      ...whereCondition.createdAt,
+      lte: new Date(filter.endDate),
+    };
+  }
+
+  return whereCondition;
+};
 
 const Query = extendType({
   type: 'Query',
   definition(t) {
-    t.nonNull.list.nonNull.field('transferSummary', {
+    t.nonNull.list.field('transferSummary', {
       type: 'TransferSummary',
       args: {
         limit: intArg(),
         offset: intArg(),
         filter: TransferSummaryFilter,
+        groupBy: list(stringArg()),
       },
-      resolve: async (
-        parent,
-        args,
-        ctx
-      ): Promise<
-        {
-          count: number;
-          sourceCurrency: string | null;
-          targetCurrency: string | null;
-          payerDFSP: string | null;
-          payeeDFSP: string | null;
-          errorCode: number | null;
-          sourceAmount: number;
-          targetAmount: number;
-        }[]
-      > => {
+      resolve: async (parent, args, ctx) => {
         try {
-          const { limit = 100, offset = 0, filter = {} } = args;
-
+          const { limit = 100, offset = 0, filter = {}, groupBy = [] } = args;
           const whereCondition = createWhereCondition(filter);
-          const groupByCondition = createGroupByCondition(filter);
 
-          if (groupByCondition.length === 0) {
-            const aggregateResult = await ctx.transaction.transaction.aggregate({
+          const groupByFields = groupBy && groupBy.length > 0 ? groupBy : null;
+          console.log('Group By Fields: ', groupByFields);
+
+          let aggregateResult;
+
+          if (!groupByFields) {
+            aggregateResult = await ctx.transaction.transaction.aggregate({
               _count: { transferId: true },
               _sum: { sourceAmount: true, targetAmount: true },
               where: whereCondition,
+              skip: offset ?? 0,
+              take: limit ?? 100,
             });
             return [
               {
-                sourceCurrency: null as any,
-                targetCurrency: null as any,
-                payerDFSP: null as any,
-                payeeDFSP: null as any,
-                errorCode: null as any,
-                count: aggregateResult._count.transferId ?? 0,
-                sourceAmount: aggregateResult._sum.sourceAmount || 0,
-                targetAmount: aggregateResult._sum.targetAmount || 0,
+                group: {
+                  errorCode: null,
+                  sourceCurrency: null,
+                  targetCurrency: null,
+                  payerDFSP: null,
+                  payeeDFSP: null,
+                },
+                count: aggregateResult._count ? aggregateResult._count.transferId : 0,
+                sum: {
+                  sourceAmount: aggregateResult._sum?.sourceAmount || 0,
+                  targetAmount: aggregateResult._sum?.targetAmount || 0,
+                },
               },
             ];
           } else {
-            const aggregateResult = await ctx.transaction.transaction.groupBy({
-              by: groupByCondition,
+            aggregateResult = await ctx.transaction.transaction.groupBy({
+              by: groupByFields as ('sourceCurrency' | 'targetCurrency' | 'payerDFSP' | 'payeeDFSP' | 'errorCode')[],
               _count: { transferId: true },
               _sum: { sourceAmount: true, targetAmount: true },
               where: whereCondition,
@@ -89,14 +98,18 @@ const Query = extendType({
             });
 
             const transfersSummary = aggregateResult.map((group) => ({
-              sourceCurrency: group.sourceCurrency || null,
-              targetCurrency: group.targetCurrency || null,
-              payerDFSP: group.payerDFSP || null,
-              payeeDFSP: group.payeeDFSP || null,
-              errorCode: group.errorCode !== undefined ? group.errorCode : null,
+              group: {
+                errorCode: group.errorCode,
+                sourceCurrency: group.sourceCurrency || null,
+                targetCurrency: group.targetCurrency || null,
+                payerDFSP: group.payerDFSP || null,
+                payeeDFSP: group.payeeDFSP || null,
+              },
               count: typeof group._count === 'object' ? group._count.transferId ?? 0 : 0,
-              sourceAmount: group._sum?.sourceAmount || 0,
-              targetAmount: group._sum?.targetAmount || 0,
+              sum: {
+                sourceAmount: group._sum?.sourceAmount || 0,
+                targetAmount: group._sum?.targetAmount || 0,
+              },
             }));
 
             if (transfersSummary.length === 0) {
@@ -104,6 +117,7 @@ const Query = extendType({
             } else {
               console.log('TransferSummary is: ', transfersSummary);
             }
+
             return transfersSummary;
           }
         } catch (error) {
