@@ -1,17 +1,33 @@
 [{
-  "_id": "6722521de8395c753eec2adc",
-  "transferId": "TRX123456",
-  "transferState": "COMPLETED",
-  "transactionType": "TRANSFER",
-  "currency": "USD",
-  "amount": "100.00",
-  "settlementId": "SETTLE123",
-  "createdAt": "2024-10-30T12:00:00Z",
-  "quoteId": "QUOTE123",
-  "partyLookupEvents": [
-    "EVENT_PARTY_LOOKUP_1",
-    "EVENT_PARTY_LOOKUP_2"
+  "_id": "672ca418fab9fb606c51b573",
+  "transferId": "b51ec534-ee48-4575-b6a9-ead2955b8069",
+  "transactionId": "b51ec534-ee48-4575-b6a9-ead2955b8069",
+  "sourceAmount": 100.5,
+  "sourceCurrency": "USD",
+  "targetAmount": 91.5,
+  "targetCurrency": "EUR",
+  "createdAt": "2023-09-25T12:34:56.000Z",
+  "lastUpdated": "2023-09-25T12:34:56.000Z",
+  "transferState": "COMMITTED",
+  "transferStateChanges": [
+    {
+      "transferState": "RESERVED",
+      "dateTime": "2023-09-27T12:34:56.000Z",
+      "reason": "Insufficient balance"
+    },
+    {
+      "transferState": "ABORTED",
+      "dateTime": "2023-09-29T12:34:56.000Z",
+      "reason": "Insufficient balance"
+    }
   ],
+  "transactionType": "PAYMENT",
+  "errorCode": 200,
+  "transferSettlementWindowId": 16436,
+  "payerDFSP": "payerDFSP001",
+  "payerDFSPProxy": "",
+  "payeeDFSP": "payeeDFSP002",
+  "payeeDFSPProxy": "CInternationalClearing",
   "quoteEvents": [
     "EVENT_QUOTE_1",
     "EVENT_QUOTE_2"
@@ -23,427 +39,110 @@
   "settlementEvents": [
     "EVENT_SETTLE_1"
   ],
-  "payeeDFSP": {
-    "id": "PAYEE_DFSP_001",
-    "name": "Payee DFSP",
-    "description": "Payee Digital Financial Service Provider",
-    "__typename": "DFSP"
-  },
-  "payerDFSP": {
-    "id": "PAYER_DFSP_001",
-    "name": "Payer DFSP",
-    "description": "Payer Digital Financial Service Provider",
-    "__typename": "DFSP"
-  },
+  "positionChanges": [
+    {
+      "participantName": "payerDFSP001",
+      "currency": "USD",
+      "ledgerType": "POSITION",
+      "dateTime": "2016-05-24T12:38:08.000Z",
+      "updatedPosition": 10010.1,
+      "change": 10.1
+    }
+  ],
   "payerParty": {
-    "id": "PAYER001",
-    "firstName": "John",
-    "lastName": "Doe",
-    "middleName": "M",
-    "dateOfBirth": "1980-01-01",
-    "idType": "NATIONAL_ID",
-    "idValue": "1234567890",
-    "__typename": "Party"
+    "partyIdType": "MSISDN",
+    "partyIdentifier": "+123456789",
+    "partyName": "John Doe",
+    "supportedCurrencies": "USD"
   },
   "payeeParty": {
-    "id": "PAYEE001",
-    "firstName": "Jane",
-    "lastName": "Smith",
-    "middleName": "L",
-    "dateOfBirth": "1990-02-02",
-    "idType": "NATIONAL_ID",
-    "idValue": "0987654321",
-    "__typename": "Party"
+    "partyIdType": "MSISDN",
+    "partyIdentifier": "+987654321",
+    "partyName": "Jane Smith",
+    "supportedCurrencies": "EUR"
   },
-  "__typename": "Transfer"
-},
-{
-  "_id": "6722521de8395c753eec2add",
-  "transferId": "TRX654321",
-  "transferState": "PENDING",
-  "transactionType": "TRANSFER",
-  "currency": "EUR",
-  "amount": "250.00",
-  "settlementId": "SETTLE456",
-  "createdAt": "2024-10-29T10:30:00Z",
-  "quoteId": "QUOTE456",
-  "partyLookupEvents": [
-    "EVENT_PARTY_LOOKUP_3"
-  ],
-  "quoteEvents": [
-    "EVENT_QUOTE_3"
-  ],
-  "transferEvents": [
-    "EVENT_TRANSFER_3"
-  ],
-  "settlementEvents": [],
-  "payeeDFSP": {
-    "id": "PAYEE_DFSP_002",
-    "name": "EuroPayee DFSP",
-    "description": "Payee Digital Financial Service Provider for EUR",
-    "__typename": "DFSP"
+  "quoteRequest": {
+    "quoteId": "quote789",
+    "amountType": "SEND",
+    "amount": {
+      "currency": "USD",
+      "amount": 123.45
+    },
+    "fees": {
+      "currency": "USD",
+      "amount": 1.45
+    }
   },
-  "payerDFSP": {
-    "id": "PAYER_DFSP_002",
-    "name": "EuroPayer DFSP",
-    "description": "Payer Digital Financial Service Provider for EUR",
-    "__typename": "DFSP"
+  "transferTerms": {
+    "transferAmount": {
+      "currency": "AED",
+      "amount": 123.45
+    },
+    "payeeReceiveAmount": {
+      "currency": "AED",
+      "amount": 123.45
+    },
+    "payeeFspFee": {
+      "currency": "AED",
+      "amount": 123.45
+    },
+    "payeeFspCommission": {
+      "currency": "AED",
+      "amount": 123.45
+    },
+    "expiration": "2016-05-24T12:38:08.699Z",
+    "geoCode": {
+      "latitude": "+45.4215",
+      "longitude": "+75.6972"
+    },
+    "ilpPacket": "pck"
   },
-  "payerParty": {
-    "id": "PAYER002",
-    "firstName": "Alice",
-    "lastName": "Wong",
-    "middleName": "K",
-    "dateOfBirth": "1995-03-15",
-    "idType": "PASSPORT",
-    "idValue": "A1234567",
-    "__typename": "Party"
-  },
-  "payeeParty": {
-    "id": "PAYEE002",
-    "firstName": "Bob",
-    "lastName": "Brown",
-    "middleName": "T",
-    "dateOfBirth": "1992-04-10",
-    "idType": "PASSPORT",
-    "idValue": "B9876543",
-    "__typename": "Party"
-  },
-  "__typename": "Transfer"
-},
-{
-  "_id": "67227ae87785e7c2426f255a",
-  "transferId": "trf_001",
-  "transferState": "COMPLETED",
-  "transactionType": "TRANSFER",
-  "currency": "USD",
-  "amount": "100.00",
-  "settlementId": "set_001",
-  "createdAt": "2024-10-01T10:00:00Z",
-  "quoteId": "qte_001",
-  "partyLookupEvents": [
-    "party_lookup_event_001"
-  ],
-  "quoteEvents": [
-    "quote_event_001"
-  ],
-  "transferEvents": [
-    "transfer_event_001"
-  ],
-  "settlementEvents": [
-    "settlement_event_001"
-  ],
-  "payeeDFSP": {
-    "id": "dfsp_payee_001",
-    "name": "Payee DFSP",
-    "description": "Payee DFSP Description",
-    "typename": "DFSP"
-  },
-  "payerDFSP": {
-    "id": "dfsp_payer_001",
-    "name": "Payer DFSP",
-    "description": "Payer DFSP Description",
-    "typename": "DFSP"
-  },
-  "payerParty": {
-    "id": "payer_party_001",
-    "firstName": "John",
-    "lastName": "Doe",
-    "middleName": "M",
-    "dateOfBirth": "1990-01-01",
-    "idType": "NATIONAL_ID",
-    "idValue": "1234567890",
-    "typename": "Party"
-  },
-  "payeeParty": {
-    "id": "payee_party_001",
-    "firstName": "Jane",
-    "lastName": "Smith",
-    "middleName": "L",
-    "dateOfBirth": "1992-02-02",
-    "idType": "NATIONAL_ID",
-    "idValue": "0987654321",
-    "typename": "Party"
-  },
-  "__typename": "Transfer"
-},
-{
-  "_id": "67227ae87785e7c2426f255b",
-  "transferId": "trf_002",
-  "transferState": "PENDING",
-  "transactionType": "TRANSFER",
-  "currency": "EUR",
-  "amount": "250.00",
-  "settlementId": "set_002",
-  "createdAt": "2024-10-15T14:30:00Z",
-  "quoteId": "qte_002",
-  "partyLookupEvents": [
-    "party_lookup_event_002"
-  ],
-  "quoteEvents": [
-    "quote_event_002"
-  ],
-  "transferEvents": [
-    "transfer_event_002"
-  ],
-  "settlementEvents": [
-    "settlement_event_002"
-  ],
-  "payeeDFSP": {
-    "id": "dfsp_payee_002",
-    "name": "Payee DFSP 2",
-    "description": "Payee DFSP 2 Description",
-    "typename": "DFSP"
-  },
-  "payerDFSP": {
-    "id": "dfsp_payer_002",
-    "name": "Payer DFSP 2",
-    "description": "Payer DFSP 2 Description",
-    "typename": "DFSP"
-  },
-  "payerParty": {
-    "id": "payer_party_002",
-    "firstName": "Alice",
-    "lastName": "Johnson",
-    "middleName": "K",
-    "dateOfBirth": "1985-03-05",
-    "idType": "PASSPORT",
-    "idValue": "A12345678",
-    "typename": "Party"
-  },
-  "payeeParty": {
-    "id": "payee_party_002",
-    "firstName": "Bob",
-    "lastName": "Williams",
-    "middleName": "N",
-    "dateOfBirth": "1987-07-08",
-    "idType": "PASSPORT",
-    "idValue": "B87654321",
-    "typename": "Party"
-  },
-  "__typename": "Transfer"
-},
-{
-  "_id": "67227aee7785e7c2426f255d",
-  "transferId": "trf_001",
-  "transferState": "COMPLETED",
-  "transactionType": "TRANSFER",
-  "currency": "USD",
-  "amount": "100.00",
-  "settlementId": "set_001",
-  "createdAt": "2024-10-01T10:00:00Z",
-  "quoteId": "qte_001",
-  "partyLookupEvents": [
-    "party_lookup_event_001"
-  ],
-  "quoteEvents": [
-    "quote_event_001"
-  ],
-  "transferEvents": [
-    "transfer_event_001"
-  ],
-  "settlementEvents": [
-    "settlement_event_001"
-  ],
-  "payeeDFSP": {
-    "id": "dfsp_payee_001",
-    "name": "Payee DFSP",
-    "description": "Payee DFSP Description",
-    "typename": "DFSP"
-  },
-  "payerDFSP": {
-    "id": "dfsp_payer_001",
-    "name": "Payer DFSP",
-    "description": "Payer DFSP Description",
-    "typename": "DFSP"
-  },
-  "payerParty": {
-    "id": "payer_party_001",
-    "firstName": "John",
-    "lastName": "Doe",
-    "middleName": "M",
-    "dateOfBirth": "1990-01-01",
-    "idType": "NATIONAL_ID",
-    "idValue": "1234567890",
-    "typename": "Party"
-  },
-  "payeeParty": {
-    "id": "payee_party_001",
-    "firstName": "Jane",
-    "lastName": "Smith",
-    "middleName": "L",
-    "dateOfBirth": "1992-02-02",
-    "idType": "NATIONAL_ID",
-    "idValue": "0987654321",
-    "typename": "Party"
-  },
-  "__typename": "Transfer"
-},
-{
-  "_id": "67227aee7785e7c2426f255e",
-  "transferId": "trf_002",
-  "transferState": "PENDING",
-  "transactionType": "TRANSFER",
-  "currency": "EUR",
-  "amount": "250.00",
-  "settlementId": "set_002",
-  "createdAt": "2024-10-15T14:30:00Z",
-  "quoteId": "qte_002",
-  "partyLookupEvents": [
-    "party_lookup_event_002"
-  ],
-  "quoteEvents": [
-    "quote_event_002"
-  ],
-  "transferEvents": [
-    "transfer_event_002"
-  ],
-  "settlementEvents": [
-    "settlement_event_002"
-  ],
-  "payeeDFSP": {
-    "id": "dfsp_payee_002",
-    "name": "Payee DFSP 2",
-    "description": "Payee DFSP 2 Description",
-    "typename": "DFSP"
-  },
-  "payerDFSP": {
-    "id": "dfsp_payer_002",
-    "name": "Payer DFSP 2",
-    "description": "Payer DFSP 2 Description",
-    "typename": "DFSP"
-  },
-  "payerParty": {
-    "id": "payer_party_002",
-    "firstName": "Alice",
-    "lastName": "Johnson",
-    "middleName": "K",
-    "dateOfBirth": "1985-03-05",
-    "idType": "PASSPORT",
-    "idValue": "A12345678",
-    "typename": "Party"
-  },
-  "payeeParty": {
-    "id": "payee_party_002",
-    "firstName": "Bob",
-    "lastName": "Williams",
-    "middleName": "N",
-    "dateOfBirth": "1987-07-08",
-    "idType": "PASSPORT",
-    "idValue": "B87654321",
-    "typename": "Party"
-  },
-  "__typename": "Transfer"
-},
-{
-  "_id": "67227af47785e7c2426f2560",
-  "transferId": "trf_001",
-  "transferState": "COMPLETED",
-  "transactionType": "TRANSFER",
-  "currency": "USD",
-  "amount": "100.00",
-  "settlementId": "set_001",
-  "createdAt": "2024-10-01T10:00:00Z",
-  "quoteId": "qte_001",
-  "partyLookupEvents": [
-    "party_lookup_event_001"
-  ],
-  "quoteEvents": [
-    "quote_event_001"
-  ],
-  "transferEvents": [
-    "transfer_event_001"
-  ],
-  "settlementEvents": [
-    "settlement_event_001"
-  ],
-  "payeeDFSP": {
-    "id": "dfsp_payee_001",
-    "name": "Payee DFSP",
-    "description": "Payee DFSP Description",
-    "typename": "DFSP"
-  },
-  "payerDFSP": {
-    "id": "dfsp_payer_001",
-    "name": "Payer DFSP",
-    "description": "Payer DFSP Description",
-    "typename": "DFSP"
-  },
-  "payerParty": {
-    "id": "payer_party_001",
-    "firstName": "John",
-    "lastName": "Doe",
-    "middleName": "M",
-    "dateOfBirth": "1990-01-01",
-    "idType": "NATIONAL_ID",
-    "idValue": "1234567890",
-    "typename": "Party"
-  },
-  "payeeParty": {
-    "id": "payee_party_001",
-    "firstName": "Jane",
-    "lastName": "Smith",
-    "middleName": "L",
-    "dateOfBirth": "1992-02-02",
-    "idType": "NATIONAL_ID",
-    "idValue": "0987654321",
-    "typename": "Party"
-  },
-  "__typename": "Transfer"
-},
-{
-  "_id": "67227af47785e7c2426f2561",
-  "transferId": "trf_002",
-  "transferState": "PENDING",
-  "transactionType": "TRANSFER",
-  "currency": "EUR",
-  "amount": "250.00",
-  "settlementId": "set_002",
-  "createdAt": "2024-10-15T14:30:00Z",
-  "quoteId": "qte_002",
-  "partyLookupEvents": [
-    "party_lookup_event_002"
-  ],
-  "quoteEvents": [
-    "quote_event_002"
-  ],
-  "transferEvents": [
-    "transfer_event_002"
-  ],
-  "settlementEvents": [
-    "settlement_event_002"
-  ],
-  "payeeDFSP": {
-    "id": "dfsp_payee_002",
-    "name": "Payee DFSP 2",
-    "description": "Payee DFSP 2 Description",
-    "typename": "DFSP"
-  },
-  "payerDFSP": {
-    "id": "dfsp_payer_002",
-    "name": "Payer DFSP 2",
-    "description": "Payer DFSP 2 Description",
-    "typename": "DFSP"
-  },
-  "payerParty": {
-    "id": "payer_party_002",
-    "firstName": "Alice",
-    "lastName": "Johnson",
-    "middleName": "K",
-    "dateOfBirth": "1985-03-05",
-    "idType": "PASSPORT",
-    "idValue": "A12345678",
-    "typename": "Party"
-  },
-  "payeeParty": {
-    "id": "payee_party_002",
-    "firstName": "Bob",
-    "lastName": "Williams",
-    "middleName": "N",
-    "dateOfBirth": "1987-07-08",
-    "idType": "PASSPORT",
-    "idValue": "B87654321",
-    "typename": "Party"
-  },
-  "__typename": "Transfer"
+  "conversions": [
+    {
+      "conversionRequestId": "b51ec534-ee48-4575-b6a9-ead2955b8069",
+      "conversionId": "b51ec534-ee48-4575-b6a9-ead2955b8069",
+      "conversionCommitRequestId": "b51ec534-ee48-4575-b6a9-ead2955b8069",
+      "conversionState": "COMMITTED",
+      "conversionStateChanges": [
+        {
+          "conversionState": "RESERVED",
+          "dateTime": "2016-05-24T12:38:08.699Z",
+          "reason": ""
+        }
+      ],
+      "counterPartyFSP": "FXP",
+      "conversionType": "Payer DFSP Conversion",
+      "conversionSettlementWindowId": 16436,
+      "conversionTerms": {
+        "conversionId": "b51ec534-ee48-4575-b6a9-ead2955b8069",
+        "determiningTransferId": "b51ec534-ee48-4575-b6a9-ead2955b8069",
+        "initiatingFsp": "string",
+        "counterPartyFsp": "string",
+        "amountType": "RECEIVE",
+        "sourceAmount": {
+          "currency": "AED",
+          "amount": 123.45
+        },
+        "targetAmount": {
+          "currency": "AED",
+          "amount": 123.45
+        },
+        "expiration": "2016-05-24T12:38:08.699Z",
+        "charges": [
+          {
+            "chargeType": "string",
+            "sourceAmount": {
+              "currency": "AED",
+              "amount": 123.45
+            },
+            "targetAmount": {
+              "currency": "AED",
+              "amount": 123.45
+            }
+          }
+        ],
+        "ilpPacket": "pck"
+      }
+    }
+  ]
 }]

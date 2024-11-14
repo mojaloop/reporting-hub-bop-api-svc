@@ -12,7 +12,7 @@ const TransferStateChange = objectType({
   name: 'TransferStateChange',
   definition(t) {
     t.nonNull.string('transferState');
-    t.nonNull.dateTime('dateTime');
+    t.nonNull.string('dateTime');
     t.string('reason');
   },
 });
@@ -23,7 +23,7 @@ const PositionChange = objectType({
     t.string('currency');
     t.string('ledgerType');
     t.string('participantName');
-    t.nonNull.dateTime('dateTime');
+    t.nonNull.string('dateTime');
     t.float('updatedPosition');
   },
 });
@@ -47,7 +47,7 @@ const Amount = objectType({
 const TransferTerms = objectType({
   name: 'TransferTerms',
   definition(t) {
-    t.nonNull.dateTime('expiration');
+    t.nonNull.string('expiration');
     t.nonNull.field('geoCode', { type: 'GeoCode' });
     t.nonNull.string('ilpPacket');
     t.nonNull.field('payeeFspCommission', { type: 'Amount' });
@@ -61,7 +61,7 @@ const ConversionStateChanges = objectType({
   name: 'ConversionStateChanges',
   definition(t) {
     t.nonNull.string('conversionState');
-    t.nonNull.dateTime('dateTime');
+    t.nonNull.string('dateTime');
     t.nonNull.string('reason');
   },
 });
@@ -83,7 +83,7 @@ const ConversionTerms = objectType({
     t.nonNull.string('conversionId');
     t.nonNull.string('counterPartyFsp');
     t.nonNull.string('determiningTransferId');
-    t.nonNull.dateTime('expiration');
+    t.nonNull.string('expiration');
     t.nonNull.string('ilpPacket');
     t.nonNull.string('initiatingFsp');
     t.nonNull.field('sourceAmount', { type: 'Amount' });
@@ -97,7 +97,7 @@ const Conversions = objectType({
     t.nonNull.string('conversionCommitRequestId');
     t.nonNull.string('conversionId');
     t.nonNull.string('conversionRequestId');
-    t.nonNull.bigInt('conversionSettlementWindowId');
+    t.nonNull.int('conversionSettlementWindowId');
     t.nonNull.string('conversionState');
     t.list.field('conversionStateChanges', { type: 'ConversionStateChanges' });
     t.nonNull.field('conversionTerms', { type: 'ConversionTerms' });
@@ -135,8 +135,8 @@ const Transfer = objectType({
     t.string('sourceCurrency');
     t.float('targetAmount');
     t.string('targetCurrency');
-    t.dateTime('createdAt');
-    t.dateTime('lastUpdated');
+    t.string('createdAt');
+    t.string('lastUpdated');
     t.string('transferState');
     t.string('transactionType');
     t.int('errorCode');
