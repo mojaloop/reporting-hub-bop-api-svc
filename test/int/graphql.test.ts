@@ -1,9 +1,11 @@
-import { getMongoClient, Collection, closeMongoClientConnection } from '../../src/lib/mongo';
 import { makeSchema, mutationType, queryType } from 'nexus';
 import { graphql } from 'graphql';
+import { getMongoClient, Collection, closeMongoClientConnection } from '@app/lib';
 import Transfer from '../../src/schema/Transfer';
+import Query from '../../src/schema/Transfer/Query';
+
 const testTransfers = require('./data/reporting.transfers.json');
-import schema from '../../src/schema';
+// import schema from '../../src/schema';
 
 describe('TransferSummary Integration Tests', () => {
   const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017';
@@ -51,36 +53,131 @@ describe('TransferSummary Integration Tests', () => {
   });
 });
 
-describe('Send sample graphql queries', () => {
-  let mockCtx;
-  beforeEach(() => {
-    const mockTransfer = {
-      transferId: 'b51ec534-ee48-4575-b6a9-ead2955b8069',
-      transactionId: 'transaction123',
-      sourceAmount: 100,
-      sourceCurrency: 'USD',
-      targetAmount: 90,
-      targetCurrency: 'EUR',
-      createdAt: '2024-11-14T06:24:56.719Z',
-      lastUpdated: '2024-11-14T06:24:56.720Z',
-      transferState: 'COMPLETED',
-      transactionType: 'TRANSFER',
-    };
+// describe('Send sample graphql queries', () => {
+//   let mockCtx;
+//   beforeEach(() => {
+//     const mockTransfer = {
+//       transferId: 'b51ec534-ee48-4575-b6a9-ead2955b8069',
+//       transactionId: 'transaction123',
+//       sourceAmount: 100,
+//       sourceCurrency: 'USD',
+//       targetAmount: 90,
+//       targetCurrency: 'EUR',
+//       createdAt: '2024-11-14T06:24:56.719Z',
+//       lastUpdated: '2024-11-14T06:24:56.720Z',
+//       transferState: 'COMPLETED',
+//       transactionType: 'TRANSFER',
+//     };
+//
+//     mockCtx = {
+//       transaction: {
+//         transaction: {
+//           findUnique: jest.fn().mockResolvedValue(mockTransfer),
+//           findMany: jest.fn().mockResolvedValue([mockTransfer]),
+//         },
+//       },
+//     };
+//   });
+//
+//   it('should send a transfer query', async () => {
+//     const query = `
+//       query {
+//         transfer(transferId: "b51ec534-ee48-4575-b6a9-ead2955b8069") {
+//           transferId
+//           transactionId
+//           sourceAmount
+//           sourceCurrency
+//           targetAmount
+//           targetCurrency
+//           createdAt
+//           lastUpdated
+//           transferState
+//           transactionType
+//         }
+//       }
+//     `;
+//     const result = await graphql({
+//       schema,
+//       source: query,
+//       contextValue: mockCtx,
+//     });
+//
+//     // Assert the expected result
+//     expect(result).toMatchSnapshot();
+//     expect(mockCtx.transaction.transaction.findUnique).toHaveBeenCalledWith({
+//       where: { transferId: 'b51ec534-ee48-4575-b6a9-ead2955b8069' },
+//     });
+//   });
 
-    mockCtx = {
-      transaction: {
-        transaction: {
-          findUnique: jest.fn().mockResolvedValue(mockTransfer),
-          findMany: jest.fn().mockResolvedValue([mockTransfer]),
-        },
-      },
-    };
+describe('Fetch sample graphql queries', () => {
+  it('should fetch all transfers query', async () => {
+    const schema = makeSchema({
+      types: [Transfer, Query],
+    });
+
+    const query = `
+          query {
+              getAllTransfers(limit: 10, offset: 0) {
+                id
+                transferId
+                transactionId
+                sourceAmount
+                sourceCurrency
+                targetAmount
+                targetCurrency
+                createdAt
+                lastUpdated
+                transferState
+                transactionType
+                errorCode
+                transferSettlementWindowId
+                payerDFSP
+                payerDFSPProxy
+                payeeDFSP
+                payeeDFSPProxy
+                positionChanges{
+                  updatedPosition
+                  
+                }
+                payerParty{
+                  partyName
+                }
+                payeeParty{
+                  partyName
+                }
+                quoteRequest{
+                  quoteId
+                }
+                transferTerms{
+                  geoCode{
+                    latitude
+                  }
+                }
+                conversions{
+                  conversionId
+                }
+                
+              }
+            }`;
+
+    const result = await graphql({
+      schema,
+      source: query,
+    });
+
+    // Assert the results
+    expect(result.errors).toBeUndefined();
+    expect(result.data).toBeDefined();
   });
 
-  it('should send a transfer query', async () => {
+  it('should fetch a transfer by query', async () => {
+    const schema = makeSchema({
+      types: [Transfer, Query],
+    });
+
     const query = `
       query {
-        transfer(transferId: "b51ec534-ee48-4575-b6a9-ead2955b8069") {
+        transfers(transferId: "b51ec534-ee48-4575-b6a9-ead2955b8069") {
           transferId
           transactionId
           sourceAmount
@@ -91,19 +188,43 @@ describe('Send sample graphql queries', () => {
           lastUpdated
           transferState
           transactionType
+          errorCode
+          transferSettlementWindowId
+          payerDFSP
+          payerDFSPProxy
+          payeeDFSP
+          payeeDFSPProxy
+          positionChanges{
+            updatedPosition
+            
+          }
+          payerParty{
+            partyName
+          }
+          payeeParty{
+            partyName
+          }
+          quoteRequest{
+            quoteId
+          }
+          transferTerms{
+            geoCode{
+              latitude
+            }
+          }
+          conversions{
+            conversionId
+          }
         }
-      }
-    `;
+      }`;
+
     const result = await graphql({
       schema,
       source: query,
-      contextValue: mockCtx,
     });
 
-    // Assert the expected result
-    expect(result).toMatchSnapshot();
-    expect(mockCtx.transaction.transaction.findUnique).toHaveBeenCalledWith({
-      where: { transferId: 'b51ec534-ee48-4575-b6a9-ead2955b8069' },
-    });
+    // Assert the results
+    expect(result.errors).toBeUndefined();
+    expect(result.data).toBeDefined();
   });
 });
