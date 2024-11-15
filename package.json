@@ -21,7 +21,7 @@
     "lint": "eslint ./src/**/*.ts",
     "lint:fix": "npm run lint -- --fix",
     "audit:fix": "npm audit fix",
-    "audit:check": "npx audit-ci --config ./audit-ci.jsonc"
+    "audit:check": "npx audit-ci --config ./audit-ci.jsonc -o json > ./audit/results/auditResults.json"
   },
   "repository": {
     "type": "git",
