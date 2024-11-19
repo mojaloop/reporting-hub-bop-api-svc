@@ -13,25 +13,25 @@ import { createWhereCondition } from './helpers/TransferFilter';
 const PartyFilter = inputObjectType({
   name: 'PartyFilter',
   definition(t) {
-    t.field('partyIdType', { type: 'String' });
-    t.field('partyIdentifier', { type: 'String' });
+    t.string('partyIdType');
+    t.string('partyIdentifier');
   },
 });
 
 const TransferFilter = inputObjectType({
   name: 'TransferFilter',
   definition(t) {
-    t.nonNull.field('startDate', { type: 'DateTimeFlexible' });
-    t.nonNull.field('endDate', { type: 'DateTimeFlexible' });
-    t.field('errorCode', { type: 'Int' });
+    t.nonNull.dateTimeFlex('startDate');
+    t.nonNull.dateTimeFlex('endDate');
+    t.int('errorCode');
     t.field('payer', { type: 'PartyFilter' });
     t.field('payee', { type: 'PartyFilter' });
-    t.field('sourceCurrency', { type: 'String' });
-    t.field('targetCurrency', { type: 'String' });
-    t.field('transferState', { type: 'String' });
-    t.field('conversionState', { type: 'String' });
-    t.field('transactionType', { type: 'String' });
-    t.field('transferSettlementWindowId', { type: 'Int' });
+    t.string('sourceCurrency');
+    t.string('targetCurrency');
+    t.string('transferState');
+    t.string('conversionState');
+    t.string('transactionType');
+    t.bigInt('transferSettlementWindowId');
   },
 });
 

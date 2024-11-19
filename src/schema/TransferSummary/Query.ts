@@ -13,8 +13,8 @@ import { list, stringArg, extendType, intArg, inputObjectType } from 'nexus';
 const TransferSummaryFilter = inputObjectType({
   name: 'TransferSummaryFilter',
   definition(t) {
-    t.field('startDate', { type: 'DateTimeFlexible' });
-    t.field('endDate', { type: 'DateTimeFlexible' });
+    t.dateTimeFlex('startDate');
+    t.dateTimeFlex('endDate');
   },
 });
 
