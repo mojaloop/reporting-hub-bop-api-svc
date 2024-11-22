@@ -152,6 +152,46 @@ const Transfer = objectType({
     t.list.field('positionChanges', { type: 'PositionChange' });
     t.list.field('transferStateChanges', { type: 'TransferStateChange' });
     t.list.field('conversions', { type: 'Conversions' });
+    t.list.jsonObject('quoteEvents', {
+      resolve: async (parent, args, ctx) => {
+        const events = await ctx.eventStore.reportingData.findMany();
+        const filteredEvents = events.filter((event) => {
+          const metadata = (event.metadata as any)?.reporting;
+          return metadata?.eventType === 'Quote' && metadata?.transactionId === parent.transactionId;
+        });
+        return filteredEvents.map((event) => event.event);
+      },
+    });
+    t.list.jsonObject('partyLookupEvents', {
+      resolve: async (parent, args, ctx) => {
+        const events = await ctx.eventStore.reportingData.findMany();
+        const filteredEvents = events.filter((event) => {
+          const metadata = (event.metadata as any)?.reporting;
+          return metadata?.eventType === 'PartyLookup' && metadata?.transactionId === parent.transactionId;
+        });
+        return filteredEvents.map((event) => event.event);
+      },
+    });
+    t.list.jsonObject('settlementEvents', {
+      resolve: async (parent, args, ctx) => {
+        const events = await ctx.eventStore.reportingData.findMany();
+        const filteredEvents = events.filter((event) => {
+          const metadata = (event.metadata as any)?.reporting;
+          return metadata?.eventType === 'Settlement' && metadata?.transactionId === parent.transactionId;
+        });
+        return filteredEvents.map((event) => event.event);
+      },
+    });
+    t.list.jsonObject('transferEvents', {
+      resolve: async (parent, args, ctx) => {
+        const events = await ctx.eventStore.reportingData.findMany();
+        const filteredEvents = events.filter((event) => {
+          const metadata = (event.metadata as any)?.reporting;
+          return metadata?.eventType === 'Transfer' && metadata?.transactionId === parent.transactionId;
+        });
+        return filteredEvents.map((event) => event.event);
+      },
+    });
   },
 });
 
