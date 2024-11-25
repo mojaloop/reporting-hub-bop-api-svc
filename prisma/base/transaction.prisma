@@ -32,7 +32,7 @@ model Transaction {
   transferTerms              TransferTerms
   conversions                Conversions[]
   createdAt                  DateTime              @default(now())
-  lastUpdated                DateTime?             @updatedAt
+  lastUpdated                DateTime              @updatedAt
 
   @@unique([transferId])
   @@unique([transactionId])
@@ -91,7 +91,7 @@ type Conversions {
 type ConversionStateChanges {
   conversionState String
   dateTime        DateTime @db.Date
-  reason          String
+  reason          String?
 }
 
 type ConversionTerms {

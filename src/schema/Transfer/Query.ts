@@ -87,7 +87,7 @@ const Query = extendType({
           if (transfers.length === 0) {
             console.log(`No transfers found with limit: ${limit} and offset: ${offset}`);
           }
-          console.log('Transfer data fetched is : ', transfers);
+          // console.log('Transfer data fetched is : ', transfers);
           return transfers;
         } catch (error) {
           console.error('Error fetching transfers', error);
