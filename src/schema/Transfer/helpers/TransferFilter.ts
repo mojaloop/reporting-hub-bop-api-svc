@@ -13,22 +13,42 @@ export const createWhereCondition = (filter: any) => {
   }
 
   // Optional filters
-  if (filter?.errorCode !== undefined) {
-    whereCondition.errorCode = filter.errorCode;
+  if (filter?.payerDFSP) {
+    whereCondition.payerDFSP = filter.payerDFSP;
   }
-
-  if (filter?.transferSettlementWindowId !== undefined) {
-    whereCondition.transferSettlementWindowId = filter.transferSettlementWindowId;
+  if (filter?.payeeDFSP) {
+    whereCondition.payeeDFSP = filter.payeeDFSP;
   }
-
   if (filter?.transferState) {
     whereCondition.transferState = filter.transferState;
   }
-
-  if (filter?.conversionState) {
-    whereCondition.conversions = { some: { conversionState: filter.conversionState } };
-  }
-
+  // if (filter?.conversionState) {
+  //   whereCondition.OR = [
+  //     {
+  //       conversions: {
+  //         is: {
+  //           payer: {
+  //             is: {
+  //               conversionState: filter.conversionState
+  //             }
+  //           }
+  //         }
+  //       }
+  //     },
+  //     {
+  //       conversions: {
+  //         is: {
+  //           payee: {
+  //             is: {
+  //               conversionState: filter.conversionState
+  //             }
+  //           }
+  //         }
+  //       }
+  //     }
+  //   ];
+  // }
+  
   if (filter?.transactionType) {
     whereCondition.transactionType = filter.transactionType;
   }
@@ -66,6 +86,12 @@ export const createWhereCondition = (filter: any) => {
       whereCondition.payeeParty = { is: payeeFilter };
     }
   }
-
+  // console.log("OR Filter: ", JSON.stringify(whereCondition.OR, null, 2));
+  console.log("wherecondition is: ",whereCondition);
   return whereCondition;
 };
+
+
+
+
+

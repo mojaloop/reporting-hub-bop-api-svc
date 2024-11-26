@@ -23,15 +23,15 @@ const TransferFilter = inputObjectType({
   definition(t) {
     t.nonNull.dateTimeFlex('startDate');
     t.nonNull.dateTimeFlex('endDate');
-    t.int('errorCode');
     t.field('payer', { type: 'PartyFilter' });
     t.field('payee', { type: 'PartyFilter' });
+    t.string('payerDFSP');
+    t.string('payeeDFSP');
     t.string('sourceCurrency');
     t.string('targetCurrency');
     t.string('transferState');
     t.string('conversionState');
     t.string('transactionType');
-    t.bigInt('transferSettlementWindowId');
   },
 });
 
@@ -85,7 +85,7 @@ const Query = extendType({
           });
 
           if (transfers.length === 0) {
-            console.log(`No transfers found with limit: ${limit} and offset: ${offset}`);
+            console.log(`No transfers found with limit: ${limit}, offset: ${offset} and filter: ${filter}`);
           }
           // console.log('Transfer data fetched is : ', transfers);
           return transfers;

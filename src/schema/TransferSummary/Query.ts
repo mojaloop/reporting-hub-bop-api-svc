@@ -99,7 +99,7 @@ const Query = extendType({
 
             const transfersSummary = aggregateResult.map((group) => ({
               group: {
-                errorCode: group.errorCode,
+                errorCode: group.errorCode || null,
                 sourceCurrency: group.sourceCurrency || null,
                 targetCurrency: group.targetCurrency || null,
                 payerDFSP: group.payerDFSP || null,

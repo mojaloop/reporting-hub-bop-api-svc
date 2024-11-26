@@ -12,25 +12,26 @@ model Transaction {
   id                         String                @id @default(auto()) @map("_id") @db.ObjectId
   transferId                 String
   transactionId              String
-  sourceAmount               Float
-  sourceCurrency             String
-  targetAmount               Float
-  targetCurrency             String
+  sourceAmount               Float?
+  sourceCurrency             String?
+  targetAmount               Float?
+  targetCurrency             String?
   transferState              String
   transferStateChanges       TransferStateChange[]
   transactionType            String
-  errorCode                  Int?
+  baseUseCase                String
+  errorCode                  String?
   transferSettlementWindowId BigInt
   payerDFSP                  String?
   payerDFSPProxy             String?
   payeeDFSP                  String?
   payeeDFSPProxy             String?
   positionChanges            PositionChange[]
-  payerParty                 Party
-  payeeParty                 Party
+  payerParty                 Party?
+  payeeParty                 Party?
   quoteRequest               QuoteRequest
   transferTerms              TransferTerms
-  conversions                Conversions[]
+  conversions                Conversions?
   createdAt                  DateTime              @default(now())
   lastUpdated                DateTime              @updatedAt
 
@@ -48,44 +49,50 @@ type TransferStateChange {
 }
 
 type PositionChange {
-  change          Float
-  currency        String
-  dateTime        DateTime @db.Date
-  ledgerType      String
-  participantName String
-  updatedPosition Float
+  change          Float?
+  currency        String?
+  dateTime        DateTime? @db.Date
+  ledgerType      String?
+  participantName String?
+  updatedPosition Float?
 }
 
 type TransferTerms {
   expiration         DateTime @db.Date
   geoCode            GeoCode
   ilpPacket          String
-  payeeFspCommission Amount
-  payeeFspFee        Amount
-  payeeReceiveAmount Amount
+  payeeFspCommission Amount?
+  payeeFspFee        Amount?
+  payeeReceiveAmount Amount?
   transferAmount     Amount
 }
 
 type GeoCode {
-  latitude  String
-  longitude String
+  latitude  String?
+  longitude String?
 }
 
 type Amount {
-  amount   Float
-  currency String
+  amount   Float?
+  currency String?
 }
 
 type Conversions {
+  payer ConversionsObject?
+  payee ConversionsObject?
+}
+
+type ConversionsObject {
   conversionCommitRequestId    String
-  conversionId                 String
+  conversionId                 String?
   conversionRequestId          String
-  conversionSettlementWindowId BigInt
+  conversionSettlementWindowId BigInt?
   conversionState              String
   conversionStateChanges       ConversionStateChanges[]
   conversionTerms              ConversionTerms
   conversionType               String
   counterPartyFSP              String
+  counterPartyProxy            String?
 }
 
 type ConversionStateChanges {
@@ -95,16 +102,16 @@ type ConversionStateChanges {
 }
 
 type ConversionTerms {
-  amountType            String
+  amountType            String?
   charges               ConversionTermsCharges[]
-  conversionId          String
-  counterPartyFsp       String
-  determiningTransferId String
-  expiration            DateTime                 @db.Date
+  conversionId          String?
+  counterPartyFsp       String?
+  determiningTransferId String?
+  expiration            DateTime?                @db.Date
   ilpPacket             String
-  initiatingFsp         String
-  sourceAmount          Amount
-  targetAmount          Amount
+  initiatingFsp         String?
+  sourceAmount          Amount?
+  targetAmount          Amount?
 }
 
 type ConversionTermsCharges {
@@ -121,8 +128,8 @@ type QuoteRequest {
 }
 
 type Party {
-  partyIdType         String
-  partyIdentifier     String
-  partyName           String
-  supportedCurrencies String
+  partyIdType         String?
+  partyIdentifier     String?
+  partyName           String?
+  supportedCurrencies String?
 }
