@@ -22,32 +22,32 @@ export const createWhereCondition = (filter: any) => {
   if (filter?.transferState) {
     whereCondition.transferState = filter.transferState;
   }
-  // if (filter?.conversionState) {
-  //   whereCondition.OR = [
-  //     {
-  //       conversions: {
-  //         is: {
-  //           payer: {
-  //             is: {
-  //               conversionState: filter.conversionState
-  //             }
-  //           }
-  //         }
-  //       }
-  //     },
-  //     {
-  //       conversions: {
-  //         is: {
-  //           payee: {
-  //             is: {
-  //               conversionState: filter.conversionState
-  //             }
-  //           }
-  //         }
-  //       }
-  //     }
-  //   ];
-  // }
+  if (filter?.conversionState) {
+    whereCondition.OR = [
+      {
+        conversions: {
+          is: {
+            payer: {
+              is: {
+                conversionState: filter.conversionState
+              }
+            }
+          }
+        }
+      },
+      {
+        conversions: {
+          is: {
+            payee: {
+              is: {
+                conversionState: filter.conversionState
+              }
+            }
+          }
+        }
+      }
+    ];
+  }
   
   if (filter?.transactionType) {
     whereCondition.transactionType = filter.transactionType;
@@ -86,8 +86,6 @@ export const createWhereCondition = (filter: any) => {
       whereCondition.payeeParty = { is: payeeFilter };
     }
   }
-  // console.log("OR Filter: ", JSON.stringify(whereCondition.OR, null, 2));
-  console.log("wherecondition is: ",whereCondition);
   return whereCondition;
 };
 

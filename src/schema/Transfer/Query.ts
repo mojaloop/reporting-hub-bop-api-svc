@@ -10,6 +10,7 @@
 
 import { extendType, intArg, nonNull, stringArg, inputObjectType } from 'nexus';
 import { createWhereCondition } from './helpers/TransferFilter';
+
 const PartyFilter = inputObjectType({
   name: 'PartyFilter',
   definition(t) {
@@ -17,6 +18,7 @@ const PartyFilter = inputObjectType({
     t.string('partyIdentifier');
   },
 });
+
 
 const TransferFilter = inputObjectType({
   name: 'TransferFilter',
