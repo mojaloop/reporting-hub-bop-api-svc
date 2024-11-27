@@ -11,6 +11,7 @@
 import { extendType, intArg, nonNull, stringArg, inputObjectType } from 'nexus';
 import { createWhereCondition } from './helpers/TransferFilter';
 
+// Define input type for PartyFilter
 const PartyFilter = inputObjectType({
   name: 'PartyFilter',
   definition(t) {
@@ -19,6 +20,7 @@ const PartyFilter = inputObjectType({
   },
 });
 
+// Define input type for TransferFilter
 const TransferFilter = inputObjectType({
   name: 'TransferFilter',
   definition(t) {
@@ -39,6 +41,7 @@ const TransferFilter = inputObjectType({
 const Query = extendType({
   type: 'Query',
   definition(t) {
+    // Define a field to fetch a single transfer by ID
     t.field('transfer', {
       type: 'Transfer',
       args: {
@@ -46,6 +49,7 @@ const Query = extendType({
       },
       resolve: async (parent, args, ctx): Promise<any> => {
         try {
+          // Fetch a single transaction by transferId
           const transaction = await ctx.transaction.transaction.findUnique({
             where: {
               transferId: args.transferId,
@@ -64,7 +68,7 @@ const Query = extendType({
         }
       },
     });
-
+// Define a field to fetch multiple transfers with filters, limit, and offset
     t.nonNull.list.nonNull.field('transfers', {
       type: 'Transfer',
       args: {
@@ -75,7 +79,9 @@ const Query = extendType({
       resolve: async (parent, args, ctx): Promise<any> => {
         try {
           const { limit = 100, offset = 0, filter = {} } = args;
+          // Create where condition based on filter
           const whereCondition = createWhereCondition(filter);
+          // Fetch multiple transactions with pagination and filtering
           const transfers = await ctx.transaction.transaction.findMany({
             skip: offset ?? 0,
             take: limit ?? 100,

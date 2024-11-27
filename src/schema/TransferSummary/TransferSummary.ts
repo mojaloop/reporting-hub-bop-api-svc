@@ -10,6 +10,7 @@
 
 import { objectType } from 'nexus';
 
+// Define TransferGroup object type
 export const TransferGroup = objectType({
   name: 'TransferGroup',
   definition(t) {
@@ -21,6 +22,7 @@ export const TransferGroup = objectType({
   },
 });
 
+// Define TransferSummary object type
 export const TransferSummary = objectType({
   name: 'TransferSummary',
   definition(t) {
@@ -30,6 +32,7 @@ export const TransferSummary = objectType({
   },
 });
 
+// Define TransferSummarySum object type
 export const TransferSummarySum = objectType({
   name: 'TransferSummarySum',
   definition(t) {

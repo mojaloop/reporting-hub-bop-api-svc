@@ -23,6 +23,7 @@ export const createWhereCondition = (filter: any) => {
     whereCondition.transferState = filter.transferState;
   }
   if (filter?.conversionState) {
+    // Handle conversionState filter with OR condition
     whereCondition.OR = [
       {
         conversions: {
@@ -61,6 +62,7 @@ export const createWhereCondition = (filter: any) => {
     whereCondition.targetCurrency = filter.targetCurrency;
   }
 
+  // Handle Payer filter
   if (filter?.payer) {
     const payerFilter: any = {};
     if (filter.payer.partyIdType) {
@@ -74,6 +76,7 @@ export const createWhereCondition = (filter: any) => {
     }
   }
 
+  // Handle Payee filter
   if (filter?.payee) {
     const payeeFilter: any = {};
     if (filter.payee.partyIdType) {

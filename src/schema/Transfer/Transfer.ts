@@ -8,6 +8,8 @@
  *       Yevhen Kyriukha <yevhen.kyriukha@modusbox.com>                   *
  **************************************************************************/
 import { objectType } from 'nexus';
+
+// Define TransferStateChange object type
 const TransferStateChange = objectType({
   name: 'TransferStateChange',
   definition(t) {
@@ -16,6 +18,8 @@ const TransferStateChange = objectType({
     t.string('reason');
   },
 });
+
+// Define PositionChange object type
 const PositionChange = objectType({
   name: 'PositionChange',
   definition(t) {
@@ -28,6 +32,7 @@ const PositionChange = objectType({
   },
 });
 
+// Define GeoCode object type
 const GeoCode = objectType({
   name: 'GeoCode',
   definition(t) {
@@ -36,6 +41,7 @@ const GeoCode = objectType({
   },
 });
 
+// Define Amount object type
 const Amount = objectType({
   name: 'Amount',
   definition(t) {
@@ -44,6 +50,7 @@ const Amount = objectType({
   },
 });
 
+// Define TransferTerms object type
 const TransferTerms = objectType({
   name: 'TransferTerms',
   definition(t) {
@@ -57,6 +64,7 @@ const TransferTerms = objectType({
   },
 });
 
+// Define ConversionStateChanges object type
 const ConversionStateChanges = objectType({
   name: 'ConversionStateChanges',
   definition(t) {
@@ -66,6 +74,7 @@ const ConversionStateChanges = objectType({
   },
 });
 
+// Define ConversionTermsCharges object type
 const ConversionTermsCharges = objectType({
   name: 'ConversionTermsCharges',
   definition(t) {
@@ -75,6 +84,7 @@ const ConversionTermsCharges = objectType({
   },
 });
 
+// Define ConversionTerms object type
 const ConversionTerms = objectType({
   name: 'ConversionTerms',
   definition(t) {
@@ -91,6 +101,7 @@ const ConversionTerms = objectType({
   },
 });
 
+// Define Conversions object type
 const Conversions = objectType({
   name: 'Conversions',
   definition(t) {
@@ -98,6 +109,8 @@ const Conversions = objectType({
     t.field('payee', { type: 'ConversionsObject' });
   },
 });
+
+// Define ConversionsObject object type
 const ConversionsObject = objectType({
   name: 'ConversionsObject',
   definition(t) {
@@ -113,6 +126,8 @@ const ConversionsObject = objectType({
     t.nonNull.string('counterPartyProxy');
   },
 });
+
+// Define QuoteRequest object type
 const QuoteRequest = objectType({
   name: 'QuoteRequest',
   definition(t) {
@@ -123,6 +138,7 @@ const QuoteRequest = objectType({
   },
 });
 
+// Define TransferParty object type
 const TransferParty = objectType({
   name: 'TransferParty',
   definition(t) {
@@ -133,6 +149,7 @@ const TransferParty = objectType({
   },
 });
 
+// Define Transfer object type
 const Transfer = objectType({
   name: 'Transfer',
   definition(t) {
@@ -161,6 +178,8 @@ const Transfer = objectType({
     t.list.field('positionChanges', { type: 'PositionChange' });
     t.list.field('transferStateChanges', { type: 'TransferStateChange' });
     t.field('conversions', { type: 'Conversions' });
+
+    // Define resolver for quoteEvents lookup
     t.list.jsonObject('quoteEvents', {
       resolve: async (parent, args, ctx) => {
         const events = await ctx.eventStore.reportingData.findMany();
@@ -171,6 +190,8 @@ const Transfer = objectType({
         return filteredEvents.map((event) => event.event);
       },
     });
+
+    // Define resolver for partyLookupEvents lookup
     t.list.jsonObject('partyLookupEvents', {
       resolve: async (parent, args, ctx) => {
         const events = await ctx.eventStore.reportingData.findMany();
@@ -181,6 +202,8 @@ const Transfer = objectType({
         return filteredEvents.map((event) => event.event);
       },
     });
+
+    // Define resolver for settlementEvents lookup
     t.list.jsonObject('settlementEvents', {
       resolve: async (parent, args, ctx) => {
         const events = await ctx.eventStore.reportingData.findMany();
@@ -191,12 +214,36 @@ const Transfer = objectType({
         return filteredEvents.map((event) => event.event);
       },
     });
+
+    // Define resolver for transferEvents lookup
     t.list.jsonObject('transferEvents', {
       resolve: async (parent, args, ctx) => {
         const events = await ctx.eventStore.reportingData.findMany();
         const filteredEvents = events.filter((event) => {
           const metadata = (event.metadata as any)?.reporting;
           return metadata?.eventType === 'Transfer' && metadata?.transactionId === parent.transactionId;
+        });
+        return filteredEvents.map((event) => event.event);
+      },
+    });
+    // Define resolver for fxTransferEvents lookup
+    t.list.jsonObject('fxTransferEvents', {
+      resolve: async (parent, args, ctx) => {
+        const events = await ctx.eventStore.reportingData.findMany();
+        const filteredEvents = events.filter((event) => {
+          const metadata = (event.metadata as any)?.reporting;
+          return metadata?.eventType === 'FxTransfer' && metadata?.transactionId === parent.transactionId;
+        });
+        return filteredEvents.map((event) => event.event);
+      },
+    });
+    // Define resolver for fxQuoteEvents lookup
+    t.list.jsonObject('fxQuoteEvents', {
+      resolve: async (parent, args, ctx) => {
+        const events = await ctx.eventStore.reportingData.findMany();
+        const filteredEvents = events.filter((event) => {
+          const metadata = (event.metadata as any)?.reporting;
+          return metadata?.eventType === 'FxQuote' && metadata?.transactionId === parent.transactionId;
         });
         return filteredEvents.map((event) => event.event);
       },
