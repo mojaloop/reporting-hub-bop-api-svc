@@ -94,6 +94,13 @@ const ConversionTerms = objectType({
 const Conversions = objectType({
   name: 'Conversions',
   definition(t) {
+    t.field('payer', { type: 'ConversionsObject' });
+    t.field('payee', { type: 'ConversionsObject' });
+  },
+});
+const ConversionsObject = objectType({
+  name: 'ConversionsObject',
+  definition(t) {
     t.nonNull.string('conversionCommitRequestId');
     t.nonNull.string('conversionId');
     t.nonNull.string('conversionRequestId');
@@ -103,6 +110,7 @@ const Conversions = objectType({
     t.nonNull.field('conversionTerms', { type: 'ConversionTerms' });
     t.nonNull.string('conversionType');
     t.nonNull.string('counterPartyFSP');
+    t.nonNull.string('counterPartyProxy');
   },
 });
 const QuoteRequest = objectType({
@@ -139,7 +147,8 @@ const Transfer = objectType({
     t.dateTimeFlex('lastUpdated');
     t.string('transferState');
     t.string('transactionType');
-    t.int('errorCode');
+    t.string('baseUseCase');
+    t.string('errorCode');
     t.bigInt('transferSettlementWindowId');
     t.string('payerDFSP');
     t.string('payerDFSPProxy');
@@ -151,7 +160,7 @@ const Transfer = objectType({
     t.field('transferTerms', { type: 'TransferTerms' });
     t.list.field('positionChanges', { type: 'PositionChange' });
     t.list.field('transferStateChanges', { type: 'TransferStateChange' });
-    t.list.field('conversions', { type: 'Conversions' });
+    t.field('conversions', { type: 'Conversions' });
     t.list.jsonObject('quoteEvents', {
       resolve: async (parent, args, ctx) => {
         const events = await ctx.eventStore.reportingData.findMany();
@@ -203,6 +212,7 @@ export default [
   Amount,
   TransferTerms,
   Conversions,
+  ConversionsObject,
   ConversionStateChanges,
   ConversionTerms,
   ConversionTermsCharges,

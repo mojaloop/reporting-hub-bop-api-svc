@@ -13,7 +13,7 @@ import { objectType } from 'nexus';
 export const TransferGroup = objectType({
   name: 'TransferGroup',
   definition(t) {
-    t.int('errorCode');
+    t.string('errorCode');
     t.string('sourceCurrency');
     t.string('targetCurrency');
     t.string('payerDFSP');
