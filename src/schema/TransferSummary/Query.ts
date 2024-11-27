@@ -114,9 +114,8 @@ const Query = extendType({
 
             if (transfersSummary.length === 0) {
               console.log('No transfers found');
-            } else {
-              console.log('TransferSummary is: ', transfersSummary);
             }
+            // console.log('TransferSummary data fetched is: ', transfersSummary);
 
             return transfersSummary;
           }

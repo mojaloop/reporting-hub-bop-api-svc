@@ -29,26 +29,26 @@ export const createWhereCondition = (filter: any) => {
           is: {
             payer: {
               is: {
-                conversionState: filter.conversionState
-              }
-            }
-          }
-        }
+                conversionState: filter.conversionState,
+              },
+            },
+          },
+        },
       },
       {
         conversions: {
           is: {
             payee: {
               is: {
-                conversionState: filter.conversionState
-              }
-            }
-          }
-        }
-      }
+                conversionState: filter.conversionState,
+              },
+            },
+          },
+        },
+      },
     ];
   }
-  
+
   if (filter?.transactionType) {
     whereCondition.transactionType = filter.transactionType;
   }
@@ -88,8 +88,3 @@ export const createWhereCondition = (filter: any) => {
   }
   return whereCondition;
 };
-
-
-
-
-

@@ -19,7 +19,6 @@ const PartyFilter = inputObjectType({
   },
 });
 
-
 const TransferFilter = inputObjectType({
   name: 'TransferFilter',
   definition(t) {
@@ -87,7 +86,8 @@ const Query = extendType({
           });
 
           if (transfers.length === 0) {
-            console.log(`No transfers found with limit: ${limit}, offset: ${offset} and filter: ${filter}`);
+            console.log(`No transfers found with limit: ${limit}, offset: ${offset}, and filter: ${JSON.stringify(filter)}`);
+            
           }
           // console.log('Transfer data fetched is : ', transfers);
           return transfers;
