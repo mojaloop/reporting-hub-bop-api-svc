@@ -14,22 +14,6 @@ export const createWhereCondition = (filter: any) => {
       lte: new Date(filter.endDate),
     };
   }
-  // if (filter?.errorCode !== undefined) {
-  //   whereCondition.errorCode = filter.errorCode;
-  // }
-  // if (filter?.payerDFSP) {
-  //   whereCondition.payerDFSP = filter.payerDFSP;
-  // }
-  // if (filter?.payeeDFSP) {
-  //   whereCondition.payeeDFSP = filter.payeeDFSP;
-  // }
-  // if (filter?.sourceCurrency) {
-  //   whereCondition.sourceCurrency = filter.sourceCurrency;
-  // }
-  // if (filter?.targetCurrency) {
-  //   whereCondition.targetCurrency = filter.targetCurrency;
-  // }
-
   return whereCondition;
 };
 
@@ -42,7 +26,7 @@ export const createGroupByCondition = (
   if (filter?.targetCurrency) groupByCondition.push('targetCurrency');
   if (filter?.payerDFSP) groupByCondition.push('payerDFSP');
   if (filter?.payeeDFSP) groupByCondition.push('payeeDFSP');
-  if (filter?.errorCode !== undefined) groupByCondition.push('errorCode');
+  if (filter?.errorCode) groupByCondition.push('errorCode');
   groupByCondition.push('payerDFSP');
   groupByCondition.push('payeeDFSP');
 

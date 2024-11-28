@@ -10,14 +10,16 @@
 
 import { list, stringArg, extendType, intArg, inputObjectType } from 'nexus';
 
+// Define input type for TransferSummaryFilter
 const TransferSummaryFilter = inputObjectType({
   name: 'TransferSummaryFilter',
   definition(t) {
-    t.field('startDate', { type: 'DateTimeFlexible' });
-    t.field('endDate', { type: 'DateTimeFlexible' });
+    t.dateTimeFlex('startDate');
+    t.dateTimeFlex('endDate');
   },
 });
 
+// Create where condition for filtering
 const createWhereCondition = (filter: any) => {
   const whereCondition: any = {};
 
@@ -40,6 +42,7 @@ const createWhereCondition = (filter: any) => {
 const Query = extendType({
   type: 'Query',
   definition(t) {
+    // Define a field to fetch transfer summaries
     t.nonNull.list.field('transferSummary', {
       type: 'TransferSummary',
       args: {
@@ -59,6 +62,7 @@ const Query = extendType({
           let aggregateResult;
 
           if (!groupByFields) {
+            // Aggregate results without grouping when no group by fields are provided
             aggregateResult = await ctx.transaction.transaction.aggregate({
               _count: { transferId: true },
               _sum: { sourceAmount: true, targetAmount: true },
@@ -83,6 +87,7 @@ const Query = extendType({
               },
             ];
           } else {
+            // Aggregate results with grouping when group by fields are provided
             aggregateResult = await ctx.transaction.transaction.groupBy({
               by: groupByFields as ('sourceCurrency' | 'targetCurrency' | 'payerDFSP' | 'payeeDFSP' | 'errorCode')[],
               _count: { transferId: true },
@@ -99,7 +104,7 @@ const Query = extendType({
 
             const transfersSummary = aggregateResult.map((group) => ({
               group: {
-                errorCode: group.errorCode,
+                errorCode: group.errorCode || null,
                 sourceCurrency: group.sourceCurrency || null,
                 targetCurrency: group.targetCurrency || null,
                 payerDFSP: group.payerDFSP || null,
@@ -114,9 +119,8 @@ const Query = extendType({
 
             if (transfersSummary.length === 0) {
               console.log('No transfers found');
-            } else {
-              console.log('TransferSummary is: ', transfersSummary);
             }
+            // console.log('TransferSummary data fetched is: ', transfersSummary);
 
             return transfersSummary;
           }

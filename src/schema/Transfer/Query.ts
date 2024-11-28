@@ -10,34 +10,38 @@
 
 import { extendType, intArg, nonNull, stringArg, inputObjectType } from 'nexus';
 import { createWhereCondition } from './helpers/TransferFilter';
+
+// Define input type for PartyFilter
 const PartyFilter = inputObjectType({
   name: 'PartyFilter',
   definition(t) {
-    t.field('partyIdType', { type: 'String' });
-    t.field('partyIdentifier', { type: 'String' });
+    t.string('partyIdType');
+    t.string('partyIdentifier');
   },
 });
 
+// Define input type for TransferFilter
 const TransferFilter = inputObjectType({
   name: 'TransferFilter',
   definition(t) {
-    t.nonNull.field('startDate', { type: 'DateTimeFlexible' });
-    t.nonNull.field('endDate', { type: 'DateTimeFlexible' });
-    t.field('errorCode', { type: 'Int' });
+    t.nonNull.dateTimeFlex('startDate');
+    t.nonNull.dateTimeFlex('endDate');
     t.field('payer', { type: 'PartyFilter' });
     t.field('payee', { type: 'PartyFilter' });
-    t.field('sourceCurrency', { type: 'String' });
-    t.field('targetCurrency', { type: 'String' });
-    t.field('transferState', { type: 'String' });
-    t.field('conversionState', { type: 'String' });
-    t.field('transactionType', { type: 'String' });
-    t.field('transferSettlementWindowId', { type: 'Int' });
+    t.string('payerDFSP');
+    t.string('payeeDFSP');
+    t.string('sourceCurrency');
+    t.string('targetCurrency');
+    t.string('transferState');
+    t.string('conversionState');
+    t.string('transactionType');
   },
 });
 
 const Query = extendType({
   type: 'Query',
   definition(t) {
+    // Define a field to fetch a single transfer by ID
     t.field('transfer', {
       type: 'Transfer',
       args: {
@@ -45,6 +49,7 @@ const Query = extendType({
       },
       resolve: async (parent, args, ctx): Promise<any> => {
         try {
+          // Fetch a single transaction by transferId
           const transaction = await ctx.transaction.transaction.findUnique({
             where: {
               transferId: args.transferId,
@@ -63,7 +68,7 @@ const Query = extendType({
         }
       },
     });
-
+// Define a field to fetch multiple transfers with filters, limit, and offset
     t.nonNull.list.nonNull.field('transfers', {
       type: 'Transfer',
       args: {
@@ -74,7 +79,9 @@ const Query = extendType({
       resolve: async (parent, args, ctx): Promise<any> => {
         try {
           const { limit = 100, offset = 0, filter = {} } = args;
+          // Create where condition based on filter
           const whereCondition = createWhereCondition(filter);
+          // Fetch multiple transactions with pagination and filtering
           const transfers = await ctx.transaction.transaction.findMany({
             skip: offset ?? 0,
             take: limit ?? 100,
@@ -85,9 +92,10 @@ const Query = extendType({
           });
 
           if (transfers.length === 0) {
-            console.log(`No transfers found with limit: ${limit} and offset: ${offset}`);
+            console.log(`No transfers found with limit: ${limit}, offset: ${offset}, and filter: ${JSON.stringify(filter)}`);
+            
           }
-          console.log('Transfer data fetched is : ', transfers);
+          // console.log('Transfer data fetched is : ', transfers);
           return transfers;
         } catch (error) {
           console.error('Error fetching transfers', error);

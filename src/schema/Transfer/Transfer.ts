@@ -8,14 +8,18 @@
  *       Yevhen Kyriukha <yevhen.kyriukha@modusbox.com>                   *
  **************************************************************************/
 import { objectType } from 'nexus';
+
+// Define TransferStateChange object type
 const TransferStateChange = objectType({
   name: 'TransferStateChange',
   definition(t) {
     t.nonNull.string('transferState');
-    t.nonNull.string('dateTime');
+    t.nonNull.dateTimeFlex('dateTime');
     t.string('reason');
   },
 });
+
+// Define PositionChange object type
 const PositionChange = objectType({
   name: 'PositionChange',
   definition(t) {
@@ -23,11 +27,12 @@ const PositionChange = objectType({
     t.string('currency');
     t.string('ledgerType');
     t.string('participantName');
-    t.nonNull.string('dateTime');
+    t.nonNull.dateTimeFlex('dateTime');
     t.float('updatedPosition');
   },
 });
 
+// Define GeoCode object type
 const GeoCode = objectType({
   name: 'GeoCode',
   definition(t) {
@@ -36,6 +41,7 @@ const GeoCode = objectType({
   },
 });
 
+// Define Amount object type
 const Amount = objectType({
   name: 'Amount',
   definition(t) {
@@ -44,10 +50,11 @@ const Amount = objectType({
   },
 });
 
+// Define TransferTerms object type
 const TransferTerms = objectType({
   name: 'TransferTerms',
   definition(t) {
-    t.nonNull.string('expiration');
+    t.nonNull.dateTimeFlex('expiration');
     t.nonNull.field('geoCode', { type: 'GeoCode' });
     t.nonNull.string('ilpPacket');
     t.nonNull.field('payeeFspCommission', { type: 'Amount' });
@@ -57,15 +64,17 @@ const TransferTerms = objectType({
   },
 });
 
+// Define ConversionStateChanges object type
 const ConversionStateChanges = objectType({
   name: 'ConversionStateChanges',
   definition(t) {
     t.nonNull.string('conversionState');
-    t.nonNull.string('dateTime');
+    t.nonNull.dateTimeFlex('dateTime');
     t.nonNull.string('reason');
   },
 });
 
+// Define ConversionTermsCharges object type
 const ConversionTermsCharges = objectType({
   name: 'ConversionTermsCharges',
   definition(t) {
@@ -75,6 +84,7 @@ const ConversionTermsCharges = objectType({
   },
 });
 
+// Define ConversionTerms object type
 const ConversionTerms = objectType({
   name: 'ConversionTerms',
   definition(t) {
@@ -83,7 +93,7 @@ const ConversionTerms = objectType({
     t.nonNull.string('conversionId');
     t.nonNull.string('counterPartyFsp');
     t.nonNull.string('determiningTransferId');
-    t.nonNull.string('expiration');
+    t.nonNull.dateTimeFlex('expiration');
     t.nonNull.string('ilpPacket');
     t.nonNull.string('initiatingFsp');
     t.nonNull.field('sourceAmount', { type: 'Amount' });
@@ -91,20 +101,33 @@ const ConversionTerms = objectType({
   },
 });
 
+// Define Conversions object type
 const Conversions = objectType({
   name: 'Conversions',
+  definition(t) {
+    t.field('payer', { type: 'ConversionsObject' });
+    t.field('payee', { type: 'ConversionsObject' });
+  },
+});
+
+// Define ConversionsObject object type
+const ConversionsObject = objectType({
+  name: 'ConversionsObject',
   definition(t) {
     t.nonNull.string('conversionCommitRequestId');
     t.nonNull.string('conversionId');
     t.nonNull.string('conversionRequestId');
-    t.nonNull.int('conversionSettlementWindowId');
+    t.nonNull.bigInt('conversionSettlementWindowId');
     t.nonNull.string('conversionState');
     t.list.field('conversionStateChanges', { type: 'ConversionStateChanges' });
     t.nonNull.field('conversionTerms', { type: 'ConversionTerms' });
     t.nonNull.string('conversionType');
     t.nonNull.string('counterPartyFSP');
+    t.nonNull.string('counterPartyProxy');
   },
 });
+
+// Define QuoteRequest object type
 const QuoteRequest = objectType({
   name: 'QuoteRequest',
   definition(t) {
@@ -115,6 +138,7 @@ const QuoteRequest = objectType({
   },
 });
 
+// Define TransferParty object type
 const TransferParty = objectType({
   name: 'TransferParty',
   definition(t) {
@@ -125,6 +149,7 @@ const TransferParty = objectType({
   },
 });
 
+// Define Transfer object type
 const Transfer = objectType({
   name: 'Transfer',
   definition(t) {
@@ -135,12 +160,13 @@ const Transfer = objectType({
     t.string('sourceCurrency');
     t.float('targetAmount');
     t.string('targetCurrency');
-    t.string('createdAt');
-    t.string('lastUpdated');
+    t.dateTimeFlex('createdAt');
+    t.dateTimeFlex('lastUpdated');
     t.string('transferState');
     t.string('transactionType');
-    t.int('errorCode');
-    t.string('transferSettlementWindowId');
+    t.string('baseUseCase');
+    t.string('errorCode');
+    t.bigInt('transferSettlementWindowId');
     t.string('payerDFSP');
     t.string('payerDFSPProxy');
     t.string('payeeDFSP');
@@ -151,7 +177,110 @@ const Transfer = objectType({
     t.field('transferTerms', { type: 'TransferTerms' });
     t.list.field('positionChanges', { type: 'PositionChange' });
     t.list.field('transferStateChanges', { type: 'TransferStateChange' });
-    t.list.field('conversions', { type: 'Conversions' });
+    t.field('conversions', { type: 'Conversions' });
+    // Define resolver for transferSettlementBatchId lookup
+    t.bigInt('transferSettlementBatchId', {
+      resolve: async (parent, args, ctx) => {
+        console.log('settlementId resolver called with parent: ', parent.transferSettlementWindowId);
+        const settlement = await ctx.settlement.settlement.findFirst({
+          where: {
+            settlementWindows: {
+              some: {
+                settlementWindowId: parent.transferSettlementWindowId as unknown as number,
+              },
+            },
+          },
+        });
+        console.log('settlement resolved is: ', settlement);
+        return settlement ? settlement.settlementId : null;
+      },
+    });
+    // Define resolver for conversionSettlementBatchId lookup
+    t.bigInt('conversionSettlementBatchId', {
+      resolve: async (parent, args, ctx) => {
+        console.log('settlementId resolver called with parent: ', parent.conversions?.payer?.conversionSettlementWindowId);
+        const settlement = await ctx.settlement.settlement.findFirst({
+          where: {
+            settlementWindows: {
+              some: {
+                settlementWindowId: parent.conversions?.payer?.conversionSettlementWindowId as unknown as number,
+              },
+            },
+          },
+        });
+        console.log('settlement resolved is: ', settlement);
+        return settlement ? settlement.settlementId : null;
+      },
+    });
+    // Define resolver for quoteEvents lookup
+    t.list.jsonObject('quoteEvents', {
+      resolve: async (parent, args, ctx) => {
+        const events = await ctx.eventStore.reportingData.findMany();
+        const filteredEvents = events.filter((event) => {
+          const metadata = (event.metadata as any)?.reporting;
+          return metadata?.eventType === 'Quote' && metadata?.transactionId === parent.transactionId;
+        });
+        return filteredEvents.map((event) => event.event);
+      },
+    });
+
+    // Define resolver for partyLookupEvents lookup
+    t.list.jsonObject('partyLookupEvents', {
+      resolve: async (parent, args, ctx) => {
+        const events = await ctx.eventStore.reportingData.findMany();
+        const filteredEvents = events.filter((event) => {
+          const metadata = (event.metadata as any)?.reporting;
+          return metadata?.eventType === 'PartyLookup' && metadata?.transactionId === parent.transactionId;
+        });
+        return filteredEvents.map((event) => event.event);
+      },
+    });
+
+    // Define resolver for settlementEvents lookup
+    t.list.jsonObject('settlementEvents', {
+      resolve: async (parent, args, ctx) => {
+        const events = await ctx.eventStore.reportingData.findMany();
+        const filteredEvents = events.filter((event) => {
+          const metadata = (event.metadata as any)?.reporting;
+          return metadata?.eventType === 'Settlement' && metadata?.transactionId === parent.transactionId;
+        });
+        return filteredEvents.map((event) => event.event);
+      },
+    });
+
+    // Define resolver for transferEvents lookup
+    t.list.jsonObject('transferEvents', {
+      resolve: async (parent, args, ctx) => {
+        const events = await ctx.eventStore.reportingData.findMany();
+        const filteredEvents = events.filter((event) => {
+          const metadata = (event.metadata as any)?.reporting;
+          return metadata?.eventType === 'Transfer' && metadata?.transactionId === parent.transactionId;
+        });
+        return filteredEvents.map((event) => event.event);
+      },
+    });
+    // Define resolver for fxTransferEvents lookup
+    t.list.jsonObject('fxTransferEvents', {
+      resolve: async (parent, args, ctx) => {
+        const events = await ctx.eventStore.reportingData.findMany();
+        const filteredEvents = events.filter((event) => {
+          const metadata = (event.metadata as any)?.reporting;
+          return metadata?.eventType === 'FxTransfer' && metadata?.transactionId === parent.transactionId;
+        });
+        return filteredEvents.map((event) => event.event);
+      },
+    });
+    // Define resolver for fxQuoteEvents lookup
+    t.list.jsonObject('fxQuoteEvents', {
+      resolve: async (parent, args, ctx) => {
+        const events = await ctx.eventStore.reportingData.findMany();
+        const filteredEvents = events.filter((event) => {
+          const metadata = (event.metadata as any)?.reporting;
+          return metadata?.eventType === 'FxQuote' && metadata?.transactionId === parent.transactionId;
+        });
+        return filteredEvents.map((event) => event.event);
+      },
+    });
   },
 });
 
@@ -163,6 +292,7 @@ export default [
   Amount,
   TransferTerms,
   Conversions,
+  ConversionsObject,
   ConversionStateChanges,
   ConversionTerms,
   ConversionTermsCharges,

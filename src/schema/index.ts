@@ -16,8 +16,9 @@ import Scalar from './Scalar';
 import Transaction from './Transfer';
 import TransactionSummary from './TransferSummary';
 import Event from './EventStore';
+import Settlement from './Settlement';
 
-const types = [Scalar, Transaction, TransactionSummary, Event];
+const types = [Scalar, Transaction, TransactionSummary, Event, Settlement];
 
 const Query = queryType({
   definition(t) {

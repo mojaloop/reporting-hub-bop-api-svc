@@ -10,6 +10,8 @@
 
 import { PrismaClient as TransactionClient } from '@app/generated/transaction';
 import { PrismaClient as EventStoreClient } from '@app/generated/eventStore';
+import { PrismaClient as SettlementClient } from '@app/generated/settlement';
+
 import Config from './config';
 import { ConnectionString } from 'connection-string';
 
@@ -51,4 +53,22 @@ const createTransactionClient = (logQuery = false): TransactionClient => {
     log: logQuery ? ['query'] : [],
   });
 };
-export { createTransactionClient, TransactionClient, createEventStoreClient, EventStoreClient };
+const createSettlementClient = (logQuery = false): SettlementClient => {
+  const csMongoDBObj = new ConnectionString();
+  csMongoDBObj.setDefaults({
+    protocol: 'mongodb',
+    hosts: [{ name: Config.EVENT_STORE_DB.HOST, port: Config.EVENT_STORE_DB.PORT }],
+    user: Config.EVENT_STORE_DB.USER,
+    password: Config.EVENT_STORE_DB.PASSWORD,
+    path: [Config.EVENT_STORE_DB.DATABASE],
+  });
+  return new SettlementClient({
+    datasources: {
+      db: {
+        url: csMongoDBObj.toString(),
+      },
+    },
+    log: logQuery ? ['query'] : [],
+  });
+};
+export { createTransactionClient, TransactionClient, createEventStoreClient, EventStoreClient, createSettlementClient, SettlementClient};

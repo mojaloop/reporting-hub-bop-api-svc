@@ -1,64 +1,93 @@
 export const createWhereCondition = (filter: any) => {
-    const whereCondition: any = {
-      createdAt: {},
-      payerParty: { is: {} },
-      payeeParty: { is: {} },
-      conversions: { some: {} },
-    };
-  
-    if (filter?.startDate) {
-      whereCondition.createdAt = {
-        gte: new Date(filter.startDate),
-      };
-    }
-  
-    if (filter?.endDate) {
-      whereCondition.createdAt = {
-        ...whereCondition.createdAt,
-        lte: new Date(filter.endDate),
-      };
-    }
-    if (filter?.errorCode !== undefined) {
-      whereCondition.errorCode = filter.errorCode;
-    }
-    if (filter?.transferSettlementWindowId !== undefined) {
-      whereCondition.transferSettlementWindowId = filter.transferSettlementWindowId;
-    }
-    if (filter?.transferState) {
-      whereCondition.transferState = filter.transferState;
-    }
-    if (filter?.conversionState) {
-      whereCondition.conversions.some.conversionState = filter.conversionState;
-    }
-    if (filter?.transactionType) {
-      whereCondition.transactionType = filter.transactionType;
-    }
-    if (filter?.sourceCurrency) {
-      whereCondition.sourceCurrency = filter.sourceCurrency;
-    }
-    if (filter?.targetCurrency) {
-      whereCondition.targetCurrency = filter.targetCurrency;
-    }
-  
-    if (filter?.payer) {
-      if (filter.payer.partyIdType) {
-        whereCondition.payerParty.is.partyIdType = filter.payer.partyIdType;
-      }
-  
-      if (filter.payer.partyIdentifier) {
-        whereCondition.payerParty.is.partyIdentifier = filter.payer.partyIdentifier;
-      }
-    }
-  
-    if (filter?.payee) {
-      if (filter.payee.partyIdType) {
-        whereCondition.payeeParty.is.partyIdType = filter.payee.partyIdType;
-      }
-  
-      if (filter.payee.partyIdentifier) {
-        whereCondition.payeeParty.is.partyIdentifier = filter.payee.partyIdentifier;
-      }
-    }
-  
-    return whereCondition;
+  const whereCondition: any = {
+    createdAt: {},
   };
+
+  // Required filters
+  if (filter?.startDate) {
+    whereCondition.createdAt.gte = new Date(filter.startDate);
+  }
+
+  if (filter?.endDate) {
+    whereCondition.createdAt.lte = new Date(filter.endDate);
+  }
+
+  // Optional filters
+  if (filter?.payerDFSP) {
+    whereCondition.payerDFSP = filter.payerDFSP;
+  }
+  if (filter?.payeeDFSP) {
+    whereCondition.payeeDFSP = filter.payeeDFSP;
+  }
+  if (filter?.transferState) {
+    whereCondition.transferState = filter.transferState;
+  }
+  if (filter?.conversionState) {
+    // Handle conversionState filter with OR condition
+    whereCondition.OR = [
+      {
+        conversions: {
+          is: {
+            payer: {
+              is: {
+                conversionState: filter.conversionState,
+              },
+            },
+          },
+        },
+      },
+      {
+        conversions: {
+          is: {
+            payee: {
+              is: {
+                conversionState: filter.conversionState,
+              },
+            },
+          },
+        },
+      },
+    ];
+  }
+
+  if (filter?.transactionType) {
+    whereCondition.transactionType = filter.transactionType;
+  }
+
+  if (filter?.sourceCurrency) {
+    whereCondition.sourceCurrency = filter.sourceCurrency;
+  }
+
+  if (filter?.targetCurrency) {
+    whereCondition.targetCurrency = filter.targetCurrency;
+  }
+
+  // Handle Payer filter
+  if (filter?.payer) {
+    const payerFilter: any = {};
+    if (filter.payer.partyIdType) {
+      payerFilter.partyIdType = filter.payer.partyIdType;
+    }
+    if (filter.payer.partyIdentifier) {
+      payerFilter.partyIdentifier = filter.payer.partyIdentifier;
+    }
+    if (Object.keys(payerFilter).length) {
+      whereCondition.payerParty = { is: payerFilter };
+    }
+  }
+
+  // Handle Payee filter
+  if (filter?.payee) {
+    const payeeFilter: any = {};
+    if (filter.payee.partyIdType) {
+      payeeFilter.partyIdType = filter.payee.partyIdType;
+    }
+    if (filter.payee.partyIdentifier) {
+      payeeFilter.partyIdentifier = filter.payee.partyIdentifier;
+    }
+    if (Object.keys(payeeFilter).length) {
+      whereCondition.payeeParty = { is: payeeFilter };
+    }
+  }
+  return whereCondition;
+};

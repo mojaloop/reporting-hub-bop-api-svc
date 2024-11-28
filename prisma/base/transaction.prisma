@@ -2,105 +2,116 @@ datasource db {
   provider = "mongodb"
   url      = "mongodb://localhost:27017/reporting"
 }
+
 generator client {
   provider = "prisma-client-js"
   output   = "transaction"
 }
 
 model Transaction {
-  id                        String   @id @default(auto()) @map("_id") @db.ObjectId
-  transferId                String
-  transactionId             String
-  sourceAmount              Float
-  sourceCurrency           String
-  targetAmount             Float
-  targetCurrency           String
-  transferState            String
-  transferStateChanges     TransferStateChange[]
-  transactionType          String
-  errorCode                Int?
-  transferSettlementWindowId Int
-  payerDFSP               String?
-  payerDFSPProxy          String?
-  payeeDFSP               String?
-  payeeDFSPProxy          String?
-  positionChanges         PositionChange[]
-  payerParty              Party
-  payeeParty              Party
-  quoteRequest            QuoteRequest
-  transferTerms           TransferTerms
-  conversions             Conversions[]
-  createdAt               DateTime @default(now())
-  lastUpdated               DateTime? @updatedAt
+  id                         String                @id @default(auto()) @map("_id") @db.ObjectId
+  transferId                 String
+  transactionId              String
+  sourceAmount               Float?
+  sourceCurrency             String?
+  targetAmount               Float?
+  targetCurrency             String?
+  transferState              String
+  transferStateChanges       TransferStateChange[]
+  transactionType            String
+  baseUseCase                String
+  errorCode                  String?
+  transferSettlementWindowId BigInt
+  payerDFSP                  String?
+  payerDFSPProxy             String?
+  payeeDFSP                  String?
+  payeeDFSPProxy             String?
+  positionChanges            PositionChange[]
+  payerParty                 Party?
+  payeeParty                 Party?
+  quoteRequest               QuoteRequest
+  transferTerms              TransferTerms
+  conversions                Conversions?
+  createdAt                  DateTime              @default(now())
+  lastUpdated                DateTime              @updatedAt
+
   @@unique([transferId])
   @@unique([transactionId])
   @@index([transferState])
   @@index([transactionType])
-
   @@map("transfer")
 }
+
 type TransferStateChange {
-  transferState  String
-  dateTime       DateTime @db.Date
-  reason         String?
+  transferState String
+  dateTime      DateTime @db.Date
+  reason        String?
 }
 
 type PositionChange {
-  change          Float
-  currency        String
-  dateTime        DateTime @db.Date
-  ledgerType      String
-  participantName String
-  updatedPosition Float
+  change          Float?
+  currency        String?
+  dateTime        DateTime? @db.Date
+  ledgerType      String?
+  participantName String?
+  updatedPosition Float?
 }
 
 type TransferTerms {
   expiration         DateTime @db.Date
   geoCode            GeoCode
   ilpPacket          String
-  payeeFspCommission Amount
-  payeeFspFee        Amount
-  payeeReceiveAmount Amount
+  payeeFspCommission Amount?
+  payeeFspFee        Amount?
+  payeeReceiveAmount Amount?
   transferAmount     Amount
 }
+
 type GeoCode {
-  latitude  String
-  longitude String
+  latitude  String?
+  longitude String?
 }
+
 type Amount {
-  amount  Float
-  currency String
+  amount   Float?
+  currency String?
 }
 
 type Conversions {
+  payer ConversionsObject?
+  payee ConversionsObject?
+}
+
+type ConversionsObject {
   conversionCommitRequestId    String
-  conversionId                 String
+  conversionId                 String?
   conversionRequestId          String
-  conversionSettlementWindowId BigInt
+  conversionSettlementWindowId BigInt?
   conversionState              String
   conversionStateChanges       ConversionStateChanges[]
   conversionTerms              ConversionTerms
   conversionType               String
   counterPartyFSP              String
+  counterPartyProxy            String?
 }
 
 type ConversionStateChanges {
   conversionState String
   dateTime        DateTime @db.Date
-  reason          String
+  reason          String?
 }
 
 type ConversionTerms {
-  amountType            String
+  amountType            String?
   charges               ConversionTermsCharges[]
-  conversionId          String
-  counterPartyFsp       String
-  determiningTransferId String
-  expiration            DateTime @db.Date
+  conversionId          String?
+  counterPartyFsp       String?
+  determiningTransferId String?
+  expiration            DateTime?                @db.Date
   ilpPacket             String
-  initiatingFsp         String
-  sourceAmount          Amount
-  targetAmount          Amount
+  initiatingFsp         String?
+  sourceAmount          Amount?
+  targetAmount          Amount?
 }
 
 type ConversionTermsCharges {
@@ -117,8 +128,8 @@ type QuoteRequest {
 }
 
 type Party {
-  partyIdType         String
-  partyIdentifier     String
-  partyName           String
-  supportedCurrencies String
+  partyIdType         String?
+  partyIdentifier     String?
+  partyName           String?
+  supportedCurrencies String?
 }
