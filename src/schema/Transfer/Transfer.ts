@@ -178,7 +178,40 @@ const Transfer = objectType({
     t.list.field('positionChanges', { type: 'PositionChange' });
     t.list.field('transferStateChanges', { type: 'TransferStateChange' });
     t.field('conversions', { type: 'Conversions' });
-
+    // Define resolver for transferSettlementBatchId lookup
+    t.bigInt('transferSettlementBatchId', {
+      resolve: async (parent, args, ctx) => {
+        console.log('settlementId resolver called with parent: ', parent.transferSettlementWindowId);
+        const settlement = await ctx.settlement.settlement.findFirst({
+          where: {
+            settlementWindows: {
+              some: {
+                settlementWindowId: parent.transferSettlementWindowId as unknown as number,
+              },
+            },
+          },
+        });
+        console.log('settlement resolved is: ', settlement);
+        return settlement ? settlement.settlementId : null;
+      },
+    });
+    // Define resolver for conversionSettlementBatchId lookup
+    t.bigInt('conversionSettlementBatchId', {
+      resolve: async (parent, args, ctx) => {
+        console.log('settlementId resolver called with parent: ', parent.conversions?.payer?.conversionSettlementWindowId);
+        const settlement = await ctx.settlement.settlement.findFirst({
+          where: {
+            settlementWindows: {
+              some: {
+                settlementWindowId: parent.conversions?.payer?.conversionSettlementWindowId as unknown as number,
+              },
+            },
+          },
+        });
+        console.log('settlement resolved is: ', settlement);
+        return settlement ? settlement.settlementId : null;
+      },
+    });
     // Define resolver for quoteEvents lookup
     t.list.jsonObject('quoteEvents', {
       resolve: async (parent, args, ctx) => {

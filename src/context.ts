@@ -11,6 +11,7 @@
 import {
   createEventStoreClient,
   createTransactionClient,
+  createSettlementClient,
   getMongoClient,
   Collection,
   getRequestFields,
@@ -23,6 +24,8 @@ import { ConnectionString } from 'connection-string';
 const eventStore = createEventStoreClient(Config.PRISMA_LOGGING_ENABLED);
 
 const transaction = createTransactionClient(Config.PRISMA_LOGGING_ENABLED);
+
+const settlement = createSettlementClient(Config.PRISMA_LOGGING_ENABLED);
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -40,10 +43,17 @@ transaction.$on('query', async (e) => {
   console.log(`${e.query} ${e.params}`);
 });
 
+settlement.$on('query', async (e) => {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  console.log(`${e.query} ${e.params}`);
+});
+
 export interface Context {
   log: typeof Logger;
   eventStore: typeof eventStore;
   transaction: typeof transaction;
+  settlement: typeof settlement;
   config: typeof Config;
   loaders: Map<any, any>;
   eventStoreMongo: Collection;
@@ -66,8 +76,10 @@ export const createContext = async (ctx: any): Promise<Context> => ({
   log: Logger,
   eventStore,
   transaction,
+  settlement,
   loaders: new Map(),
   eventStoreMongo: await getMongoClient(csMongoDBObj.toString(), 'reporting'),
   transactionMongo: await getMongoClient(csMongoDBObj.toString(), 'transaction'),
+  settlementMongo: await getMongoClient(csMongoDBObj.toString(), 'settlement'),
   getRequestFields,
 });
