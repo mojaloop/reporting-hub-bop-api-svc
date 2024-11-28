@@ -68,7 +68,7 @@ const Query = extendType({
         }
       },
     });
-// Define a field to fetch multiple transfers with filters, limit, and offset
+    // Define a field to fetch multiple transfers with filters, limit, and offset
     t.nonNull.list.nonNull.field('transfers', {
       type: 'Transfer',
       args: {
@@ -92,8 +92,9 @@ const Query = extendType({
           });
 
           if (transfers.length === 0) {
-            console.log(`No transfers found with limit: ${limit}, offset: ${offset}, and filter: ${JSON.stringify(filter)}`);
-            
+            console.log(
+              `No transfers found with limit: ${limit}, offset: ${offset}, and filter: ${JSON.stringify(filter)}`
+            );
           }
           // console.log('Transfer data fetched is : ', transfers);
           return transfers;
