@@ -1,4 +1,6 @@
+import { extendType, nonNull, intArg } from 'nexus';
 import { stringArg, extendType, nonNull, intArg } from 'nexus';
+
 
 const Query = extendType({
   type: 'Query',
@@ -43,7 +45,6 @@ const Query = extendType({
           if (settlements.length === 0) {
             console.log(`No settlements found`);
           }
-          console.log('Settlements data fetched is : ', settlements);
           return settlements;
         } catch (error) {
           console.error('Error fetching transfers', error);

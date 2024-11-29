@@ -14,7 +14,7 @@ import DataLoader from 'dataloader';
 const ID = Symbol();
 
 const findTransferStates = async (ctx: Context, transferIds: string[]) => {
-  console.log("findTransferStates for transferIds", transferIds);
+  console.log('findTransferStates for transferIds', transferIds);
   const trStates = await ctx.transaction.transaction.findMany({
     where: {
       transferId: {
@@ -23,7 +23,7 @@ const findTransferStates = async (ctx: Context, transferIds: string[]) => {
     },
     select: {
       transferId: true,
-      transferStateChanges:{
+      transferStateChanges: {
         select: {
           transferState: true,
           dateTime: true,
@@ -32,10 +32,9 @@ const findTransferStates = async (ctx: Context, transferIds: string[]) => {
       },
     },
   });
-  console.log("findTransferStates trStates", trStates);
-  
-  return Object.fromEntries(trStates.map((e) => [e.transferId, e.transferStateChanges
-  ]));
+  console.log('findTransferStates trStates', trStates);
+
+  return Object.fromEntries(trStates.map((e) => [e.transferId, e.transferStateChanges]));
 };
 
 export const getTransferStateDataloader = (ctx: Context) => {

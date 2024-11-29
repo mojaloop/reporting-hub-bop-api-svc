@@ -39,7 +39,7 @@ model Transaction {
   @@unique([transactionId])
   @@index([transferState])
   @@index([transactionType])
-  @@map("transfer")
+  @@map("transaction")
 }
 
 type TransferStateChange {

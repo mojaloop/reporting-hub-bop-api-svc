@@ -71,4 +71,12 @@ const createSettlementClient = (logQuery = false): SettlementClient => {
     log: logQuery ? ['query'] : [],
   });
 };
-export { createTransactionClient, TransactionClient, createEventStoreClient, EventStoreClient, createSettlementClient, SettlementClient};
+
+export {
+  createTransactionClient,
+  TransactionClient,
+  createEventStoreClient,
+  EventStoreClient,
+  createSettlementClient,
+  SettlementClient,
+};

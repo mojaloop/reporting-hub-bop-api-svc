@@ -198,7 +198,6 @@ const Transfer = objectType({
     // Define resolver for conversionSettlementBatchId lookup
     t.bigInt('conversionSettlementBatchId', {
       resolve: async (parent, args, ctx) => {
-        console.log('settlementId resolver called with parent: ', parent.conversions?.payer?.conversionSettlementWindowId);
         const settlement = await ctx.settlement.settlement.findFirst({
           where: {
             settlementWindows: {
@@ -208,7 +207,6 @@ const Transfer = objectType({
             },
           },
         });
-        console.log('settlement resolved is: ', settlement);
         return settlement ? settlement.settlementId : null;
       },
     });
