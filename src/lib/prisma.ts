@@ -71,6 +71,7 @@ const createSettlementClient = (logQuery = false): SettlementClient => {
     log: logQuery ? ['query'] : [],
   });
 };
+
 export {
   createTransactionClient,
   TransactionClient,

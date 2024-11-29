@@ -1,4 +1,6 @@
 import { extendType, nonNull, intArg } from 'nexus';
+import { stringArg, extendType, nonNull, intArg } from 'nexus';
+
 
 const Query = extendType({
   type: 'Query',

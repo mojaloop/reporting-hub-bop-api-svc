@@ -24,7 +24,7 @@ describe('TransferSummary Integration Tests', () => {
     try {
       if (collection) {
         await collection.deleteMany({});
-        closeMongoClientConnection();
+        await closeMongoClientConnection();
       }
       console.log('Test database cleanup completed');
     } catch (error) {
