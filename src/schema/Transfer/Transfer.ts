@@ -181,7 +181,9 @@ const Transfer = objectType({
     // Define resolver for transferSettlementBatchId lookup
     t.bigInt('transferSettlementBatchId', {
       resolve: async (parent, args, ctx) => {
-        console.log('settlementId resolver called with parent: ', parent.transferSettlementWindowId);
+        if (!parent.transferSettlementWindowId) {
+          return null;
+        }
         const settlement = await ctx.settlement.settlement.findFirst({
           where: {
             settlementWindows: {
@@ -191,13 +193,15 @@ const Transfer = objectType({
             },
           },
         });
-        console.log('settlement resolved is: ', settlement);
         return settlement ? settlement.settlementId : null;
       },
     });
     // Define resolver for conversionSettlementBatchId lookup
     t.bigInt('conversionSettlementBatchId', {
       resolve: async (parent, args, ctx) => {
+        if (!parent.conversions?.payer?.conversionSettlementWindowId) {
+          return null;
+        }
         const settlement = await ctx.settlement.settlement.findFirst({
           where: {
             settlementWindows: {
