@@ -21,7 +21,7 @@ model Transaction {
   transactionType            String
   baseUseCase                String
   errorCode                  String?
-  transferSettlementWindowId BigInt
+  transferSettlementWindowId BigInt?
   payerDFSP                  String?
   payerDFSPProxy             String?
   payeeDFSP                  String?
