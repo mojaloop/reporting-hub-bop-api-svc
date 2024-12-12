@@ -9,6 +9,15 @@
  **************************************************************************/
 import { objectType } from 'nexus';
 
+import {
+  getQuoteEventsDataloader,
+  getFxQuoteEventsDataloader,
+  getFxTransferEventsDataloader,
+  getPartyEventsDataloader,
+  getTranasferEventsDataloader,
+  getSettlementEventsDataloader,
+} from './dataloaders';
+
 // Define TransferStateChange object type
 const TransferStateChange = objectType({
   name: 'TransferStateChange',
@@ -215,21 +224,18 @@ const Transfer = objectType({
       },
     });
     // Define resolver for quoteEvents lookup
+
     t.list.jsonObject('quoteEvents', {
       resolve: async (parent, args, ctx) => {
-        const events = await ctx.eventStore.reportingData.findMany({
-          where: {
-            metadata: {
-              equals: {
-                reporting: {
-                  eventType: 'Quote',
-                  transactionId: parent.transactionId,
-                },
-              },
-            },
-          },
-        });
-        return events.map((event) => event.event);
+        const transactionId = parent.transactionId;
+
+        // Use the DataLoader to load events for the given transactionId
+        if (!transactionId) {
+          return null;
+        }
+        const quoteEvents = await getQuoteEventsDataloader(ctx).load(transactionId);
+
+        return quoteEvents; // Return the fetched events
       },
     });
 
@@ -237,95 +243,73 @@ const Transfer = objectType({
 
     t.list.jsonObject('partyLookupEvents', {
       resolve: async (parent, args, ctx) => {
-        const events = await ctx.eventStore.reportingData.findMany({
-          where: {
-            metadata: {
-              equals: {
-                reporting: {
-                  eventType: 'PartyLookup',
-                  transactionId: parent.transactionId,
-                },
-              },
-            },
-          },
-        });
-        return events.map((event) => event.event);
-      },
-    });
+        const transactionId = parent.transactionId;
 
-    // Define resolver for settlementEvents lookup
-    t.list.jsonObject('settlementEvents', {
-      resolve: async (parent, args, ctx) => {
-        const events = await ctx.eventStore.reportingData.findMany({
-          where: {
-            metadata: {
-              equals: {
-                reporting: {
-                  eventType: 'Settlement',
-                  transactionId: parent.transactionId,
-                },
-              },
-            },
-          },
-        });
-        return events.map((event) => event.event);
-      },
-    });
+        // Use the DataLoader to load events for the given transactionId
+        if (!transactionId) {
+          return null;
+        }
+        const quoteEvents = await getPartyEventsDataloader(ctx).load(transactionId);
 
-    // Define resolver for transferEvents lookup
-    t.list.jsonObject('transferEvents', {
-      resolve: async (parent, args, ctx) => {
-        const events = await ctx.eventStore.reportingData.findMany({
-          where: {
-            metadata: {
-              equals: {
-                reporting: {
-                  eventType: 'Transfer',
-                  transactionId: parent.transactionId,
-                },
-              },
-            },
-          },
-        });
-        return events.map((event) => event.event);
+        return quoteEvents; // Return the fetched events
       },
-    });
-    // Define resolver for fxTransferEvents lookup
-    t.list.jsonObject('fxTransferEvents', {
-      resolve: async (parent, args, ctx) => {
-        const events = await ctx.eventStore.reportingData.findMany({
-          where: {
-            metadata: {
-              equals: {
-                reporting: {
-                  eventType: 'FxTransfer',
-                  transactionId: parent.transactionId,
-                },
-              },
-            },
-          },
-        });
-        return events.map((event) => event.event);
-      },
-    });
-    // Define resolver for fxQuoteEvents lookup
-    t.list.jsonObject('fxQuoteEvents', {
-      resolve: async (parent, args, ctx) => {
-        const events = await ctx.eventStore.reportingData.findMany({
-          where: {
-            metadata: {
-              equals: {
-                reporting: {
-                  eventType: 'FxQuote',
-                  transactionId: parent.transactionId,
-                },
-              },
-            },
-          },
-        });
-        return events.map((event) => event.event);
-      },
-    });
+    }),
+      // Define resolver for settlementEvents lookup
+      t.list.jsonObject('settlementEvents', {
+        resolve: async (parent, args, ctx) => {
+          const transactionId = parent.transactionId;
+
+          // Use the DataLoader to load events for the given transactionId
+          if (!transactionId) {
+            return null;
+          }
+          const quoteEvents = await getSettlementEventsDataloader(ctx).load(transactionId);
+
+          return quoteEvents; // Return the fetched events
+        },
+      }),
+      // Define resolver for transferEvents lookup
+      t.list.jsonObject('transferEvents', {
+        resolve: async (parent, args, ctx) => {
+          const transactionId = parent.transactionId;
+
+          // Use the DataLoader to load events for the given transactionId
+          if (!transactionId) {
+            return null;
+          }
+          const quoteEvents = await getTranasferEventsDataloader(ctx).load(transactionId);
+
+          return quoteEvents; // Return the fetched events
+        },
+      }),
+      // Define resolver for fxTransferEvents lookup
+      t.list.jsonObject('fxTransferEvents', {
+        resolve: async (parent, args, ctx) => {
+          const transactionId = parent.transactionId;
+
+          // Use the DataLoader to load events for the given transactionId
+          if (!transactionId) {
+            return null;
+          }
+          const quoteEvents = await getFxTransferEventsDataloader(ctx).load(transactionId);
+
+          return quoteEvents; // Return the fetched events
+        },
+      }),
+      // Define resolver for fxQuoteEvents lookup
+      t.list.jsonObject('fxQuoteEvents', {
+        resolve: async (parent, args, ctx) => {
+          const transactionId = parent.transactionId;
+
+          // Use the DataLoader to load events for the given transactionId
+          if (!transactionId) {
+            return null;
+          }
+          const quoteEvents = await getFxQuoteEventsDataloader(ctx).load(transactionId);
+
+          return quoteEvents; // Return the fetched events
+        },
+      });
   },
 });
 
