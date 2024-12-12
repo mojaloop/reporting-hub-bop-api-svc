@@ -15,3 +15,12 @@ model ReportingData {
 
   @@map("reporting")
 }
+
+type MetaData {
+  reporting Reporting
+}
+
+type Reporting {
+  eventType     String
+  transactionId String
+}

@@ -217,70 +217,113 @@ const Transfer = objectType({
     // Define resolver for quoteEvents lookup
     t.list.jsonObject('quoteEvents', {
       resolve: async (parent, args, ctx) => {
-        const events = await ctx.eventStore.reportingData.findMany();
-        const filteredEvents = events.filter((event) => {
-          const metadata = (event.metadata as any)?.reporting;
-          return metadata?.eventType === 'Quote' && metadata?.transactionId === parent.transactionId;
+        const events = await ctx.eventStore.reportingData.findMany({
+          where: {
+            metadata: {
+              equals: {
+                reporting: {
+                  eventType: 'Quote',
+                  transactionId: parent.transactionId,
+                },
+              },
+            },
+          },
         });
-        return filteredEvents.map((event) => event.event);
+        return events.map((event) => event.event);
       },
     });
 
-    // Define resolver for partyLookupEvents lookup
+    // Define resolver for partyLookupEvents lookupy
+
     t.list.jsonObject('partyLookupEvents', {
       resolve: async (parent, args, ctx) => {
-        const events = await ctx.eventStore.reportingData.findMany();
-        const filteredEvents = events.filter((event) => {
-          const metadata = (event.metadata as any)?.reporting;
-          return metadata?.eventType === 'PartyLookup' && metadata?.transactionId === parent.transactionId;
+        const events = await ctx.eventStore.reportingData.findMany({
+          where: {
+            metadata: {
+              equals: {
+                reporting: {
+                  eventType: 'PartyLookup',
+                  transactionId: parent.transactionId,
+                },
+              },
+            },
+          },
         });
-        return filteredEvents.map((event) => event.event);
+        return events.map((event) => event.event);
       },
     });
 
     // Define resolver for settlementEvents lookup
     t.list.jsonObject('settlementEvents', {
       resolve: async (parent, args, ctx) => {
-        const events = await ctx.eventStore.reportingData.findMany();
-        const filteredEvents = events.filter((event) => {
-          const metadata = (event.metadata as any)?.reporting;
-          return metadata?.eventType === 'Settlement' && metadata?.transactionId === parent.transactionId;
+        const events = await ctx.eventStore.reportingData.findMany({
+          where: {
+            metadata: {
+              equals: {
+                reporting: {
+                  eventType: 'Settlement',
+                  transactionId: parent.transactionId,
+                },
+              },
+            },
+          },
         });
-        return filteredEvents.map((event) => event.event);
+        return events.map((event) => event.event);
       },
     });
 
     // Define resolver for transferEvents lookup
     t.list.jsonObject('transferEvents', {
       resolve: async (parent, args, ctx) => {
-        const events = await ctx.eventStore.reportingData.findMany();
-        const filteredEvents = events.filter((event) => {
-          const metadata = (event.metadata as any)?.reporting;
-          return metadata?.eventType === 'Transfer' && metadata?.transactionId === parent.transactionId;
+        const events = await ctx.eventStore.reportingData.findMany({
+          where: {
+            metadata: {
+              equals: {
+                reporting: {
+                  eventType: 'Transfer',
+                  transactionId: parent.transactionId,
+                },
+              },
+            },
+          },
         });
-        return filteredEvents.map((event) => event.event);
+        return events.map((event) => event.event);
       },
     });
     // Define resolver for fxTransferEvents lookup
     t.list.jsonObject('fxTransferEvents', {
       resolve: async (parent, args, ctx) => {
-        const events = await ctx.eventStore.reportingData.findMany();
-        const filteredEvents = events.filter((event) => {
-          const metadata = (event.metadata as any)?.reporting;
-          return metadata?.eventType === 'FxTransfer' && metadata?.transactionId === parent.transactionId;
+        const events = await ctx.eventStore.reportingData.findMany({
+          where: {
+            metadata: {
+              equals: {
+                reporting: {
+                  eventType: 'FxTransfer',
+                  transactionId: parent.transactionId,
+                },
+              },
+            },
+          },
         });
-        return filteredEvents.map((event) => event.event);
+        return events.map((event) => event.event);
       },
     });
     // Define resolver for fxQuoteEvents lookup
     t.list.jsonObject('fxQuoteEvents', {
       resolve: async (parent, args, ctx) => {
-        const events = await ctx.eventStore.reportingData.findMany();
-        const filteredEvents = events.filter((event) => {
-          const metadata = (event.metadata as any)?.reporting;
-          return metadata?.eventType === 'FxQuote' && metadata?.transactionId === parent.transactionId;
+        const events = await ctx.eventStore.reportingData.findMany({
+          where: {
+            metadata: {
+              equals: {
+                reporting: {
+                  eventType: 'FxQuote',
+                  transactionId: parent.transactionId,
+                },
+              },
+            },
+          },
         });
-        return filteredEvents.map((event) => event.event);
+        return events.map((event) => event.event);
       },
     });
   },
