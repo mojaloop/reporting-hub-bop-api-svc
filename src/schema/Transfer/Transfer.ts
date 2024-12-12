@@ -14,9 +14,19 @@ import {
   getFxQuoteEventsDataloader,
   getFxTransferEventsDataloader,
   getPartyEventsDataloader,
-  getTranasferEventsDataloader,
+  getTransferEventsDataloader,
   getSettlementEventsDataloader,
 } from './dataloaders';
+
+function createEventResolver(dataloader) {
+  return async (parent, args, ctx) => {
+    const transactionId = parent.transactionId;
+    if (!transactionId) {
+      return null;
+    }
+    return await dataloader(ctx).load(transactionId);
+  };
+}
 
 // Define TransferStateChange object type
 const TransferStateChange = objectType({
@@ -226,89 +236,29 @@ const Transfer = objectType({
     // Define resolver for quoteEvents lookup
 
     t.list.jsonObject('quoteEvents', {
-      resolve: async (parent, args, ctx) => {
-        const transactionId = parent.transactionId;
-
-        // Use the DataLoader to load events for the given transactionId
-        if (!transactionId) {
-          return null;
-        }
-        const quoteEvents = await getQuoteEventsDataloader(ctx).load(transactionId);
-
-        return quoteEvents; // Return the fetched events
-      },
+      resolve: createEventResolver(getQuoteEventsDataloader),
     });
 
     // Define resolver for partyLookupEvents lookupy
 
     t.list.jsonObject('partyLookupEvents', {
-      resolve: async (parent, args, ctx) => {
-        const transactionId = parent.transactionId;
-
-        // Use the DataLoader to load events for the given transactionId
-        if (!transactionId) {
-          return null;
-        }
-        const quoteEvents = await getPartyEventsDataloader(ctx).load(transactionId);
-
-        return quoteEvents; // Return the fetched events
-      },
+      resolve: createEventResolver(getPartyEventsDataloader),
     }),
       // Define resolver for settlementEvents lookup
       t.list.jsonObject('settlementEvents', {
-        resolve: async (parent, args, ctx) => {
-          const transactionId = parent.transactionId;
-
-          // Use the DataLoader to load events for the given transactionId
-          if (!transactionId) {
-            return null;
-          }
-          const quoteEvents = await getSettlementEventsDataloader(ctx).load(transactionId);
-
-          return quoteEvents; // Return the fetched events
-        },
+        resolve: createEventResolver(getSettlementEventsDataloader),
       }),
       // Define resolver for transferEvents lookup
       t.list.jsonObject('transferEvents', {
-        resolve: async (parent, args, ctx) => {
-          const transactionId = parent.transactionId;
-
-          // Use the DataLoader to load events for the given transactionId
-          if (!transactionId) {
-            return null;
-          }
-          const quoteEvents = await getTranasferEventsDataloader(ctx).load(transactionId);
-
-          return quoteEvents; // Return the fetched events
-        },
+        resolve: createEventResolver(getTransferEventsDataloader),
       }),
       // Define resolver for fxTransferEvents lookup
       t.list.jsonObject('fxTransferEvents', {
-        resolve: async (parent, args, ctx) => {
-          const transactionId = parent.transactionId;
-
-          // Use the DataLoader to load events for the given transactionId
-          if (!transactionId) {
-            return null;
-          }
-          const quoteEvents = await getFxTransferEventsDataloader(ctx).load(transactionId);
-
-          return quoteEvents; // Return the fetched events
-        },
+        resolve: createEventResolver(getFxTransferEventsDataloader),
       }),
       // Define resolver for fxQuoteEvents lookup
       t.list.jsonObject('fxQuoteEvents', {
-        resolve: async (parent, args, ctx) => {
-          const transactionId = parent.transactionId;
-
-          // Use the DataLoader to load events for the given transactionId
-          if (!transactionId) {
-            return null;
-          }
-          const quoteEvents = await getFxQuoteEventsDataloader(ctx).load(transactionId);
-
-          return quoteEvents; // Return the fetched events
-        },
+        resolve: createEventResolver(getFxQuoteEventsDataloader),
       });
   },
 });

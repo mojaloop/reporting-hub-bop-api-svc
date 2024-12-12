@@ -33,7 +33,7 @@ const findTransferEvent = async (ctx: Context, transactionId: string) => {
 };
 
 // Create DataLoader for fetching transfer events by transactionId
-export const getTranasferEventsDataloader = (ctx: Context): DataLoader<string, any[]> => {
+export const getTransferEventsDataloader = (ctx: Context): DataLoader<string, any[]> => {
   const { loaders } = ctx;
 
   // Initialize the DataLoader if it doesn't exist
