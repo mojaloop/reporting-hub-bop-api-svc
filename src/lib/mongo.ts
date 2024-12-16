@@ -11,21 +11,22 @@
 import { Collection, MongoClient } from 'mongodb';
 
 let collection: Collection;
-let client: MongoClient;
+let client: MongoClient | null = null;
 
+// Not being used anywhere right now
 const getMongoClient = async (uri: string, collectionName: string): Promise<Collection> => {
   if (!collection) {
     client = new MongoClient(uri);
     await client.connect();
     collection = client.db().collection(collectionName);
   }
-  // console.log('Connected to client', client)
   return collection;
 };
 
 const closeMongoClientConnection = async (): Promise<void> => {
   if (client) {
     await client.close();
+    client = null;
   }
 };
 

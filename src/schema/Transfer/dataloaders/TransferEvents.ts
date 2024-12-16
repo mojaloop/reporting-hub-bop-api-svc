@@ -29,7 +29,7 @@ const findTransferEvent = async (ctx: Context, transactionId: string) => {
   });
 
   // Return all events, not just the first one
-  return events.map((e) => e.event);  // return an array of events
+  return events.map((e) => e.event); // return an array of events
 };
 
 // Create DataLoader for fetching transfer events by transactionId
@@ -40,11 +40,8 @@ export const getTransferEventsDataloader = (ctx: Context): DataLoader<string, an
   let dl = loaders.get(ID);
   if (!dl) {
     dl = new DataLoader(async (transactionIds: readonly string[]) => {
-
       // Fetch events for all transactionIds in batch
-      const events = await Promise.all(
-        transactionIds.map((transactionId) => findTransferEvent(ctx, transactionId))
-      );
+      const events = await Promise.all(transactionIds.map((transactionId) => findTransferEvent(ctx, transactionId)));
 
       return events;
     });
@@ -55,4 +52,3 @@ export const getTransferEventsDataloader = (ctx: Context): DataLoader<string, an
 
   return dl;
 };
-

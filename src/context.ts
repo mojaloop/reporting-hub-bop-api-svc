@@ -12,8 +12,6 @@ import {
   createEventStoreClient,
   createTransactionClient,
   createSettlementClient,
-  getMongoClient,
-  Collection,
   getRequestFields,
   // createCacheMiddleware,
 } from './lib';
@@ -56,7 +54,6 @@ export interface Context {
   settlement: typeof settlement;
   config: typeof Config;
   loaders: Map<any, any>;
-  eventStoreMongo: Collection;
   participants: string[] | undefined;
   getRequestFields: typeof getRequestFields;
 }
@@ -70,16 +67,37 @@ csMongoDBObj.setDefaults({
   path: [Config.EVENT_STORE_DB.DATABASE],
 });
 
-export const createContext = async (ctx: any): Promise<Context> => ({
-  ...ctx,
-  config: Config,
-  log: Logger,
-  eventStore,
-  transaction,
-  settlement,
-  loaders: new Map(),
-  eventStoreMongo: await getMongoClient(csMongoDBObj.toString(), 'reporting'),
-  transactionMongo: await getMongoClient(csMongoDBObj.toString(), 'transaction'),
-  settlementMongo: await getMongoClient(csMongoDBObj.toString(), 'settlement'),
-  getRequestFields,
-});
+
+const logMemoryUsage = () => {
+  const memoryUsage = process.memoryUsage();
+  console.log('Memory Usage: ', {
+    rss: memoryUsage.rss,
+    heapTotal: memoryUsage.heapTotal,
+    heapUsed: memoryUsage.heapUsed,
+    external: memoryUsage.external,
+  });
+};
+export const createContext = async (ctx: any): Promise<Context> => {
+  // Log memory usage when creating context
+  logMemoryUsage();
+
+  // Set interval to log memory usage every 10 seconds
+  const memoryLogInterval = setInterval(logMemoryUsage, 10000); // 10 seconds
+
+  // Perform actual context creation
+  const context = {
+    ...ctx,
+    config: Config,
+    log: Logger,
+    eventStore,
+    transaction,
+    settlement,
+    loaders: new Map(),
+    getRequestFields,
+  };
+
+  // Clean up and clear interval after context is created
+  clearInterval(memoryLogInterval);
+  
+  return context;
+};
