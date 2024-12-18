@@ -7,8 +7,9 @@
  *  ORIGINAL AUTHOR:                                                      *
  *       Yevhen Kyriukha <yevhen.kyriukha@modusbox.com>                   *
  **************************************************************************/
-
-import Query from './Query';
-import Event from './Event';
-
-export default [Query, Event];
+export * from './QuoteEvents';
+export * from './FxQuoteEvents';
+export * from './FxTransferEvents';
+export * from './PartyEvents';
+export * from './SettlementEvents';
+export * from './TransferEvents';

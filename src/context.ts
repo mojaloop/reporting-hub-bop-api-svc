@@ -12,8 +12,6 @@ import {
   createEventStoreClient,
   createTransactionClient,
   createSettlementClient,
-  getMongoClient,
-  Collection,
   getRequestFields,
   // createCacheMiddleware,
 } from './lib';
@@ -43,6 +41,8 @@ transaction.$on('query', async (e) => {
   console.log(`${e.query} ${e.params}`);
 });
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 settlement.$on('query', async (e) => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
@@ -56,7 +56,6 @@ export interface Context {
   settlement: typeof settlement;
   config: typeof Config;
   loaders: Map<any, any>;
-  eventStoreMongo: Collection;
   participants: string[] | undefined;
   getRequestFields: typeof getRequestFields;
 }
@@ -70,16 +69,18 @@ csMongoDBObj.setDefaults({
   path: [Config.EVENT_STORE_DB.DATABASE],
 });
 
-export const createContext = async (ctx: any): Promise<Context> => ({
-  ...ctx,
-  config: Config,
-  log: Logger,
-  eventStore,
-  transaction,
-  settlement,
-  loaders: new Map(),
-  eventStoreMongo: await getMongoClient(csMongoDBObj.toString(), 'reporting'),
-  transactionMongo: await getMongoClient(csMongoDBObj.toString(), 'transaction'),
-  settlementMongo: await getMongoClient(csMongoDBObj.toString(), 'settlement'),
-  getRequestFields,
-});
+export const createContext = async (ctx: any): Promise<Context> => {
+  // Perform actual context creation
+  const context = {
+    ...ctx,
+    config: Config,
+    log: Logger,
+    eventStore,
+    transaction,
+    settlement,
+    loaders: new Map(),
+    getRequestFields,
+  };
+
+  return context;
+};

@@ -47,7 +47,7 @@ const Query = extendType({
       args: {
         transferId: nonNull(stringArg()),
       },
-      resolve: async (parent, args, ctx): Promise<any> => {
+      resolve: async (_, args, ctx): Promise<any> => {
         try {
           // Fetch a single transaction by transferId
           const transaction = await ctx.transaction.transaction.findUnique({
@@ -76,9 +76,9 @@ const Query = extendType({
         limit: intArg(),
         offset: intArg(),
       },
-      resolve: async (parent, args, ctx): Promise<any> => {
+      resolve: async (_, args, ctx): Promise<any> => {
         try {
-          const { limit = 100, offset = 0, filter = {} } = args;
+          const { limit = 20, offset = 0, filter = {} } = args;
           // Create where condition based on filter
           const whereCondition = createWhereCondition(filter);
           // Fetch multiple transactions with pagination and filtering

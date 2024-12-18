@@ -52,15 +52,14 @@ const Query = extendType({
         groupBy: list(stringArg()),
       },
       resolve: async (parent, args, ctx) => {
+        const { limit = 100, offset = 0, filter = {}, groupBy = [] } = args;
+        const whereCondition = createWhereCondition(filter);
+
+        const groupByFields = groupBy && groupBy.length > 0 ? groupBy : null;
+
+        let aggregateResult;
+
         try {
-          const { limit = 100, offset = 0, filter = {}, groupBy = [] } = args;
-          const whereCondition = createWhereCondition(filter);
-
-          const groupByFields = groupBy && groupBy.length > 0 ? groupBy : null;
-          console.log('Group By Fields: ', groupByFields);
-
-          let aggregateResult;
-
           if (!groupByFields) {
             // Aggregate results without grouping when no group by fields are provided
             aggregateResult = await ctx.transaction.transaction.aggregate({
@@ -116,17 +115,13 @@ const Query = extendType({
                 targetAmount: group._sum?.targetAmount || 0,
               },
             }));
-
-            if (transfersSummary.length === 0) {
-              console.log('No transfers found');
-            }
-            // console.log('TransferSummary data fetched is: ', transfersSummary);
-
             return transfersSummary;
           }
         } catch (error) {
           console.error('Error fetching transfers:', error);
           throw new Error('Error fetching transfers data');
+        } finally {
+          aggregateResult = null;
         }
       },
     });
