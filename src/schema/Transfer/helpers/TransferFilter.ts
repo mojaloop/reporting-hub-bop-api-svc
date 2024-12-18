@@ -1,8 +1,12 @@
 export const createWhereCondition = (filter: any) => {
+  
   const whereCondition: any = {
     createdAt: {},
   };
 
+  if (!Object.keys(filter).length) {
+    return {};
+  }
   // Required filters
   if (filter?.startDate) {
     whereCondition.createdAt.gte = new Date(filter.startDate);

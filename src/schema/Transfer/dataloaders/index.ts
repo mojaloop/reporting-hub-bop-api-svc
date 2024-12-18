@@ -7,7 +7,6 @@
  *  ORIGINAL AUTHOR:                                                      *
  *       Yevhen Kyriukha <yevhen.kyriukha@modusbox.com>                   *
  **************************************************************************/
-export * from './TransferState';
 export * from './QuoteEvents';
 export * from './FxQuoteEvents';
 export * from './FxTransferEvents';

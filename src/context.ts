@@ -67,23 +67,7 @@ csMongoDBObj.setDefaults({
   path: [Config.EVENT_STORE_DB.DATABASE],
 });
 
-
-const logMemoryUsage = () => {
-  const memoryUsage = process.memoryUsage();
-  console.log('Memory Usage: ', {
-    rss: memoryUsage.rss,
-    heapTotal: memoryUsage.heapTotal,
-    heapUsed: memoryUsage.heapUsed,
-    external: memoryUsage.external,
-  });
-};
 export const createContext = async (ctx: any): Promise<Context> => {
-  // Log memory usage when creating context
-  logMemoryUsage();
-
-  // Set interval to log memory usage every 10 seconds
-  const memoryLogInterval = setInterval(logMemoryUsage, 10000); // 10 seconds
-
   // Perform actual context creation
   const context = {
     ...ctx,
@@ -96,8 +80,5 @@ export const createContext = async (ctx: any): Promise<Context> => {
     getRequestFields,
   };
 
-  // Clean up and clear interval after context is created
-  clearInterval(memoryLogInterval);
-  
   return context;
 };

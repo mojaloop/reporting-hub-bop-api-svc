@@ -18,13 +18,13 @@ import {
   getSettlementEventsDataloader,
 } from './dataloaders';
 
-function createEventResolver(dataloader) {
-  return async (parent, args, ctx) => {
+function createEventResolver(dataloaderName) {
+  return async (parent, _, ctx) => {
     const transactionId = parent.transactionId;
     if (!transactionId) {
       return null;
     }
-    return await dataloader(ctx).load(transactionId);
+    return await dataloaderName(ctx).load(transactionId);
   };
 }
 
@@ -199,7 +199,7 @@ const Transfer = objectType({
     t.field('conversions', { type: 'Conversions' });
     // Define resolver for transferSettlementBatchId lookup
     t.bigInt('transferSettlementBatchId', {
-      resolve: async (parent, args, ctx) => {
+      resolve: async (parent, _, ctx) => {
         if (!parent.transferSettlementWindowId) {
           return null;
         }
@@ -217,7 +217,7 @@ const Transfer = objectType({
     });
     // Define resolver for conversionSettlementBatchId lookup
     t.bigInt('conversionSettlementBatchId', {
-      resolve: async (parent, args, ctx) => {
+      resolve: async (parent, _, ctx) => {
         if (!parent.conversions?.payer?.conversionSettlementWindowId) {
           return null;
         }
@@ -243,23 +243,23 @@ const Transfer = objectType({
 
     t.list.jsonObject('partyLookupEvents', {
       resolve: createEventResolver(getPartyEventsDataloader),
-    }),
-      // Define resolver for settlementEvents lookup
-      t.list.jsonObject('settlementEvents', {
-        resolve: createEventResolver(getSettlementEventsDataloader),
-      }),
-      // Define resolver for transferEvents lookup
-      t.list.jsonObject('transferEvents', {
-        resolve: createEventResolver(getTransferEventsDataloader),
-      }),
-      // Define resolver for fxTransferEvents lookup
-      t.list.jsonObject('fxTransferEvents', {
-        resolve: createEventResolver(getFxTransferEventsDataloader),
-      }),
-      // Define resolver for fxQuoteEvents lookup
-      t.list.jsonObject('fxQuoteEvents', {
-        resolve: createEventResolver(getFxQuoteEventsDataloader),
-      });
+    });
+    // Define resolver for settlementEvents lookup
+    t.list.jsonObject('settlementEvents', {
+      resolve: createEventResolver(getSettlementEventsDataloader),
+    });
+    // Define resolver for transferEvents lookup
+    t.list.jsonObject('transferEvents', {
+      resolve: createEventResolver(getTransferEventsDataloader),
+    });
+    // Define resolver for fxTransferEvents lookup
+    t.list.jsonObject('fxTransferEvents', {
+      resolve: createEventResolver(getFxTransferEventsDataloader),
+    });
+    // Define resolver for fxQuoteEvents lookup
+    t.list.jsonObject('fxQuoteEvents', {
+      resolve: createEventResolver(getFxQuoteEventsDataloader),
+    });
   },
 });
 

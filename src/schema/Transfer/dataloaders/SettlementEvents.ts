@@ -27,8 +27,6 @@ const findSettlementEvent = async (ctx: Context, transactionId: string) => {
       },
     },
   });
-
-  // Return all events, not just the first one
   return events.map((e) => e.event);  // return an array of events
 };
 
