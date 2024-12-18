@@ -28,7 +28,7 @@ const findFxTransferEvent = async (ctx: Context, transactionId: string) => {
     },
   });
 
-  return events.map((e) => e.event);  // return an array of events
+  return events.map((e) => e.event); // return an array of events
 };
 
 // Create DataLoader for fetching FxTransfer events by transactionId
@@ -39,11 +39,8 @@ export const getFxTransferEventsDataloader = (ctx: Context): DataLoader<string, 
   let dl = loaders.get(ID);
   if (!dl) {
     dl = new DataLoader(async (transactionIds: readonly string[]) => {
-
       // Fetch events for all transactionIds in batch
-      const events = await Promise.all(
-        transactionIds.map((transactionId) => findFxTransferEvent(ctx, transactionId))
-      );
+      const events = await Promise.all(transactionIds.map((transactionId) => findFxTransferEvent(ctx, transactionId)));
 
       return events;
     });
@@ -54,4 +51,3 @@ export const getFxTransferEventsDataloader = (ctx: Context): DataLoader<string, 
 
   return dl;
 };
-

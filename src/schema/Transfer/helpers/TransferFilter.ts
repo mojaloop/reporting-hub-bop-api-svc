@@ -1,5 +1,4 @@
 export const createWhereCondition = (filter: any) => {
-  
   const whereCondition: any = {
     createdAt: {},
   };

@@ -39,11 +39,8 @@ export const getFxQuoteEventsDataloader = (ctx: Context): DataLoader<string, any
   let dl = loaders.get(ID);
   if (!dl) {
     dl = new DataLoader(async (transactionIds: readonly string[]) => {
-
       // Fetch events for all transactionIds in batch
-      const events = await Promise.all(
-        transactionIds.map((transactionId) => findFxQuoteEvent(ctx, transactionId))
-      );
+      const events = await Promise.all(transactionIds.map((transactionId) => findFxQuoteEvent(ctx, transactionId)));
 
       return events;
     });
@@ -54,4 +51,3 @@ export const getFxQuoteEventsDataloader = (ctx: Context): DataLoader<string, any
 
   return dl;
 };
-

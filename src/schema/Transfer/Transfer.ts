@@ -24,7 +24,7 @@ function createEventResolver(dataloaderName) {
     if (!transactionId) {
       return null;
     }
-    return await dataloaderName(ctx).load(transactionId);
+    return dataloaderName(ctx).load(transactionId);
   };
 }
 

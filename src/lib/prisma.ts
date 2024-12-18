@@ -31,7 +31,7 @@ const createEventStoreClient = (logQuery = false): EventStoreClient => {
         url: csMongoDBObj.toString(),
       },
     },
-    // log: logQuery ? ['query'] : [],
+    log: logQuery ? ['query'] : [],
   });
 };
 
@@ -50,7 +50,7 @@ const createTransactionClient = (logQuery = false): TransactionClient => {
         url: csMongoDBObj.toString(),
       },
     },
-    // log: logQuery ? ['query'] : [],
+    log: logQuery ? ['query'] : [],
   });
 };
 const createSettlementClient = (logQuery = false): SettlementClient => {
@@ -68,7 +68,7 @@ const createSettlementClient = (logQuery = false): SettlementClient => {
         url: csMongoDBObj.toString(),
       },
     },
-    // log: logQuery ? ['query'] : [],
+    log: logQuery ? ['query'] : [],
   });
 };
 
