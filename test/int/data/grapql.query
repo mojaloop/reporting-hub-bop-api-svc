@@ -1,0 +1,39 @@
+query GetTransferAndSummary(
+  $transferId: String!
+  $startDate: DateTimeFlexible!
+  $endDate: DateTimeFlexible!
+) {
+  transfer(transferId: $transferId) {
+    transferId
+    transactionId
+    amount
+    sourceCurrency
+    createdAt
+    payerDFSP {
+      id
+      name
+    }
+    payeeDFSP {
+      id
+      name
+    }
+    payerParty {
+      id
+      firstName
+      lastName
+    }
+    payeeParty {
+      id
+      firstName
+      lastName
+    }
+  }
+  transferSummary(filter: { startDate: $startDate, endDate: $endDate }) {
+    count
+    amount
+    errorCode
+    payerDFSP
+    payeeDFSP
+    currency
+  }
+}

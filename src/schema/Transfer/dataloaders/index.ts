@@ -7,11 +7,9 @@
  *  ORIGINAL AUTHOR:                                                      *
  *       Yevhen Kyriukha <yevhen.kyriukha@modusbox.com>                   *
  **************************************************************************/
-
-export * from './DFSP';
-export * from './Party';
-export * from './Events';
-export * from './TransferState';
-export * from './Quote';
-export * from './TransactionType';
-export * from './Settlement';
+export * from './QuoteEvents';
+export * from './FxQuoteEvents';
+export * from './FxTransferEvents';
+export * from './PartyEvents';
+export * from './SettlementEvents';
+export * from './TransferEvents';

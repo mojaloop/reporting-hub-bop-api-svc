@@ -13,12 +13,10 @@ import { makeSchema, mutationType, queryType } from 'nexus';
 import { join, dirname } from 'path';
 
 import Scalar from './Scalar';
-import DFSP from './DFSP';
 import Transaction from './Transfer';
-import Party from './Party';
 import TransactionSummary from './TransferSummary';
 
-const types = [Scalar, DFSP, Transaction, Party, TransactionSummary];
+const types = [Scalar, Transaction, TransactionSummary];
 
 const Query = queryType({
   definition(t) {

@@ -8,86 +8,103 @@
  *       Yevhen Kyriukha <yevhen.kyriukha@modusbox.com>                   *
  **************************************************************************/
 
-import { arg, extendType, inputObjectType, intArg, nonNull, stringArg } from 'nexus';
-import { createTransferFilter } from './helpers';
+import { extendType, intArg, nonNull, stringArg, inputObjectType } from 'nexus';
+import { createWhereCondition } from './helpers/TransferFilter';
 
+// Define input type for PartyFilter
 const PartyFilter = inputObjectType({
   name: 'PartyFilter',
   definition(t) {
-    t.field('dfsp', { type: 'String' });
-    t.field('idType', { type: 'PartyIDType' });
-    t.field('idValue', { type: 'String' });
+    t.string('partyIdType');
+    t.string('partyIdentifier');
   },
 });
 
+// Define input type for TransferFilter
 const TransferFilter = inputObjectType({
   name: 'TransferFilter',
   definition(t) {
-    t.nonNull.field('startDate', { type: 'DateTimeFlexible' });
-    t.nonNull.field('endDate', { type: 'DateTimeFlexible' });
-    t.field('errorCode', { type: 'Int' });
+    t.nonNull.dateTimeFlex('startDate');
+    t.nonNull.dateTimeFlex('endDate');
     t.field('payer', { type: 'PartyFilter' });
     t.field('payee', { type: 'PartyFilter' });
-    t.field('currency', { type: 'Currency' });
-    t.field('transferState', { type: 'TransferState' });
-    t.field('settlementWindowId', { type: 'Int' });
-    t.field('settlementId', { type: 'Int' });
+    t.string('payerDFSP');
+    t.string('payeeDFSP');
+    t.string('sourceCurrency');
+    t.string('targetCurrency');
+    t.string('transferState');
+    t.string('conversionState');
+    t.string('transactionType');
   },
 });
 
 const Query = extendType({
   type: 'Query',
   definition(t) {
+    // Define a field to fetch a single transfer by ID
     t.field('transfer', {
       type: 'Transfer',
       args: {
         transferId: nonNull(stringArg()),
       },
-      resolve: async (parent, args, ctx) => {
-        const tr = await ctx.centralLedger.transfer.findUnique({
-          where: {
-            transferId: args.transferId,
-          },
-        });
-        if (!tr) {
-          return null;
+      resolve: async (_, args, ctx): Promise<any> => {
+        try {
+          // Fetch a single transaction by transferId
+          const transaction = await ctx.transaction.transaction.findUnique({
+            where: {
+              transferId: args.transferId,
+            },
+          });
+
+          if (!transaction) {
+            console.log(`No transaction found for transferId: ${args.transferId}`);
+            return null;
+          }
+
+          return transaction;
+        } catch (error) {
+          console.error(`Error fetching transaction with transferId: ${args.transferId}`, error);
+          throw new Error('Error fetching transaction data');
         }
-        return {
-          transferId: tr.transferId,
-          amount: tr.amount.toNumber(),
-          currency: tr.currencyId,
-          createdAt: tr.createdDate.toISOString(),
-          ilpCondition: tr.ilpCondition,
-        };
       },
     });
-
+    // Define a field to fetch multiple transfers with filters, limit, and offset
     t.nonNull.list.nonNull.field('transfers', {
       type: 'Transfer',
       args: {
-        filter: arg({ type: nonNull('TransferFilter') }),
+        filter: TransferFilter,
         limit: intArg(),
         offset: intArg(),
       },
-      resolve: async (parent, args, ctx) => {
-        const transferFilter = createTransferFilter(ctx.participants, args.filter);
+      resolve: async (_, args, ctx): Promise<any> => {
+        try {
+          const { limit = 20, offset = 0, filter = {} } = args;
+          // Create where condition based on filter
+          const whereCondition = createWhereCondition(filter);
+          // Fetch multiple transactions with pagination and filtering
+          const transfers = await ctx.transaction.transaction.findMany({
+            skip: offset ?? 0,
+            take: limit ?? 100,
+            orderBy: {
+              createdAt: 'desc',
+            },
+            where: whereCondition,
+          });
 
-        const transfers = await ctx.centralLedger.transfer.findMany({
-          take: args.limit ?? 100,
-          skip: args.offset || undefined,
-          orderBy: [{ createdDate: 'desc' }],
-          where: transferFilter,
-        });
-        return transfers.map((tr) => ({
-          transferId: tr.transferId,
-          amount: tr.amount.toNumber(),
-          currency: tr.currencyId,
-          createdAt: tr.createdDate.toISOString(),
-          ilpCondition: tr.ilpCondition,
-        }));
+          if (transfers.length === 0) {
+            console.log(
+              `No transfers found with limit: ${limit}, offset: ${offset}, and filter: ${JSON.stringify(filter)}`
+            );
+          }
+          // console.log('Transfer data fetched is : ', transfers);
+          return transfers;
+        } catch (error) {
+          console.error('Error fetching transfers', error);
+          throw new Error('Error fetching transfers data');
+        }
       },
     });
   },
 });
 
-export default [Query, TransferFilter, PartyFilter];
+export default [Query, PartyFilter, TransferFilter];
