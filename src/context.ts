@@ -41,6 +41,8 @@ transaction.$on('query', async (e) => {
   console.log(`${e.query} ${e.params}`);
 });
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 settlement.$on('query', async (e) => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore

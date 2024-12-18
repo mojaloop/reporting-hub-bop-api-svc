@@ -45,6 +45,7 @@ const loggerPlugin = {
 };
 
 const startServer = async () => {
+  // @ts-ignore
   const server = new ApolloServer<Context>({
     schema: applyMiddleware(schema, authMiddleware),
     plugins: [
@@ -54,6 +55,7 @@ const startServer = async () => {
     ],
     // healthCheckPath: '/health',
   });
+  // @ts-ignore
   await server.start();
   const corsOptions = {
     origin: Config.CORS_WHITELIST,
