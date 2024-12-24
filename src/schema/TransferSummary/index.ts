@@ -9,8 +9,6 @@
  **************************************************************************/
 
 import Query from './Query';
-import TransferSummary from './TransferSummary';
+import { TransferSummary, TransferGroup, TransferSummarySum } from './TransferSummary';
 
-// Add more types as needed
-
-export default [Query, TransferSummary];
+export default [Query, TransferSummary, TransferGroup, TransferSummarySum];

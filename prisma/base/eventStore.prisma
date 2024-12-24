@@ -1,16 +1,26 @@
 datasource db {
   provider = "mongodb"
-  url      = "mongodb+srv://test:test@localhost/test"
+  url      = "mongodb://localhost:27017/reporting"
 }
 
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["mongoDb"]
+  provider = "prisma-client-js"
   output   = "eventStore"
 }
 
-model reportingData {
-  id    String  @id @default(auto()) @map("_id") @db.ObjectId
-  event Json
+model ReportingData {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  event    Json
   metadata Json
+
+  @@map("reporting")
+}
+
+type MetaData {
+  reporting Reporting
+}
+
+type Reporting {
+  eventType     String
+  transactionId String
 }

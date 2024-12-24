@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Send sample graphql queries should send a transfer query 1`] = `
+Object {
+  "data": Object {
+    "transfer": Object {
+      "createdAt": "2024-11-14T06:24:56.719Z",
+      "lastUpdated": "2024-11-14T06:24:56.720Z",
+      "sourceAmount": 100,
+      "sourceCurrency": "USD",
+      "targetAmount": 90,
+      "targetCurrency": "EUR",
+      "transactionId": "transaction123",
+      "transactionType": "TRANSFER",
+      "transferId": "b51ec534-ee48-4575-b6a9-ead2955b8069",
+      "transferState": "COMPLETED",
+    },
+  },
+}
+`;

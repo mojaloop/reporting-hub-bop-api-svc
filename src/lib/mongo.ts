@@ -11,14 +11,23 @@
 import { Collection, MongoClient } from 'mongodb';
 
 let collection: Collection;
+let client: MongoClient | null = null;
 
-const getMongoClient = async (uri: string): Promise<Collection> => {
+// Not being used anywhere right now
+const getMongoClient = async (uri: string, collectionName: string): Promise<Collection> => {
   if (!collection) {
-    const client = new MongoClient(uri);
+    client = new MongoClient(uri);
     await client.connect();
-    collection = client.db().collection('reporting');
+    collection = client.db().collection(collectionName);
   }
   return collection;
 };
 
-export { getMongoClient, Collection };
+const closeMongoClientConnection = async (): Promise<void> => {
+  if (client) {
+    await client.close();
+    client = null;
+  }
+};
+
+export { getMongoClient, Collection, closeMongoClientConnection };

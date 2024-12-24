@@ -8,31 +8,14 @@
  *       Yevhen Kyriukha <yevhen.kyriukha@modusbox.com>                   *
  **************************************************************************/
 
-import { PrismaClient as CentralLedgerClient } from '@app/generated/centralLedger';
+import { PrismaClient as TransactionClient } from '@app/generated/transaction';
 import { PrismaClient as EventStoreClient } from '@app/generated/eventStore';
+import { PrismaClient as SettlementClient } from '@app/generated/settlement';
+
 import Config from './config';
 import { ConnectionString } from 'connection-string';
 
-const createCentralLedgerClient = (logQuery = false): CentralLedgerClient => {
-  const csMysqlObj = new ConnectionString();
-  csMysqlObj.setDefaults({
-    protocol: 'mysql',
-    hosts: [{ name: Config.REPORTING_DB.HOST, port: Config.REPORTING_DB.PORT }],
-    user: Config.REPORTING_DB.USER,
-    password: Config.REPORTING_DB.PASSWORD,
-    path: [Config.REPORTING_DB.SCHEMA],
-  });
-
-  return new CentralLedgerClient({
-    datasources: {
-      db: {
-        url: csMysqlObj.toString(),
-      },
-    },
-    log: logQuery ? ['query'] : [],
-  });
-};
-
+// TODO: rename to mongoClient
 const createEventStoreClient = (logQuery = false): EventStoreClient => {
   const csMongoDBObj = new ConnectionString();
   csMongoDBObj.setDefaults({
@@ -52,4 +35,48 @@ const createEventStoreClient = (logQuery = false): EventStoreClient => {
   });
 };
 
-export { createCentralLedgerClient, createEventStoreClient, CentralLedgerClient, EventStoreClient };
+const createTransactionClient = (logQuery = false): TransactionClient => {
+  const csMongoDBObj = new ConnectionString();
+  csMongoDBObj.setDefaults({
+    protocol: 'mongodb',
+    hosts: [{ name: Config.EVENT_STORE_DB.HOST, port: Config.EVENT_STORE_DB.PORT }],
+    user: Config.EVENT_STORE_DB.USER,
+    password: Config.EVENT_STORE_DB.PASSWORD,
+    path: [Config.EVENT_STORE_DB.DATABASE],
+  });
+  return new TransactionClient({
+    datasources: {
+      db: {
+        url: csMongoDBObj.toString(),
+      },
+    },
+    log: logQuery ? ['query'] : [],
+  });
+};
+const createSettlementClient = (logQuery = false): SettlementClient => {
+  const csMongoDBObj = new ConnectionString();
+  csMongoDBObj.setDefaults({
+    protocol: 'mongodb',
+    hosts: [{ name: Config.EVENT_STORE_DB.HOST, port: Config.EVENT_STORE_DB.PORT }],
+    user: Config.EVENT_STORE_DB.USER,
+    password: Config.EVENT_STORE_DB.PASSWORD,
+    path: [Config.EVENT_STORE_DB.DATABASE],
+  });
+  return new SettlementClient({
+    datasources: {
+      db: {
+        url: csMongoDBObj.toString(),
+      },
+    },
+    log: logQuery ? ['query'] : [],
+  });
+};
+
+export {
+  createTransactionClient,
+  TransactionClient,
+  createEventStoreClient,
+  EventStoreClient,
+  createSettlementClient,
+  SettlementClient,
+};

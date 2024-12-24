@@ -10,34 +10,44 @@
 
 import { Context } from '@app/context';
 import DataLoader from 'dataloader';
-import { transactionScenario } from '@app/generated/centralLedger';
 
 const ID = Symbol();
 
-const findTransactionTypes = async (ctx: Context, transactionScenarioIds: number[]) => {
-  const entries = await ctx.centralLedger.transactionScenario.findMany({
+// Function to fetch all party events for a transactionId
+const findPartyEvent = async (ctx: Context, transactionId: string) => {
+  const events = await ctx.eventStore.reportingData.findMany({
     where: {
-      transactionScenarioId: {
-        in: transactionScenarioIds,
+      metadata: {
+        equals: {
+          reporting: {
+            eventType: 'PartyLookup',
+            transactionId: transactionId,
+          },
+        },
       },
     },
   });
-  return Object.fromEntries(entries.map((e) => [e.transactionScenarioId, e]));
+
+  return events.map((e) => e.event); // return an array of events
 };
 
-export const getTransactionTypeDataloader = (ctx: Context): DataLoader<number, transactionScenario> => {
+// Create DataLoader for fetching party events by transactionId
+export const getPartyEventsDataloader = (ctx: Context): DataLoader<string, any[]> => {
   const { loaders } = ctx;
 
-  // initialize DataLoader for getting payers by transfer IDs
+  // Initialize the DataLoader if it doesn't exist
   let dl = loaders.get(ID);
   if (!dl) {
-    dl = new DataLoader(async (transactionScenarioIds: readonly number[]) => {
-      const result = await findTransactionTypes(ctx, transactionScenarioIds as number[]);
-      // IMPORTANT: sort data in the same order as transferIds
-      return transactionScenarioIds.map((id) => result[id]);
+    dl = new DataLoader(async (transactionIds: readonly string[]) => {
+      // Fetch events for all transactionIds in batch
+      const events = await Promise.all(transactionIds.map((transactionId) => findPartyEvent(ctx, transactionId)));
+
+      return events;
     });
-    // Put instance of dataloader in WeakMap for future reuse
+
+    // Cache the DataLoader instance for reuse
     loaders.set(ID, dl);
   }
+
   return dl;
 };
