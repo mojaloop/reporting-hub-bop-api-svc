@@ -1,0 +1,148 @@
+[{
+  "_id": "672ca418fab9fb606c51b573",
+  "transferId": "b51ec534-ee48-4575-b6a9-ead2955b8069",
+  "transactionId": "b51ec534-ee48-4575-b6a9-ead2955b8069",
+  "sourceAmount": 100.5,
+  "sourceCurrency": "USD",
+  "targetAmount": 91.5,
+  "targetCurrency": "EUR",
+  "createdAt": "2023-09-25T12:34:56.000Z",
+  "lastUpdated": "2023-09-25T12:34:56.000Z",
+  "transferState": "COMMITTED",
+  "transferStateChanges": [
+    {
+      "transferState": "RESERVED",
+      "dateTime": "2023-09-27T12:34:56.000Z",
+      "reason": "Insufficient balance"
+    },
+    {
+      "transferState": "ABORTED",
+      "dateTime": "2023-09-29T12:34:56.000Z",
+      "reason": "Insufficient balance"
+    }
+  ],
+  "transactionType": "PAYMENT",
+  "errorCode": 200,
+  "transferSettlementWindowId": 16436,
+  "payerDFSP": "payerDFSP001",
+  "payerDFSPProxy": "",
+  "payeeDFSP": "payeeDFSP002",
+  "payeeDFSPProxy": "CInternationalClearing",
+  "quoteEvents": [
+    "EVENT_QUOTE_1",
+    "EVENT_QUOTE_2"
+  ],
+  "transferEvents": [
+    "EVENT_TRANSFER_1",
+    "EVENT_TRANSFER_2"
+  ],
+  "settlementEvents": [
+    "EVENT_SETTLE_1"
+  ],
+  "positionChanges": [
+    {
+      "participantName": "payerDFSP001",
+      "currency": "USD",
+      "ledgerType": "POSITION",
+      "dateTime": "2016-05-24T12:38:08.000Z",
+      "updatedPosition": 10010.1,
+      "change": 10.1
+    }
+  ],
+  "payerParty": {
+    "partyIdType": "MSISDN",
+    "partyIdentifier": "+123456789",
+    "partyName": "John Doe",
+    "supportedCurrencies": "USD"
+  },
+  "payeeParty": {
+    "partyIdType": "MSISDN",
+    "partyIdentifier": "+987654321",
+    "partyName": "Jane Smith",
+    "supportedCurrencies": "EUR"
+  },
+  "quoteRequest": {
+    "quoteId": "quote789",
+    "amountType": "SEND",
+    "amount": {
+      "currency": "USD",
+      "amount": 123.45
+    },
+    "fees": {
+      "currency": "USD",
+      "amount": 1.45
+    }
+  },
+  "transferTerms": {
+    "transferAmount": {
+      "currency": "AED",
+      "amount": 123.45
+    },
+    "payeeReceiveAmount": {
+      "currency": "AED",
+      "amount": 123.45
+    },
+    "payeeFspFee": {
+      "currency": "AED",
+      "amount": 123.45
+    },
+    "payeeFspCommission": {
+      "currency": "AED",
+      "amount": 123.45
+    },
+    "expiration": "2016-05-24T12:38:08.699Z",
+    "geoCode": {
+      "latitude": "+45.4215",
+      "longitude": "+75.6972"
+    },
+    "ilpPacket": "pck"
+  },
+  "conversions": [
+    {
+      "conversionRequestId": "b51ec534-ee48-4575-b6a9-ead2955b8069",
+      "conversionId": "b51ec534-ee48-4575-b6a9-ead2955b8069",
+      "conversionCommitRequestId": "b51ec534-ee48-4575-b6a9-ead2955b8069",
+      "conversionState": "COMMITTED",
+      "conversionStateChanges": [
+        {
+          "conversionState": "RESERVED",
+          "dateTime": "2016-05-24T12:38:08.699Z",
+          "reason": ""
+        }
+      ],
+      "counterPartyFSP": "FXP",
+      "conversionType": "Payer DFSP Conversion",
+      "conversionSettlementWindowId": 16436,
+      "conversionTerms": {
+        "conversionId": "b51ec534-ee48-4575-b6a9-ead2955b8069",
+        "determiningTransferId": "b51ec534-ee48-4575-b6a9-ead2955b8069",
+        "initiatingFsp": "string",
+        "counterPartyFsp": "string",
+        "amountType": "RECEIVE",
+        "sourceAmount": {
+          "currency": "AED",
+          "amount": 123.45
+        },
+        "targetAmount": {
+          "currency": "AED",
+          "amount": 123.45
+        },
+        "expiration": "2016-05-24T12:38:08.699Z",
+        "charges": [
+          {
+            "chargeType": "string",
+            "sourceAmount": {
+              "currency": "AED",
+              "amount": 123.45
+            },
+            "targetAmount": {
+              "currency": "AED",
+              "amount": 123.45
+            }
+          }
+        ],
+        "ilpPacket": "pck"
+      }
+    }
+  ]
+}]

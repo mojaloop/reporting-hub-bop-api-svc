@@ -13,38 +13,41 @@ import DataLoader from 'dataloader';
 
 const ID = Symbol();
 
-const findTransferStates = async (ctx: Context, transferIds: string[]) => {
-  const trStates = await ctx.centralLedger.transferStateChange.findMany({
+// Function to fetch all FxTransfer events for a transactionId
+const findFxTransferEvent = async (ctx: Context, transactionId: string) => {
+  const events = await ctx.eventStore.reportingData.findMany({
     where: {
-      transferId: {
-        in: transferIds,
-      },
-    },
-    select: {
-      transferId: true,
-      transferState: {
-        select: {
-          enumeration: true,
+      metadata: {
+        equals: {
+          reporting: {
+            eventType: 'FxTransfer',
+            transactionId: transactionId,
+          },
         },
       },
     },
   });
-  return Object.fromEntries(trStates.map((e) => [e.transferId, e.transferState.enumeration]));
+
+  return events.map((e) => e.event); // return an array of events
 };
 
-export const getTransferStateDataloader = (ctx: Context) => {
+// Create DataLoader for fetching FxTransfer events by transactionId
+export const getFxTransferEventsDataloader = (ctx: Context): DataLoader<string, any[]> => {
   const { loaders } = ctx;
 
-  // initialize DataLoader for getting payers by transfer IDs
+  // Initialize the DataLoader if it doesn't exist
   let dl = loaders.get(ID);
   if (!dl) {
-    dl = new DataLoader(async (transferIds: readonly string[]) => {
-      const states = await findTransferStates(ctx, transferIds as string[]);
-      // IMPORTANT: sort data in the same order as transferIds
-      return transferIds.map((tid) => states[tid]);
+    dl = new DataLoader(async (transactionIds: readonly string[]) => {
+      // Fetch events for all transactionIds in batch
+      const events = await Promise.all(transactionIds.map((transactionId) => findFxTransferEvent(ctx, transactionId)));
+
+      return events;
     });
-    // Put instance of dataloader in WeakMap for future reuse
+
+    // Cache the DataLoader instance for reuse
     loaders.set(ID, dl);
   }
+
   return dl;
 };

@@ -10,38 +10,44 @@
 
 import { Context } from '@app/context';
 import DataLoader from 'dataloader';
-import { quote } from '@app/generated/centralLedger';
 
 const ID = Symbol();
 
-const findQuotes = async (ctx: Context, transferIds: string[]) => {
-  const transfers = await ctx.centralLedger.transfer.findMany({
+// Function to fetch all FxQuote events for a transactionId
+const findFxQuoteEvent = async (ctx: Context, transactionId: string) => {
+  const events = await ctx.eventStore.reportingData.findMany({
     where: {
-      transferId: {
-        in: transferIds,
+      metadata: {
+        equals: {
+          reporting: {
+            eventType: 'FxQuote',
+            transactionId: transactionId,
+          },
+        },
       },
     },
-    select: {
-      transferId: true,
-      quote: true,
-    },
   });
-  return Object.fromEntries(transfers.map((e) => [e.transferId, e.quote[0]]));
+
+  return events.map((e) => e.event);
 };
 
-export const getQuotesDataloader = (ctx: Context): DataLoader<string, quote> => {
+// Create DataLoader for fetching FxQuote events by transactionId
+export const getFxQuoteEventsDataloader = (ctx: Context): DataLoader<string, any[]> => {
   const { loaders } = ctx;
 
-  // initialize DataLoader for getting payers by transfer IDs
+  // Initialize the DataLoader if it doesn't exist
   let dl = loaders.get(ID);
   if (!dl) {
-    dl = new DataLoader(async (transferIds: readonly string[]) => {
-      const quotes = await findQuotes(ctx, transferIds as string[]);
-      // IMPORTANT: sort data in the same order as transferIds
-      return transferIds.map((tid) => quotes[tid]);
+    dl = new DataLoader(async (transactionIds: readonly string[]) => {
+      // Fetch events for all transactionIds in batch
+      const events = await Promise.all(transactionIds.map((transactionId) => findFxQuoteEvent(ctx, transactionId)));
+
+      return events;
     });
-    // Put instance of dataloader in WeakMap for future reuse
+
+    // Cache the DataLoader instance for reuse
     loaders.set(ID, dl);
   }
+
   return dl;
 };

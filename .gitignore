@@ -8,3 +8,6 @@ generated/
 
 # Config
 .env
+
+# Ignore build files
+dist/
