@@ -15,18 +15,10 @@ const ID = Symbol();
 
 // Function to fetch all FxQuote events for a transactionId
 const findFxQuoteEvent = async (ctx: Context, transactionId: string) => {
-  const events = await ctx.eventStore.reportingData.findMany({
-    where: {
-      metadata: {
-        equals: {
-          reporting: {
-            eventType: 'FxQuote',
-            transactionId: transactionId,
-          },
-        },
-      },
-    },
-  });
+  const events = await ctx.eventStore.find({
+    'metadata.reporting.eventType': 'FxQuote',
+    'metadata.reporting.transactionId': transactionId,
+  }).toArray();
 
   return events.map((e) => e.event);
 };

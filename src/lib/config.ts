@@ -23,7 +23,6 @@ export interface ServiceConfig {
   ORY_KETO_READ_URL: string;
   AUTH_CHECK_PARTICIPANTS: boolean;
   USER_ID_HEADER: string;
-  PRISMA_LOGGING_ENABLED: boolean;
   CORS_WHITELIST: string[];
   ALLOW_CREDENTIALS: boolean;
 }
@@ -130,12 +129,6 @@ export const ConvictConfig = Convict<ServiceConfig>({
     default: 'x-user',
     env: 'USER_ID_HEADER',
   },
-  PRISMA_LOGGING_ENABLED: {
-    doc: 'PRISMA_LOGGING_ENABLED',
-    format: 'Boolean',
-    default: false,
-    env: 'PRISMA_LOGGING_ENABLED',
-  },
   CORS_WHITELIST: {
     doc: 'CORS_WHITELIST',
     format: Array,
@@ -167,7 +160,6 @@ const config: ServiceConfig = {
   ORY_KETO_READ_URL: ConvictConfig.get('ORY_KETO_READ_URL'),
   AUTH_CHECK_PARTICIPANTS: ConvictConfig.get('AUTH_CHECK_PARTICIPANTS'),
   USER_ID_HEADER: ConvictConfig.get('USER_ID_HEADER'),
-  PRISMA_LOGGING_ENABLED: ConvictConfig.get('PRISMA_LOGGING_ENABLED'),
   CORS_WHITELIST: ConvictConfig.get('CORS_WHITELIST'),
   ALLOW_CREDENTIALS: ConvictConfig.get('ALLOW_CREDENTIALS'),
 };

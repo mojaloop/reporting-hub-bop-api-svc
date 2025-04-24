@@ -62,13 +62,27 @@ const Query = extendType({
         try {
           if (!groupByFields) {
             // Aggregate results without grouping when no group by fields are provided
-            aggregateResult = await ctx.transaction.transaction.aggregate({
-              _count: { transferId: true },
-              _sum: { sourceAmount: true, targetAmount: true },
-              where: whereCondition,
-              skip: offset ?? 0,
-              take: limit ?? 100,
-            });
+            aggregateResult = await ctx.transaction.aggregate([
+              { $match: whereCondition },
+              { $skip: offset ?? 0 },
+              { $limit: limit ?? 100 },
+              {
+              $group: {
+                _id: null,
+                _count: { $sum: 1 },
+                _sumSourceAmount: { $sum: '$sourceAmount' },
+                _sumTargetAmount: { $sum: '$targetAmount' },
+              },
+              },
+            ]).toArray();
+
+            aggregateResult = {
+              _count: { transferId: aggregateResult[0]?._count || 0 },
+              _sum: {
+              sourceAmount: aggregateResult[0]?._sumSourceAmount || 0,
+              targetAmount: aggregateResult[0]?._sumTargetAmount || 0,
+              },
+            };
             return [
               {
                 group: {
@@ -87,19 +101,29 @@ const Query = extendType({
             ];
           } else {
             // Aggregate results with grouping when group by fields are provided
-            aggregateResult = await ctx.transaction.transaction.groupBy({
-              by: groupByFields as ('sourceCurrency' | 'targetCurrency' | 'payerDFSP' | 'payeeDFSP' | 'errorCode')[],
-              _count: { transferId: true },
-              _sum: { sourceAmount: true, targetAmount: true },
-              where: whereCondition,
-              skip: offset ?? 0,
-              take: limit ?? 100,
-              orderBy: {
-                _count: {
-                  transferId: 'desc',
-                },
+            aggregateResult = await ctx.transaction.aggregate([
+              { $match: whereCondition },
+              { $skip: offset ?? 0 },
+              { $limit: limit ?? 100 },
+              {
+              $group: {
+                _id: groupByFields.reduce((acc, field) => {
+                if (field) {
+                  acc[field] = `$${field}`;
+                }
+                return acc;
+                }, {} as Record<string, string>),
+                _count: { $sum: 1 },
+                _sumSourceAmount: { $sum: '$sourceAmount' },
+                _sumTargetAmount: { $sum: '$targetAmount' },
               },
-            });
+              },
+              {
+              $sort: {
+                '_count': -1,
+              },
+              },
+            ]).toArray();
 
             const transfersSummary = aggregateResult.map((group) => ({
               group: {

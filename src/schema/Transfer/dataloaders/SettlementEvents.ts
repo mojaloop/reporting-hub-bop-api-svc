@@ -15,18 +15,10 @@ const ID = Symbol();
 
 // Function to fetch all settlement events for a transactionId
 const findSettlementEvent = async (ctx: Context, transactionId: string) => {
-  const events = await ctx.eventStore.reportingData.findMany({
-    where: {
-      metadata: {
-        equals: {
-          reporting: {
-            eventType: 'Settlement',
-            transactionId: transactionId,
-          },
-        },
-      },
-    },
-  });
+  const events = await ctx.eventStore.find({
+    'metadata.reporting.eventType': 'Settlement',
+    'metadata.reporting.transactionId': transactionId,
+  }).toArray();
   return events.map((e) => e.event); // return an array of events
 };
 

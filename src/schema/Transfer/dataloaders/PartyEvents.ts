@@ -15,18 +15,10 @@ const ID = Symbol();
 
 // Function to fetch all party events for a transactionId
 const findPartyEvent = async (ctx: Context, transactionId: string) => {
-  const events = await ctx.eventStore.reportingData.findMany({
-    where: {
-      metadata: {
-        equals: {
-          reporting: {
-            eventType: 'PartyLookup',
-            transactionId: transactionId,
-          },
-        },
-      },
-    },
-  });
+  const events = await ctx.eventStore.find({
+    'metadata.reporting.eventType': 'PartyLookup',
+    'metadata.reporting.transactionId': transactionId,
+  }).toArray();
 
   return events.map((e) => e.event); // return an array of events
 };

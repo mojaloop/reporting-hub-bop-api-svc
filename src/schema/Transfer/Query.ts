@@ -50,11 +50,9 @@ const Query = extendType({
       resolve: async (_, args, ctx): Promise<any> => {
         try {
           // Fetch a single transaction by transferId
-          const transaction = await ctx.transaction.transaction.findUnique({
-            where: {
+            const transaction = await ctx.transaction.findOne({
               transferId: args.transferId,
-            },
-          });
+            });
 
           if (!transaction) {
             console.log(`No transaction found for transferId: ${args.transferId}`);
@@ -82,15 +80,13 @@ const Query = extendType({
           // Create where condition based on filter
           const whereCondition = createWhereCondition(filter);
           // Fetch multiple transactions with pagination and filtering
-          const transfers = await ctx.transaction.transaction.findMany({
-            skip: offset ?? 0,
-            take: limit ?? 100,
-            orderBy: {
-              createdAt: 'desc',
-            },
-            where: whereCondition,
-          });
+          const transfers = await ctx.transaction.find(whereCondition)
+          .sort({ createdAt: -1 })
+          .skip(offset ?? 0)
+          .limit(limit ?? 100)
+          .toArray();
 
+          // Filter and map the results to return event.content.payload
           if (transfers.length === 0) {
             console.log(
               `No transfers found with limit: ${limit}, offset: ${offset}, and filter: ${JSON.stringify(filter)}`

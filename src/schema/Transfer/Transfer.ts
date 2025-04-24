@@ -203,14 +203,8 @@ const Transfer = objectType({
         if (!parent.transferSettlementWindowId) {
           return null;
         }
-        const settlement = await ctx.settlement.settlement.findFirst({
-          where: {
-            settlementWindows: {
-              some: {
-                settlementWindowId: parent.transferSettlementWindowId as unknown as number,
-              },
-            },
-          },
+        const settlement = await ctx.settlement.findOne({
+          'settlementWindows.settlementWindowId': parent.transferSettlementWindowId,
         });
         return settlement ? settlement.settlementId : null;
       },
@@ -221,14 +215,8 @@ const Transfer = objectType({
         if (!parent.conversions?.payer?.conversionSettlementWindowId) {
           return null;
         }
-        const settlement = await ctx.settlement.settlement.findFirst({
-          where: {
-            settlementWindows: {
-              some: {
-                settlementWindowId: parent.conversions?.payer?.conversionSettlementWindowId as unknown as number,
-              },
-            },
-          },
+        const settlement = await ctx.settlement.findOne({
+          'settlementWindows.settlementWindowId': parent.conversions?.payer?.conversionSettlementWindowId,
         });
         return settlement ? settlement.settlementId : null;
       },
