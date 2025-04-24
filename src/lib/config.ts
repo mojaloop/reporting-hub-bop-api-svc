@@ -25,6 +25,7 @@ export interface ServiceConfig {
   USER_ID_HEADER: string;
   CORS_WHITELIST: string[];
   ALLOW_CREDENTIALS: boolean;
+  PRISMA_LOGGING_ENABLED: boolean;
 }
 
 // Declare configuration schema, default values and bindings to environment variables
@@ -129,6 +130,12 @@ export const ConvictConfig = Convict<ServiceConfig>({
     default: 'x-user',
     env: 'USER_ID_HEADER',
   },
+  PRISMA_LOGGING_ENABLED: {
+    doc: 'PRISMA_LOGGING_ENABLED',
+    format: 'Boolean',
+    default: false,
+    env: 'PRISMA_LOGGING_ENABLED',
+  },
   CORS_WHITELIST: {
     doc: 'CORS_WHITELIST',
     format: Array,
@@ -161,6 +168,7 @@ const config: ServiceConfig = {
   AUTH_CHECK_PARTICIPANTS: ConvictConfig.get('AUTH_CHECK_PARTICIPANTS'),
   USER_ID_HEADER: ConvictConfig.get('USER_ID_HEADER'),
   CORS_WHITELIST: ConvictConfig.get('CORS_WHITELIST'),
+  PRISMA_LOGGING_ENABLED: ConvictConfig.get('PRISMA_LOGGING_ENABLED'),
   ALLOW_CREDENTIALS: ConvictConfig.get('ALLOW_CREDENTIALS'),
 };
 
