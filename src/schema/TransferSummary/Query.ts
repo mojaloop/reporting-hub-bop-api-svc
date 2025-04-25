@@ -19,26 +19,6 @@ const TransferSummaryFilter = inputObjectType({
   },
 });
 
-// Create where condition for filtering
-const createWhereCondition = (filter: any) => {
-  const whereCondition: any = {};
-
-  if (filter?.startDate) {
-    whereCondition.createdAt = {
-      gte: new Date(filter.startDate),
-    };
-  }
-
-  if (filter?.endDate) {
-    whereCondition.createdAt = {
-      ...whereCondition.createdAt,
-      lte: new Date(filter.endDate),
-    };
-  }
-
-  return whereCondition;
-};
-
 const Query = extendType({
   type: 'Query',
   definition(t) {
@@ -53,8 +33,6 @@ const Query = extendType({
       },
       resolve: async (parent, args, ctx) => {
         const { limit = 100, offset = 0, filter = {}, groupBy = [] } = args;
-        const whereCondition = createWhereCondition(filter);
-
         const groupByFields = groupBy && groupBy.length > 0 ? groupBy : null;
 
         let aggregateResult;
@@ -100,11 +78,20 @@ const Query = extendType({
               },
             ];
           } else {
+
+            const timeFilter = {
+              createdAt: {
+              ...(filter?.startDate && { $gte: new Date(filter.startDate) }),
+              ...(filter?.endDate && { $lte: new Date(filter.endDate) }),
+              },
+            };
             // Aggregate results with grouping when group by fields are provided
             aggregateResult = await ctx.transaction.aggregate([
-              { $match: whereCondition },
-              { $skip: offset ?? 0 },
-              { $limit: limit ?? 100 },
+              {
+                $match: {
+                  ...timeFilter
+                },
+              },
               {
               $group: {
                 _id: groupByFields.reduce((acc, field) => {
@@ -112,31 +99,28 @@ const Query = extendType({
                   acc[field] = `$${field}`;
                 }
                 return acc;
-                }, {} as Record<string, string>),
+                }, {}),
                 _count: { $sum: 1 },
                 _sumSourceAmount: { $sum: '$sourceAmount' },
                 _sumTargetAmount: { $sum: '$targetAmount' },
               },
               },
-              {
-              $sort: {
-                '_count': -1,
-              },
-              },
+              { $sort: { _count: -1 } },
+              { $skip: offset ?? 0 },
+              { $limit: limit ?? 100 },
             ]).toArray();
-
             const transfersSummary = aggregateResult.map((group) => ({
               group: {
-                errorCode: group.errorCode || null,
-                sourceCurrency: group.sourceCurrency || null,
-                targetCurrency: group.targetCurrency || null,
-                payerDFSP: group.payerDFSP || null,
-                payeeDFSP: group.payeeDFSP || null,
+                errorCode: group._id.errorCode || null,
+                sourceCurrency: group._id.sourceCurrency || null,
+                targetCurrency: group._id.targetCurrency || null,
+                payerDFSP: group._id.payerDFSP || null,
+                payeeDFSP: group._id.payeeDFSP || null,
               },
-              count: typeof group._count === 'object' ? group._count.transferId ?? 0 : 0,
+              count: group._count || 0,
               sum: {
-                sourceAmount: group._sum?.sourceAmount || 0,
-                targetAmount: group._sum?.targetAmount || 0,
+                sourceAmount: group._sumSourceAmount || 0,
+                targetAmount: group._sumTargetAmount || 0,
               },
             }));
             return transfersSummary;
