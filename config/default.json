@@ -1,5 +1,5 @@
 {
-  "PORT": 3000,
+  "PORT": 3080,
   "REPORTING_DB": {
     "DIALECT": "mysql",
     "HOST": "localhost",
@@ -11,9 +11,9 @@
   "EVENT_STORE_DB": {
     "HOST": "localhost",
     "PORT": 27017,
-    "USER": "",
-    "PASSWORD": "",
-    "DATABASE": "admin"
+    "USER": "mojaloop",
+    "PASSWORD": "2WnFqib53oq7NSlnT5a_",
+    "DATABASE": "mojaloop"
   },
   "ORY_KETO_READ_URL": "",
   "AUTH_CHECK_PARTICIPANTS": false,
