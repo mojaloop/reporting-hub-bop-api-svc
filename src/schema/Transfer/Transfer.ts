@@ -108,7 +108,7 @@ const ConversionTerms = objectType({
   name: 'ConversionTerms',
   definition(t) {
     t.nonNull.string('amountType');
-    t.nonNull.list.field('charges', { type: 'ConversionTermsCharges' });
+    t.list.field('charges', { type: 'ConversionTermsCharges' });
     t.nonNull.string('conversionId');
     t.nonNull.string('counterPartyFsp');
     t.nonNull.string('determiningTransferId');
