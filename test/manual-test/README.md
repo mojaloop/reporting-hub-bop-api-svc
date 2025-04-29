@@ -9,7 +9,6 @@ docker-compose --profile all-services --profile ttk-provisioning --profile ttk-t
 - Start the service using the following commands in a new terminal
 ```
 npm install
-npm run generate
 npm start
 ```
 

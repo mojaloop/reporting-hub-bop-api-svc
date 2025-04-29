@@ -4,14 +4,11 @@ RUN apk add --no-cache git python3 build-base
 
 WORKDIR /opt/reporting
 
-COPY package.json mergePrisma.js tsconfig.json package-lock.json* /opt/reporting/
-COPY prisma /opt/reporting/prisma
+COPY package.json tsconfig.json package-lock.json* /opt/reporting/
 COPY src /opt/reporting/src
 COPY patches /opt/reporting/patches
 
 RUN npm ci --production
-RUN npm run generate
-# RUN npm install
 
 FROM node:16.15.0-alpine
 

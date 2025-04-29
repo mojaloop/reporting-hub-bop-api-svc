@@ -19,36 +19,11 @@ import Logger from '@mojaloop/central-services-logger';
 import Config from './lib/config';
 import { ConnectionString } from 'connection-string';
 
-const eventStore = createEventStoreClient(Config.PRISMA_LOGGING_ENABLED);
+const eventStore = createEventStoreClient();
 
-const transaction = createTransactionClient(Config.PRISMA_LOGGING_ENABLED);
+const transaction = createTransactionClient();
 
-const settlement = createSettlementClient(Config.PRISMA_LOGGING_ENABLED);
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-eventStore.$on('query', async (e) => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  console.log(`${e.query} ${e.params}`);
-});
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-transaction.$on('query', async (e) => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  console.log(`${e.query} ${e.params}`);
-});
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-settlement.$on('query', async (e) => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  console.log(`${e.query} ${e.params}`);
-});
-
+const settlement = createSettlementClient();
 export interface Context {
   log: typeof Logger;
   eventStore: typeof eventStore;

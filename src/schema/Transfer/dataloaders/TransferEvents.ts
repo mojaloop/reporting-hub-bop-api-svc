@@ -15,18 +15,10 @@ const ID = Symbol();
 
 // Function to fetch all transfer events for a transactionId
 const findTransferEvent = async (ctx: Context, transactionId: string) => {
-  const events = await ctx.eventStore.reportingData.findMany({
-    where: {
-      metadata: {
-        equals: {
-          reporting: {
-            eventType: 'Transfer',
-            transactionId: transactionId,
-          },
-        },
-      },
-    },
-  });
+  const events = await ctx.eventStore.find({
+    'metadata.reporting.eventType': 'Transfer',
+    'metadata.reporting.transactionId': transactionId,
+  }).toArray();
 
   return events.map((e) => e.event); // return an array of events
 };

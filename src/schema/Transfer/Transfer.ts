@@ -108,7 +108,7 @@ const ConversionTerms = objectType({
   name: 'ConversionTerms',
   definition(t) {
     t.nonNull.string('amountType');
-    t.nonNull.list.field('charges', { type: 'ConversionTermsCharges' });
+    t.list.field('charges', { type: 'ConversionTermsCharges' });
     t.nonNull.string('conversionId');
     t.nonNull.string('counterPartyFsp');
     t.nonNull.string('determiningTransferId');
@@ -203,14 +203,8 @@ const Transfer = objectType({
         if (!parent.transferSettlementWindowId) {
           return null;
         }
-        const settlement = await ctx.settlement.settlement.findFirst({
-          where: {
-            settlementWindows: {
-              some: {
-                settlementWindowId: parent.transferSettlementWindowId as unknown as number,
-              },
-            },
-          },
+        const settlement = await ctx.settlement.findOne({
+          'settlementWindows.settlementWindowId': parent.transferSettlementWindowId,
         });
         return settlement ? settlement.settlementId : null;
       },
@@ -221,14 +215,8 @@ const Transfer = objectType({
         if (!parent.conversions?.payer?.conversionSettlementWindowId) {
           return null;
         }
-        const settlement = await ctx.settlement.settlement.findFirst({
-          where: {
-            settlementWindows: {
-              some: {
-                settlementWindowId: parent.conversions?.payer?.conversionSettlementWindowId as unknown as number,
-              },
-            },
-          },
+        const settlement = await ctx.settlement.findOne({
+          'settlementWindows.settlementWindowId': parent.conversions?.payer?.conversionSettlementWindowId,
         });
         return settlement ? settlement.settlementId : null;
       },

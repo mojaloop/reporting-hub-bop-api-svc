@@ -45,11 +45,6 @@ export default makeSchema({
     export: 'Context',
   },
   sourceTypes: {
-    modules: [
-      {
-        module: '@prisma/client',
-        alias: 'prisma',
-      },
-    ],
+    modules: [],
   },
 });
