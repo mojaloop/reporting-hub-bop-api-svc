@@ -11,6 +11,7 @@
 import { Collection, MongoClient } from 'mongodb';
 import Config from './config';
 import { ConnectionString } from 'connection-string';
+import { logger } from '../shared/logger';
 
 const createMongoClient = (): MongoClient => {
   const csMongoDBObj = new ConnectionString();
@@ -20,8 +21,12 @@ const createMongoClient = (): MongoClient => {
     user: Config.EVENT_STORE_DB.USER,
     password: Config.EVENT_STORE_DB.PASSWORD,
     path: [Config.EVENT_STORE_DB.DATABASE],
+    params: Config.EVENT_STORE_DB.PARAMS,
   });
-  const mongoClient = new MongoClient(csMongoDBObj.toString());
+  const mongoUri = csMongoDBObj.toString();
+  const safeUri = mongoUri.replace(/(\/\/)(.*):(.*)@/, '$1****:****@');
+  logger.info(`Connecting to MongoDB with URI: ${safeUri}`);
+  const mongoClient = new MongoClient(mongoUri);
   mongoClient.connect();
   return mongoClient;
 };

@@ -13,7 +13,8 @@
     "PORT": 27017,
     "USER": "",
     "PASSWORD": "",
-    "DATABASE": "admin"
+    "DATABASE": "admin",
+    "PARAMS": {}
   },
   "ORY_KETO_READ_URL": "",
   "AUTH_CHECK_PARTICIPANTS": false,

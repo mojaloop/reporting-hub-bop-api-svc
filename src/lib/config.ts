@@ -19,6 +19,7 @@ export interface ServiceConfig {
     USER: string;
     PASSWORD: string;
     DATABASE: string;
+    PARAMS: Record<string, unknown>;
   };
   ORY_KETO_READ_URL: string;
   AUTH_CHECK_PARTICIPANTS: boolean;
@@ -110,6 +111,24 @@ export const ConvictConfig = Convict<ServiceConfig>({
       format: '*',
       default: 'admin',
       env: 'EVENT_STORE_DB_DATABASE',
+    },
+    PARAMS: {
+      doc: 'Additional parameters for MongoDB connection',
+      format: function (val) {
+        if (typeof val === 'string') {
+          try {
+            JSON.parse(val);
+            return val;
+          } catch (e) {
+            throw new Error(`EVENT_STORE_DB_PARAMS must be valid JSON: ${e}`);
+          }
+        } else if (typeof val !== 'object') {
+          throw new Error('EVENT_STORE_DB_PARAMS must be an object or a JSON string');
+        }
+        return val;
+      },
+      default: {},
+      env: 'EVENT_STORE_DB_PARAMS',
     },
   },
   ORY_KETO_READ_URL: {
