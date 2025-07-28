@@ -19,7 +19,7 @@ export interface ServiceConfig {
     USER: string;
     PASSWORD: string;
     DATABASE: string;
-    PARAMS: Record<string, any>;
+    PARAMS: Record<string, unknown>;
   };
   ORY_KETO_READ_URL: string;
   AUTH_CHECK_PARTICIPANTS: boolean;
@@ -30,7 +30,7 @@ export interface ServiceConfig {
 }
 
 // Declare configuration schema, default values and bindings to environment variables
-export const ConvictConfig = Convict({
+export const ConvictConfig = Convict<ServiceConfig>({
   env: {
     doc: 'The application environment.',
     format: ['default', 'production', 'development', 'test', 'integration', 'e2e'],
