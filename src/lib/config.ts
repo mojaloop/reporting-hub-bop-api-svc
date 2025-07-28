@@ -19,6 +19,7 @@ export interface ServiceConfig {
     USER: string;
     PASSWORD: string;
     DATABASE: string;
+    PARAMS: Record<string, any>;
   };
   ORY_KETO_READ_URL: string;
   AUTH_CHECK_PARTICIPANTS: boolean;
@@ -29,7 +30,7 @@ export interface ServiceConfig {
 }
 
 // Declare configuration schema, default values and bindings to environment variables
-export const ConvictConfig = Convict<ServiceConfig>({
+export const ConvictConfig = Convict({
   env: {
     doc: 'The application environment.',
     format: ['default', 'production', 'development', 'test', 'integration', 'e2e'],
@@ -110,6 +111,24 @@ export const ConvictConfig = Convict<ServiceConfig>({
       format: '*',
       default: 'admin',
       env: 'EVENT_STORE_DB_DATABASE',
+    },
+    PARAMS: {
+      doc: 'Additional parameters for MongoDB connection',
+      format: function (val) {
+        if (typeof val === 'string') {
+          try {
+            JSON.parse(val);
+            return val;
+          } catch (e) {
+            throw new Error(`EVENT_STORE_DB_PARAMS must be valid JSON: ${e}`);
+          }
+        } else if (typeof val !== 'object') {
+          throw new Error('EVENT_STORE_DB_PARAMS must be an object or a JSON string');
+        }
+        return val;
+      },
+      default: {},
+      env: 'EVENT_STORE_DB_PARAMS',
     },
   },
   ORY_KETO_READ_URL: {
