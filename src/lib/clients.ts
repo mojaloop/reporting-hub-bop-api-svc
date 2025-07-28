@@ -21,7 +21,7 @@ const createMongoClient = (): MongoClient => {
     user: Config.EVENT_STORE_DB.USER,
     password: Config.EVENT_STORE_DB.PASSWORD,
     path: [Config.EVENT_STORE_DB.DATABASE],
-    params: Config.EVENT_STORE_DB.PARAMS
+    params: Config.EVENT_STORE_DB.PARAMS,
   });
   const mongoUri = csMongoDBObj.toString();
   const safeUri = mongoUri.replace(/(\/\/)(.*):(.*)@/, '$1****:****@');
