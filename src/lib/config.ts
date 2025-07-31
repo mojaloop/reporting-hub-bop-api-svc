@@ -1,5 +1,4 @@
 import Convict from 'convict';
-import path from 'path';
 
 // interface to represent service configuration
 export interface ServiceConfig {
