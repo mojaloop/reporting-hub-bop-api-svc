@@ -20,6 +20,6 @@ COPY --from=builder /opt/reporting/node_modules node_modules
 COPY --from=builder /opt/reporting/dist dist
 
 EXPOSE 3000
-ENV TS_NODE_BASEURL=./dist NODE_ENV=default
+ENV TS_NODE_BASEURL=./dist NODE_ENV=production
 
 CMD ["node", "dist/src/index.js"]

@@ -26,7 +26,7 @@ services:
     environment:
       - LOG_LEVEL=debug
     volumes:
-       - ./config/default.json:/opt/reporting/config/default.json
+       - ./config/production.json:/opt/reporting/config/production.json
     ports:
       - "3000:3000"
     # Important to specify the network_mode as host to allow the service to connect to the host machine
