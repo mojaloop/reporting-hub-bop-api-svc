@@ -4,7 +4,7 @@ RUN apk add --no-cache git python3 build-base
 
 WORKDIR /opt/reporting
 
-COPY package.json tsconfig.json package-lock.json* /opt/reporting/
+COPY package.json tsconfig.json package-lock.json* .eslintrc.js /opt/reporting/
 COPY src /opt/reporting/src
 COPY patches /opt/reporting/patches
 
