@@ -17,9 +17,9 @@ WORKDIR /opt/reporting
 
 COPY --from=builder /opt/reporting/package*.json /opt/reporting/tsconfig.json ./
 COPY --from=builder /opt/reporting/node_modules node_modules
-COPY --from=builder /opt/reporting/dist ./dist
+COPY --from=builder /opt/reporting/dist dist
 
 EXPOSE 3000
 ENV TS_NODE_BASEURL=./dist NODE_ENV=default
 
-CMD ["node", "dist/index.js"]
+CMD ["node", "dist/src/index.js"]
