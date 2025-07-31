@@ -20,6 +20,7 @@
     "outDir": "dist",
     "lib": ["es2020"],
     "strict": true,
+    "allowJs": true,
     "noImplicitAny": false,
     "noImplicitThis": true,
     "alwaysStrict": true,
