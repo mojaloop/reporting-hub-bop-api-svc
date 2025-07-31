@@ -1,6 +1,6 @@
 {
   "name": "@mojaloop/reporting-hub-bop-api-svc",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "description": "Reporting API",
   "scripts": {
     "postinstall__new": "patch-package",
@@ -8,11 +8,11 @@
     "test:unit": "npx jest --testMatch='**/test/unit/**/*.test.ts' --reporters=default",
     "test:int": "npx jest --testMatch='**/test/int/**/*.test.ts' --reporters=default --detectOpenHandles",
     "dev": "cross-env NODE_ENV=default tsnd --no-notify --respawn --transpile-only ./src",
-    "generate:nexus": "ts-node --transpile-only ./src/schema",
+    "generate": "ts-node --transpile-only ./src/schema",
     "build": "npm -s run clean && npm -s run generate && tsc",
-    "clean": "rimraf dist",
+    "clean": "rm -rf dist",
     "start": "cross-env NODE_ENV=default ts-node --transpile-only ./src",
-    "start_": "cross-env NODE_ENV=production node dist/src/index.js",
+    "start_": "cross-env TS_NODE_BASEURL=./dist NODE_ENV=default node dist/src/index.js",
     "lint": "eslint ./src/**/*.ts",
     "lint:fix": "npm run lint -- --fix",
     "audit:fix": "npm audit fix",
@@ -75,9 +75,9 @@
     "mongodb": "^4.3.0",
     "nexus": "1.3.0",
     "patch-package": "6.4.7",
-    "ts-node": "10.4.0",
-    "tsconfig-paths": "3.12.0",
-    "typescript": "4.5.4",
+    "ts-node": "10.9.2",
+    "tsconfig-paths": "4.2.0",
+    "typescript": "5.8.3",
     "winston": "3.4.0"
   }
 }

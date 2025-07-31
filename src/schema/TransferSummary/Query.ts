@@ -9,6 +9,7 @@
  **************************************************************************/
 
 import { list, stringArg, extendType, intArg, inputObjectType } from 'nexus';
+import { createWhereCondition } from './helpers/TransferSummaryFilter';
 
 // Define input type for TransferSummaryFilter
 const TransferSummaryFilter = inputObjectType({
@@ -39,6 +40,7 @@ const Query = extendType({
 
         try {
           if (!groupByFields) {
+            const whereCondition = createWhereCondition(filter);
             // Aggregate results without grouping when no group by fields are provided
             aggregateResult = await ctx.transaction.aggregate([
               { $match: whereCondition },

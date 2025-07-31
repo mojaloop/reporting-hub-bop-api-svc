@@ -1,5 +1,4 @@
 import Convict from 'convict';
-import path from 'path';
 
 // interface to represent service configuration
 export interface ServiceConfig {
@@ -171,7 +170,7 @@ export const ConvictConfig = Convict<ServiceConfig>({
 
 // Load environment dependent configuration
 const env = ConvictConfig.get('env');
-const configFile = process.env.CONFIG_FILE || path.join(__dirname, `../../config/${env}.json`);
+const configFile = process.env.CONFIG_FILE || `config/${env}.json`;
 ConvictConfig.loadFile(configFile);
 
 // Perform configuration validation
