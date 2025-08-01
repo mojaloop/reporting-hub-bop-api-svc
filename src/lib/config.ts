@@ -194,12 +194,11 @@ const env = ConvictConfig.get('env');
 const configFile = process.env.CONFIG_FILE || `config/${env}.json`;
 ConvictConfig.loadFile(configFile);
 
-
 if (ConvictConfig.get('EVENT_STORE_DB').SSL_ENABLED || process.env.EVENT_STORE_DB_SSL_ENABLED === 'true') {
-  ConvictConfig.set('EVENT_STORE_DB.SSL_ENABLED', true)
-  ConvictConfig.set('EVENT_STORE_DB.SSL_VERIFY', process.env.EVENT_STORE_DB_SSL_VERIFY !== 'false')
+  ConvictConfig.set('EVENT_STORE_DB.SSL_ENABLED', true);
+  ConvictConfig.set('EVENT_STORE_DB.SSL_VERIFY', process.env.EVENT_STORE_DB_SSL_VERIFY !== 'false');
   if (process.env.EVENT_STORE_DB_SSL_CA) {
-    ConvictConfig.set('EVENT_STORE_DB.SSL_CA', process.env.EVENT_STORE_DB_SSL_CA)
+    ConvictConfig.set('EVENT_STORE_DB.SSL_CA', process.env.EVENT_STORE_DB_SSL_CA);
   }
 }
 
