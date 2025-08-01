@@ -33,6 +33,7 @@ const createMongoClient = (): MongoClient => {
     mongoOptions.tls = true;
     mongoOptions.tlsAllowInvalidCertificates = !Config.EVENT_STORE_DB.SSL_VERIFY;
     if (Config.EVENT_STORE_DB.SSL_CA) {
+      // tlsCA and sslCA should both work, but the interface type only defines sslCA
       mongoOptions.sslCA = Config.EVENT_STORE_DB.SSL_CA;
     }
   }
