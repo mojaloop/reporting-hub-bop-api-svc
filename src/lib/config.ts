@@ -19,6 +19,9 @@ export interface ServiceConfig {
     PASSWORD: string;
     DATABASE: string;
     PARAMS: Record<string, unknown>;
+    SSL_ENABLED: boolean;
+    SSL_VERIFY: boolean;
+    SSL_CA: string;
   };
   ORY_KETO_READ_URL: string;
   AUTH_CHECK_PARTICIPANTS: boolean;
@@ -129,6 +132,24 @@ export const ConvictConfig = Convict<ServiceConfig>({
       default: {},
       env: 'EVENT_STORE_DB_PARAMS',
     },
+    SSL_ENABLED: {
+      doc: 'Enable SSL for Event Store DB',
+      format: 'Boolean',
+      default: false,
+      env: 'EVENT_STORE_DB_SSL_ENABLED',
+    },
+    SSL_VERIFY: {
+      doc: 'Verify SSL certificate for Event Store DB',
+      format: 'Boolean',
+      default: true,
+      env: 'EVENT_STORE_DB_SSL_VERIFY',
+    },
+    SSL_CA: {
+      doc: 'CA certificate for Event Store DB SSL connection',
+      format: '*',
+      default: '',
+      env: 'EVENT_STORE_DB_SSL_CA',
+    },
   },
   ORY_KETO_READ_URL: {
     doc: 'The read URL of Ory Keto',
@@ -172,6 +193,15 @@ export const ConvictConfig = Convict<ServiceConfig>({
 const env = ConvictConfig.get('env');
 const configFile = process.env.CONFIG_FILE || `config/${env}.json`;
 ConvictConfig.loadFile(configFile);
+
+
+if (ConvictConfig.get('EVENT_STORE_DB').SSL_ENABLED || process.env.EVENT_STORE_DB_SSL_ENABLED === 'true') {
+  ConvictConfig.set('EVENT_STORE_DB.SSL_ENABLED', true)
+  ConvictConfig.set('EVENT_STORE_DB.SSL_VERIFY', process.env.EVENT_STORE_DB_SSL_VERIFY !== 'false')
+  if (process.env.EVENT_STORE_DB_SSL_CA) {
+    ConvictConfig.set('EVENT_STORE_DB.SSL_CA', process.env.EVENT_STORE_DB_SSL_CA)
+  }
+}
 
 // Perform configuration validation
 ConvictConfig.validate({ allowed: 'strict' });
