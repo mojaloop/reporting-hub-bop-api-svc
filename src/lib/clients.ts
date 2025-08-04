@@ -8,7 +8,7 @@
  *       Yevhen Kyriukha <yevhen.kyriukha@modusbox.com>                   *
  **************************************************************************/
 
-import { Collection, MongoClient } from 'mongodb';
+import { Collection, MongoClient, MongoClientOptions } from 'mongodb';
 import Config from './config';
 import { ConnectionString } from 'connection-string';
 import { logger } from '../shared/logger';
@@ -26,7 +26,19 @@ const createMongoClient = (): MongoClient => {
   const mongoUri = csMongoDBObj.toString();
   const safeUri = mongoUri.replace(/(\/\/)(.*):(.*)@/, '$1****:****@');
   logger.info(`Connecting to MongoDB with URI: ${safeUri}`);
-  const mongoClient = new MongoClient(mongoUri);
+
+  const mongoOptions: MongoClientOptions = {};
+
+  if (Config.EVENT_STORE_DB.SSL_ENABLED) {
+    mongoOptions.tls = true;
+    mongoOptions.tlsAllowInvalidCertificates = !Config.EVENT_STORE_DB.SSL_VERIFY;
+    if (Config.EVENT_STORE_DB.SSL_CA) {
+      // tlsCA and sslCA should both work, but the interface type only defines sslCA
+      mongoOptions.sslCA = Config.EVENT_STORE_DB.SSL_CA;
+    }
+  }
+
+  const mongoClient = new MongoClient(mongoUri, mongoOptions);
   mongoClient.connect();
   return mongoClient;
 };
