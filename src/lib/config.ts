@@ -144,11 +144,11 @@ export const ConvictConfig = Convict<ServiceConfig>({
       default: true,
       env: 'EVENT_STORE_DB_SSL_VERIFY',
     },
-    SSL_CA: {
+    SSL_CA_FILE_PATH: {
       doc: 'CA certificate for Event Store DB SSL connection',
       format: '*',
       default: '',
-      env: 'EVENT_STORE_DB_SSL_CA',
+      env: 'EVENT_STORE_DB_SSL_CA_FILE_PATH',
     },
   },
   ORY_KETO_READ_URL: {
