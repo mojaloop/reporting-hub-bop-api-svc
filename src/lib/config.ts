@@ -21,7 +21,7 @@ export interface ServiceConfig {
     PARAMS: Record<string, unknown>;
     SSL_ENABLED: boolean;
     SSL_VERIFY: boolean;
-    SSL_CA: string;
+    SSL_CA_FILE_PATH: string;
   };
   ORY_KETO_READ_URL: string;
   AUTH_CHECK_PARTICIPANTS: boolean;
@@ -197,8 +197,8 @@ ConvictConfig.loadFile(configFile);
 if (ConvictConfig.get('EVENT_STORE_DB').SSL_ENABLED || process.env.EVENT_STORE_DB_SSL_ENABLED === 'true') {
   ConvictConfig.set('EVENT_STORE_DB.SSL_ENABLED', true);
   ConvictConfig.set('EVENT_STORE_DB.SSL_VERIFY', process.env.EVENT_STORE_DB_SSL_VERIFY !== 'false');
-  if (process.env.EVENT_STORE_DB_SSL_CA) {
-    ConvictConfig.set('EVENT_STORE_DB.SSL_CA', process.env.EVENT_STORE_DB_SSL_CA);
+  if (process.env.EVENT_STORE_DB_SSL_CA_FILE_PATH) {
+    ConvictConfig.set('EVENT_STORE_DB.SSL_CA_FILE_PATH', process.env.EVENT_STORE_DB_SSL_CA_FILE_PATH);
   }
 }
 
