@@ -67,7 +67,7 @@ const startServer = async () => {
     });
   });
   app.use(
-    '/',
+    Config.GRAPH_QL_RESOURCE_ENDPOINT,
     cors<cors.CorsRequest>(corsOptions),
     // 50mb is the limit that `startStandaloneServer` uses, but you may configure this to suit your needs
     bodyParser.json({ limit: '50mb' }),
@@ -80,7 +80,7 @@ const startServer = async () => {
 
   // Modified server startup
   await new Promise<void>((resolve) => httpServer.listen({ port: Config.PORT }, resolve));
-  console.log(`🚀 Server ready at http://localhost:${Config.PORT}/`);
+  console.log(`🚀 Server ready at http://localhost:${Config.PORT}${Config.GRAPH_QL_RESOURCE_ENDPOINT}`);
 };
 
 startServer();
