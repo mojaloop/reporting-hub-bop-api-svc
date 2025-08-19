@@ -4,7 +4,7 @@ import Convict from 'convict';
 export interface ServiceConfig {
   env: string;
   PORT: number;
-  API_PATH_PREFIX: string;
+  GRAPH_QL_RESOURCE_ENDPOINT: string;
   REPORTING_DB: {
     DIALECT: string;
     HOST: string;
@@ -40,11 +40,11 @@ export const ConvictConfig = Convict<ServiceConfig>({
     default: 'default',
     env: 'NODE_ENV',
   },
-  API_PATH_PREFIX: {
-    doc: 'The path prefix for the API.',
+  GRAPH_QL_RESOURCE_ENDPOINT: {
+    doc: 'The endpoint for the GraphQL resource.',
     format: '*',
-    default: '/api/transfers/',
-    env: 'API_PATH_PREFIX',
+    default: '/api/transfers',
+    env: 'GRAPH_QL_RESOURCE_ENDPOINT',
   },
   PORT: {
     doc: 'The port to bind.',
@@ -215,7 +215,7 @@ ConvictConfig.validate({ allowed: 'strict' });
 // extract simplified config from Convict object
 const config: ServiceConfig = {
   env: ConvictConfig.get('env'),
-  API_PATH_PREFIX: ConvictConfig.get('API_PATH_PREFIX'),
+  GRAPH_QL_RESOURCE_ENDPOINT: ConvictConfig.get('GRAPH_QL_RESOURCE_ENDPOINT'),
   PORT: ConvictConfig.get('PORT'),
   REPORTING_DB: ConvictConfig.get('REPORTING_DB'),
   EVENT_STORE_DB: ConvictConfig.get('EVENT_STORE_DB'),
