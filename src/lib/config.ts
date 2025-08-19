@@ -4,6 +4,7 @@ import Convict from 'convict';
 export interface ServiceConfig {
   env: string;
   PORT: number;
+  API_PATH_PREFIX: string;
   REPORTING_DB: {
     DIALECT: string;
     HOST: string;
@@ -38,6 +39,12 @@ export const ConvictConfig = Convict<ServiceConfig>({
     format: ['default', 'production', 'development', 'test', 'integration', 'e2e'],
     default: 'default',
     env: 'NODE_ENV',
+  },
+  API_PATH_PREFIX: {
+    doc: 'The path prefix for the API.',
+    format: '*',
+    default: '/api/transfers/',
+    env: 'API_PATH_PREFIX',
   },
   PORT: {
     doc: 'The port to bind.',
@@ -208,6 +215,7 @@ ConvictConfig.validate({ allowed: 'strict' });
 // extract simplified config from Convict object
 const config: ServiceConfig = {
   env: ConvictConfig.get('env'),
+  API_PATH_PREFIX: ConvictConfig.get('API_PATH_PREFIX'),
   PORT: ConvictConfig.get('PORT'),
   REPORTING_DB: ConvictConfig.get('REPORTING_DB'),
   EVENT_STORE_DB: ConvictConfig.get('EVENT_STORE_DB'),
