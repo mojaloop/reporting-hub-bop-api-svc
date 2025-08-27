@@ -51,7 +51,7 @@
     "ts-node-dev": "1.1.8"
   },
   "dependencies": {
-    "@apollo/server": "4.6.0",
+    "@apollo/server": "5.0.0",
     "@apollo/server-plugin-landing-page-graphql-playground": "4.0.0",
     "@mojaloop/central-services-logger": "11.9.0",
     "@ory/keto-client": "0.6.0-alpha.6",
