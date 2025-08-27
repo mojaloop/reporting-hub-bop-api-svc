@@ -26,9 +26,9 @@ export const TransferGroup = objectType({
 export const TransferSummary = objectType({
   name: 'TransferSummary',
   definition(t) {
-    t.nonNull.int('count');
-    t.nonNull.field('group', { type: 'TransferGroup' });
-    t.nonNull.field('sum', { type: 'TransferSummarySum' });
+    t.int('count');
+    t.field('group', { type: 'TransferGroup' });
+    t.field('sum', { type: 'TransferSummarySum' });
   },
 });
 
@@ -36,8 +36,8 @@ export const TransferSummary = objectType({
 export const TransferSummarySum = objectType({
   name: 'TransferSummarySum',
   definition(t) {
-    t.nonNull.float('sourceAmount');
-    t.nonNull.float('targetAmount');
+    t.float('sourceAmount');
+    t.float('targetAmount');
   },
 });
 

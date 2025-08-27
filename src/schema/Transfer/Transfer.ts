@@ -32,8 +32,8 @@ function createEventResolver(dataloaderName) {
 const TransferStateChange = objectType({
   name: 'TransferStateChange',
   definition(t) {
-    t.nonNull.string('transferState');
-    t.nonNull.dateTimeFlex('dateTime');
+    t.string('transferState');
+    t.dateTimeFlex('dateTime');
     t.string('reason');
   },
 });
@@ -46,7 +46,7 @@ const PositionChange = objectType({
     t.string('currency');
     t.string('ledgerType');
     t.string('participantName');
-    t.nonNull.dateTimeFlex('dateTime');
+    t.dateTimeFlex('dateTime');
     t.float('updatedPosition');
   },
 });
@@ -55,8 +55,8 @@ const PositionChange = objectType({
 const GeoCode = objectType({
   name: 'GeoCode',
   definition(t) {
-    t.nonNull.string('latitude');
-    t.nonNull.string('longitude');
+    t.string('latitude');
+    t.string('longitude');
   },
 });
 
@@ -64,8 +64,8 @@ const GeoCode = objectType({
 const Amount = objectType({
   name: 'Amount',
   definition(t) {
-    t.nonNull.float('amount');
-    t.nonNull.string('currency');
+    t.float('amount');
+    t.string('currency');
   },
 });
 
@@ -73,13 +73,13 @@ const Amount = objectType({
 const TransferTerms = objectType({
   name: 'TransferTerms',
   definition(t) {
-    t.nonNull.dateTimeFlex('expiration');
-    t.nonNull.field('geoCode', { type: 'GeoCode' });
-    t.nonNull.string('ilpPacket');
-    t.nonNull.field('payeeFspCommission', { type: 'Amount' });
-    t.nonNull.field('payeeFspFee', { type: 'Amount' });
-    t.nonNull.field('payeeReceiveAmount', { type: 'Amount' });
-    t.nonNull.field('transferAmount', { type: 'Amount' });
+    t.dateTimeFlex('expiration');
+    t.field('geoCode', { type: 'GeoCode' });
+    t.string('ilpPacket');
+    t.field('payeeFspCommission', { type: 'Amount' });
+    t.field('payeeFspFee', { type: 'Amount' });
+    t.field('payeeReceiveAmount', { type: 'Amount' });
+    t.field('transferAmount', { type: 'Amount' });
   },
 });
 
@@ -87,9 +87,9 @@ const TransferTerms = objectType({
 const ConversionStateChanges = objectType({
   name: 'ConversionStateChanges',
   definition(t) {
-    t.nonNull.string('conversionState');
-    t.nonNull.dateTimeFlex('dateTime');
-    t.nonNull.string('reason');
+    t.string('conversionState');
+    t.dateTimeFlex('dateTime');
+    t.string('reason');
   },
 });
 
@@ -97,9 +97,9 @@ const ConversionStateChanges = objectType({
 const ConversionTermsCharges = objectType({
   name: 'ConversionTermsCharges',
   definition(t) {
-    t.nonNull.string('chargeType');
-    t.nonNull.field('sourceAmount', { type: 'Amount' });
-    t.nonNull.field('targetAmount', { type: 'Amount' });
+    t.string('chargeType');
+    t.field('sourceAmount', { type: 'Amount' });
+    t.field('targetAmount', { type: 'Amount' });
   },
 });
 
@@ -107,16 +107,16 @@ const ConversionTermsCharges = objectType({
 const ConversionTerms = objectType({
   name: 'ConversionTerms',
   definition(t) {
-    t.nonNull.string('amountType');
+    t.string('amountType');
     t.list.field('charges', { type: 'ConversionTermsCharges' });
-    t.nonNull.string('conversionId');
-    t.nonNull.string('counterPartyFsp');
-    t.nonNull.string('determiningTransferId');
-    t.nonNull.dateTimeFlex('expiration');
-    t.nonNull.string('ilpPacket');
-    t.nonNull.string('initiatingFsp');
-    t.nonNull.field('sourceAmount', { type: 'Amount' });
-    t.nonNull.field('targetAmount', { type: 'Amount' });
+    t.string('conversionId');
+    t.string('counterPartyFsp');
+    t.string('determiningTransferId');
+    t.dateTimeFlex('expiration');
+    t.string('ilpPacket');
+    t.string('initiatingFsp');
+    t.field('sourceAmount', { type: 'Amount' });
+    t.field('targetAmount', { type: 'Amount' });
   },
 });
 
@@ -133,16 +133,16 @@ const Conversions = objectType({
 const ConversionsObject = objectType({
   name: 'ConversionsObject',
   definition(t) {
-    t.nonNull.string('conversionCommitRequestId');
-    t.nonNull.string('conversionId');
-    t.nonNull.string('conversionRequestId');
-    t.nonNull.bigInt('conversionSettlementWindowId');
-    t.nonNull.string('conversionState');
+    t.string('conversionCommitRequestId');
+    t.string('conversionId');
+    t.string('conversionRequestId');
+    t.bigInt('conversionSettlementWindowId');
+    t.string('conversionState');
     t.list.field('conversionStateChanges', { type: 'ConversionStateChanges' });
-    t.nonNull.field('conversionTerms', { type: 'ConversionTerms' });
-    t.nonNull.string('conversionType');
-    t.nonNull.string('counterPartyFSP');
-    t.nonNull.string('counterPartyProxy');
+    t.field('conversionTerms', { type: 'ConversionTerms' });
+    t.string('conversionType');
+    t.string('counterPartyFSP');
+    t.string('counterPartyProxy');
   },
 });
 
@@ -150,8 +150,8 @@ const ConversionsObject = objectType({
 const QuoteRequest = objectType({
   name: 'QuoteRequest',
   definition(t) {
-    t.nonNull.string('quoteId');
-    t.nonNull.string('amountType');
+    t.string('quoteId');
+    t.string('amountType');
     t.field('amount', { type: 'Amount' });
     t.field('fees', { type: 'Amount' });
   },
@@ -161,10 +161,10 @@ const QuoteRequest = objectType({
 const TransferParty = objectType({
   name: 'TransferParty',
   definition(t) {
-    t.nonNull.string('partyIdType');
-    t.nonNull.string('partyIdentifier');
-    t.nonNull.string('partyName');
-    t.nonNull.string('supportedCurrencies');
+    t.string('partyIdType');
+    t.string('partyIdentifier');
+    t.string('partyName');
+    t.string('supportedCurrencies');
   },
 });
 
@@ -172,8 +172,8 @@ const TransferParty = objectType({
 const Transfer = objectType({
   name: 'Transfer',
   definition(t) {
-    t.nonNull.string('id');
-    t.nonNull.string('transferId');
+    t.string('id');
+    t.string('transferId');
     t.string('transactionId');
     t.float('sourceAmount');
     t.string('sourceCurrency');
