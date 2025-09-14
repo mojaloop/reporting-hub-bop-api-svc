@@ -56,7 +56,7 @@
     "@mojaloop/central-services-logger": "11.9.0",
     "@ory/keto-client": "0.6.0-alpha.6",
     "@prisma/client": "4.16.2",
-    "axios": "1.8.4",
+    "axios": "1.12.0",
     "body-parser": "1.20.2",
     "connection-string": "4.3.6",
     "convict": "6.2.4",
