@@ -54,7 +54,7 @@
     "@apollo/server": "4.6.0",
     "@apollo/server-plugin-landing-page-graphql-playground": "4.0.0",
     "@mojaloop/central-services-logger": "11.9.0",
-    "@ory/keto-client": "0.6.0-alpha.6",
+    "@ory/keto-client": "25.4.0",
     "@prisma/client": "4.16.2",
     "axios": "1.8.4",
     "body-parser": "1.20.2",
