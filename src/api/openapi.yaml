@@ -1,0 +1,76 @@
+openapi: 3.1.0
+info:
+  title: Mojaloop Transfer Reporting
+  version: 1.0.0
+  description: >-
+    Transfer reporting over GraphQL. One URL carries every query, so reaching it
+    is one permission, and whose rows come back is the scope: a caller holding
+    some participants has to name one of them in the query, and a caller
+    holding all of them may ask across the hub.
+
+x-authz:
+  service: trxreporting
+  resourceTypes: [participants]
+
+servers:
+  - url: /
+
+components:
+  securitySchemes:
+    session:
+      type: apiKey
+      in: cookie
+      name: ory_kratos_session
+    machineToken:
+      type: http
+      scheme: bearer
+
+paths:
+  /:
+    post:
+      operationId: query
+      summary: Queries transfers and their summaries
+      # Every query runs on this one path, so reaching it is one permission;
+      # the rows it returns belong to participants
+      x-authz:
+        scopedBy: [participants]
+      security:
+        - session: []
+        - machineToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                query:
+                  type: string
+                operationName:
+                  type: string
+                variables:
+                  type: object
+              required: [query]
+      responses:
+        '200':
+          description: The GraphQL result
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /health:
+    get:
+      operationId: getHealth
+      summary: Reports whether the service is running
+      security: []
+      responses:
+        '200':
+          description: The service is running
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
