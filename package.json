@@ -9,7 +9,7 @@
     "test:int": "npx jest --testMatch='**/test/int/**/*.test.ts' --reporters=default --detectOpenHandles",
     "dev": "cross-env NODE_ENV=default tsnd --no-notify --respawn --transpile-only ./src",
     "generate": "ts-node --transpile-only ./src/schema",
-    "build": "npm -s run clean && npm -s run generate && tsc",
+    "build": "npm -s run clean && npm -s run generate && tsc && cp -r src/api dist/src/api",
     "clean": "rm -rf dist",
     "start": "cross-env NODE_ENV=default ts-node --transpile-only ./src",
     "start_": "cross-env TS_NODE_BASEURL=./dist NODE_ENV=default node dist/src/index.js",
@@ -53,8 +53,8 @@
   "dependencies": {
     "@apollo/server": "4.6.0",
     "@apollo/server-plugin-landing-page-graphql-playground": "4.0.0",
+    "@mojaloop/authz": "^0.13.2",
     "@mojaloop/central-services-logger": "11.9.0",
-    "@ory/keto-client": "0.6.0-alpha.6",
     "@prisma/client": "4.16.2",
     "axios": "1.8.4",
     "body-parser": "1.20.2",

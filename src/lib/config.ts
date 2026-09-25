@@ -24,9 +24,6 @@ export interface ServiceConfig {
     SSL_VERIFY: boolean;
     SSL_CA_FILE_PATH: string;
   };
-  ORY_KETO_READ_URL: string;
-  AUTH_CHECK_PARTICIPANTS: boolean;
-  USER_ID_HEADER: string;
   CORS_WHITELIST: string[];
   ALLOW_CREDENTIALS: boolean;
   PRISMA_LOGGING_ENABLED: boolean;
@@ -158,24 +155,6 @@ export const ConvictConfig = Convict<ServiceConfig>({
       env: 'EVENT_STORE_DB_SSL_CA_FILE_PATH',
     },
   },
-  ORY_KETO_READ_URL: {
-    doc: 'The read URL of Ory Keto',
-    format: '*',
-    default: '',
-    env: 'ORY_KETO_READ_URL',
-  },
-  AUTH_CHECK_PARTICIPANTS: {
-    doc: 'AUTH_CHECK_PARTICIPANTS',
-    format: 'Boolean',
-    default: false,
-    env: 'AUTH_CHECK_PARTICIPANTS',
-  },
-  USER_ID_HEADER: {
-    doc: 'USER_ID_HEADER',
-    format: '*',
-    default: 'x-user',
-    env: 'USER_ID_HEADER',
-  },
   PRISMA_LOGGING_ENABLED: {
     doc: 'PRISMA_LOGGING_ENABLED',
     format: 'Boolean',
@@ -219,9 +198,6 @@ const config: ServiceConfig = {
   PORT: ConvictConfig.get('PORT'),
   REPORTING_DB: ConvictConfig.get('REPORTING_DB'),
   EVENT_STORE_DB: ConvictConfig.get('EVENT_STORE_DB'),
-  ORY_KETO_READ_URL: ConvictConfig.get('ORY_KETO_READ_URL'),
-  AUTH_CHECK_PARTICIPANTS: ConvictConfig.get('AUTH_CHECK_PARTICIPANTS'),
-  USER_ID_HEADER: ConvictConfig.get('USER_ID_HEADER'),
   CORS_WHITELIST: ConvictConfig.get('CORS_WHITELIST'),
   PRISMA_LOGGING_ENABLED: ConvictConfig.get('PRISMA_LOGGING_ENABLED'),
   ALLOW_CREDENTIALS: ConvictConfig.get('ALLOW_CREDENTIALS'),

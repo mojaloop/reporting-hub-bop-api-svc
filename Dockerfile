@@ -1,4 +1,4 @@
-FROM node:16.15.0-alpine as builder
+FROM node:24.19.0-alpine3.24 as builder
 
 RUN apk add --no-cache git python3 build-base
 
@@ -11,7 +11,7 @@ COPY patches /opt/reporting/patches
 RUN npm ci --production
 RUN npm run build
 
-FROM node:16.15.0-alpine
+FROM node:24.19.0-alpine3.24
 
 WORKDIR /opt/reporting
 

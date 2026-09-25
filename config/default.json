@@ -16,9 +16,6 @@
     "DATABASE": "admin",
     "PARAMS": {}
   },
-  "ORY_KETO_READ_URL": "",
-  "AUTH_CHECK_PARTICIPANTS": false,
-  "USER_ID_HEADER": "x-user",
   "CORS_WHITELIST": [
     "http://localhost:8082"
   ],

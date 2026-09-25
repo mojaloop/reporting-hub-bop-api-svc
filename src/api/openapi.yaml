@@ -9,7 +9,6 @@ info:
     holding all of them may ask across the hub.
 
 x-authz:
-  service: trxreporting
   resourceTypes: [participants]
 
 servers:

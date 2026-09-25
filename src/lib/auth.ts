@@ -9,49 +9,23 @@
  **************************************************************************/
 
 import { rule, shield } from 'graphql-shield';
-import * as keto from '@ory/keto-client';
-import { parse, simplify } from 'graphql-parse-resolve-info';
+import type { Guard } from '@mojaloop/authz';
 
-export const createAuthMiddleware = (
-  userIdHeader: string,
-  oryKetoReadUrl?: string,
-  authCheckParticipants?: boolean
-) => {
-  let oryKetoReadApi: keto.ReadApi;
-  if (oryKetoReadUrl) {
-    oryKetoReadApi = new keto.ReadApi(undefined, oryKetoReadUrl);
-  }
+/** The resource type transfer rows belong to, as the API document spells it. */
+const PARTICIPANT_RESOURCE = 'participants';
 
-  const opts = {
-    validateStatus: () => true,
-  };
+export const createAuthMiddleware = (authz: Guard) => {
+  const isAuthenticated = rule()(async (parent, args, ctx) => {
+    const participants = authz(ctx.req, PARTICIPANT_RESOURCE);
+    // What a resolver narrows its rows by
+    ctx.participants = participants;
 
-  const getParticipantsByUserId = async (userId: string) => {
-    const response = await oryKetoReadApi.getRelationTuples('participant', undefined, 'member', userId);
-    return response.data.relation_tuples?.map(({ object }) => object);
-  };
-
-  const checkPermission = async (userId: string, obj: string) => {
-    const response = await oryKetoReadApi.getCheck('permission', obj, 'granted', userId, opts);
-    return response.data.allowed;
-  };
-
-  const isAuthenticated = rule()(async (parent, args, ctx, info) => {
-    if (!oryKetoReadApi) {
-      return true;
-    }
-    const userId = ctx.req.headers[userIdHeader];
-
-    if (authCheckParticipants) {
-      ctx.participants = await getParticipantsByUserId(userId);
-    }
-
-    const parsedInfo = parse(info);
-    const simplifiedInfo = simplify(parsedInfo as any, info.returnType);
-    const fields = Object.keys(simplifiedInfo.fields);
-
-    const grants = await Promise.all(fields.map((field) => checkPermission(userId, `${simplifiedInfo.name}.${field}`)));
-    return !grants.some((grant) => !grant);
+    // Every query here answers over the whole collection: a list of transfers
+    // and an aggregate across them, neither computed per participant. A
+    // caller holding some of them can only be answered once the resolvers
+    // narrow by ctx.participants.
+    if (participants.restricted) return new Error('this service answers hub-wide queries only');
+    return true;
   });
 
   return shield(

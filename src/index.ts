@@ -10,6 +10,8 @@
 
 import 'tsconfig-paths/register';
 
+import path from 'node:path';
+import { createGuard } from '@mojaloop/authz';
 import { ApolloServer } from '@apollo/server';
 import { ApolloServerPluginLandingPageGraphQLPlayground } from '@apollo/server-plugin-landing-page-graphql-playground';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
@@ -29,12 +31,6 @@ import bodyParser from 'body-parser';
 const app = express();
 const httpServer = http.createServer(app);
 
-const authMiddleware = createAuthMiddleware(
-  Config.USER_ID_HEADER,
-  Config.ORY_KETO_READ_URL,
-  Config.AUTH_CHECK_PARTICIPANTS
-);
-
 const loggerPlugin = {
   // Fires whenever a GraphQL request is received from a client.
   async requestDidStart(requestContext: GraphQLRequestContext<Context>) {
@@ -45,9 +41,13 @@ const loggerPlugin = {
 };
 
 const startServer = async () => {
+  // What this service may answer, from the document that describes it
+  const authz = await createGuard(path.join(__dirname, 'api', 'openapi.yaml'));
+  app.use(authz.expose());
+
   // @ts-ignore
   const server = new ApolloServer<Context>({
-    schema: applyMiddleware(schema, authMiddleware),
+    schema: applyMiddleware(schema, createAuthMiddleware(authz)),
     plugins: [
       ApolloServerPluginLandingPageGraphQLPlayground(),
       loggerPlugin,
