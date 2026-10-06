@@ -63,6 +63,8 @@ paths:
       operationId: getHealth
       summary: Reports whether the service is running
       security: []
+      x-authz:
+        internal: true
       responses:
         '200':
           description: The service is running
