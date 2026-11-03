@@ -8,45 +8,25 @@
  *       Yevhen Kyriukha <yevhen.kyriukha@modusbox.com>                   *
  **************************************************************************/
 
-import {
-  createEventStoreClient,
-  createTransactionClient,
-  createSettlementClient,
-  getRequestFields,
-  // createCacheMiddleware,
-} from './lib';
+import { Collection } from 'mongodb';
+import { EventStores, getRequestFields } from './lib';
 import Logger from '@mojaloop/central-services-logger';
 import Config from './lib/config';
-import { ConnectionString } from 'connection-string';
 
-const eventStore = createEventStoreClient();
-
-const transaction = createTransactionClient();
-
-const settlement = createSettlementClient();
 export interface Context {
   log: typeof Logger;
-  eventStore: typeof eventStore;
-  transaction: typeof transaction;
-  settlement: typeof settlement;
+  eventStore: Collection;
+  transaction: Collection;
+  settlement: Collection;
   config: typeof Config;
   loaders: Map<any, any>;
   participants: string[] | undefined;
   getRequestFields: typeof getRequestFields;
 }
 
-const csMongoDBObj = new ConnectionString();
-csMongoDBObj.setDefaults({
-  protocol: 'mongodb',
-  hosts: [{ name: Config.EVENT_STORE_DB.HOST, port: Config.EVENT_STORE_DB.PORT }],
-  user: Config.EVENT_STORE_DB.USER,
-  password: Config.EVENT_STORE_DB.PASSWORD,
-  path: [Config.EVENT_STORE_DB.DATABASE],
-});
-
-export const createContext = async (ctx: any): Promise<Context> => {
-  // Perform actual context creation
-  const context = {
+export const contextFrom =
+  ({ eventStore, transaction, settlement }: EventStores) =>
+  async (ctx: any): Promise<Context> => ({
     ...ctx,
     config: Config,
     log: Logger,
@@ -55,7 +35,4 @@ export const createContext = async (ctx: any): Promise<Context> => {
     settlement,
     loaders: new Map(),
     getRequestFields,
-  };
-
-  return context;
-};
+  });

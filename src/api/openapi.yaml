@@ -14,16 +14,6 @@ x-authz:
 servers:
   - url: /
 
-components:
-  securitySchemes:
-    session:
-      type: apiKey
-      in: cookie
-      name: ory_kratos_session
-    machineToken:
-      type: http
-      scheme: bearer
-
 paths:
   /:
     post:
@@ -33,9 +23,6 @@ paths:
       # the rows it returns belong to participants
       x-authz:
         scopedBy: [participants]
-      security:
-        - session: []
-        - machineToken: []
       requestBody:
         required: true
         content:
@@ -62,7 +49,6 @@ paths:
     get:
       operationId: getHealth
       summary: Reports whether the service is running
-      security: []
       x-authz:
         internal: true
       responses:

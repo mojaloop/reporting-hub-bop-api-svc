@@ -1,9 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Send sample graphql queries should send a transfer query 1`] = `
-Object {
-  "data": Object {
-    "transfer": Object {
+{
+  "data": {
+    "transfer": {
       "createdAt": "2024-11-14T06:24:56.719Z",
       "lastUpdated": "2024-11-14T06:24:56.720Z",
       "sourceAmount": 100,

@@ -1,9 +1,7 @@
 {
   "include": [
     "src/**/*",
-    "test/**/*",
-    ".eslintrc.js",
-    "ambient.d.ts",
+    "test/**/*"
   ],
   "exclude": [
     "node_modules"
@@ -17,6 +15,7 @@
     "module": "commonjs",
     "target": "es2020",
     "noEmit": false,
+    "rootDir": ".",
     "outDir": "dist",
     "lib": ["es2020"],
     "strict": true,

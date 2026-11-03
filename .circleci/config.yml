@@ -52,7 +52,7 @@ executors:
   default-docker:
     working_directory: /home/circleci/project
     docker:
-      - image: node:24.19.0-alpine3.24 # Ref: https://hub.docker.com/_/node?tab=tags&page=1&name=alpine
+      - image: node:26.13.0-alpine # Ref: https://hub.docker.com/_/node?tab=tags&page=1&name=alpine
 
   default-machine:
     machine:
@@ -172,7 +172,7 @@ jobs:
           name: Build Docker local image
           command: |
             echo "Building Docker image: local"
-            docker build -t $DOCKER_ORG/$CIRCLE_PROJECT_REPONAME:local .
+            docker build --build-arg NODE_VERSION="$(cat .nvmrc)-alpine" -t $DOCKER_ORG/$CIRCLE_PROJECT_REPONAME:local .
       - run:
           name: Save docker image to workspace
           command: docker save -o /tmp/docker-image.tar $DOCKER_ORG/$CIRCLE_PROJECT_REPONAME:local
@@ -257,13 +257,13 @@ jobs:
       - run:
           name: Pull base image locally
           command: |
-            docker pull node:24.19.0-alpine3.24
+            docker pull node:$(cat .nvmrc)-alpine
       # Analyze the base and derived image
       # Note: It seems images are scanned in parallel, so preloading the base image result doesn't give us any real performance gain
       - anchore/analyze_local_image:
           # Force the older version, version 0.7.0 was just published, and is broken
           anchore_version: v0.6.1
-          image_name: "docker.io/node:24.19.0-alpine3.24 $DOCKER_ORG/$CIRCLE_PROJECT_REPONAME:local"
+          image_name: "docker.io/node:26.13.0-alpine $DOCKER_ORG/$CIRCLE_PROJECT_REPONAME:local"
           policy_failure: false
           timeout: '1000'
           # Note: if the generated policy is invalid, this will fallback to the default policy, which we don't want!
@@ -276,7 +276,7 @@ jobs:
             aws s3 cp anchore-reports ${AWS_S3_DIR_ANCHORE_REPORTS}/latest/ --recursive
       - run:
           name: Evaluate failures
-          command: /tmp/ci-config/container-scanning/anchore-result-diff.js anchore-reports/node_16.15.0-alpine-policy.json anchore-reports/${CIRCLE_PROJECT_REPONAME}*-policy.json
+          command: /tmp/ci-config/container-scanning/anchore-result-diff.js anchore-reports/node_26.13.0-alpine-policy.json anchore-reports/${CIRCLE_PROJECT_REPONAME}*-policy.json
       - slack/status:
           fail_only: true
           webhook: "$SLACK_WEBHOOK_ANNOUNCEMENT_CI_CD"

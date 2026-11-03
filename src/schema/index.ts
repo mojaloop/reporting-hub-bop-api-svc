@@ -18,6 +18,15 @@ import TransactionSummary from './TransferSummary';
 
 const types = [Scalar, Transaction, TransactionSummary];
 
+const PRODUCTION = 'production';
+
+const GENERATED_DIR = join(dirname(require.resolve('@app/index')), 'generated');
+
+const GeneratedArtifact = {
+  TYPEGEN: 'nexus-typegen.d.ts',
+  SCHEMA: 'schema.graphql',
+} as const;
+
 const Query = queryType({
   definition(t) {
     t.field('_placeholder', {
@@ -36,9 +45,9 @@ const Mutation = mutationType({
 
 export default makeSchema({
   types: [Query, Mutation, types.flat()],
-  outputs: process.env.NODE_ENV !== 'production' && {
-    typegen: join(dirname(require.resolve('@app/index')), '../node_modules/@types/nexus-typegen/index.d.ts'),
-    schema: join(dirname(require.resolve('@app/index')), '../node_modules/@types/nexus-typegen/schema.graphql'),
+  outputs: process.env.NODE_ENV !== PRODUCTION && {
+    typegen: join(GENERATED_DIR, GeneratedArtifact.TYPEGEN),
+    schema: join(GENERATED_DIR, GeneratedArtifact.SCHEMA),
   },
   contextType: {
     module: '@app/context',

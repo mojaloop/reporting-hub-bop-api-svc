@@ -11,7 +11,22 @@
 import { list, stringArg, extendType, intArg, inputObjectType } from 'nexus';
 import { createWhereCondition } from './helpers/TransferSummaryFilter';
 
-// Define input type for TransferSummaryFilter
+const SortOrder = {
+  DESCENDING: -1,
+} as const;
+
+const FIELD_PATH_PREFIX = '$';
+
+const SummedField = {
+  SOURCE_AMOUNT: 'sourceAmount',
+  TARGET_AMOUNT: 'targetAmount',
+} as const;
+
+const DEFAULT_SUMMARY_LIMIT = 100;
+const DEFAULT_SUMMARY_OFFSET = 0;
+
+const fieldPath = (field: string) => `${FIELD_PATH_PREFIX}${field}`;
+
 const TransferSummaryFilter = inputObjectType({
   name: 'TransferSummaryFilter',
   definition(t) {
@@ -20,10 +35,34 @@ const TransferSummaryFilter = inputObjectType({
   },
 });
 
+const toSummary = (group: any) => ({
+  group: {
+    errorCode: group._id?.errorCode || null,
+    sourceCurrency: group._id?.sourceCurrency || null,
+    targetCurrency: group._id?.targetCurrency || null,
+    payerDFSP: group._id?.payerDFSP || null,
+    payeeDFSP: group._id?.payeeDFSP || null,
+  },
+  count: group._count || 0,
+  sum: {
+    sourceAmount: group._sumSourceAmount || 0,
+    targetAmount: group._sumTargetAmount || 0,
+  },
+});
+
+const NO_TRANSFERS = { _id: null };
+
+const groupKey = (groupByFields: (string | null)[]) =>
+  groupByFields.reduce<Record<string, string>>((acc, field) => {
+    if (field) {
+      acc[field] = fieldPath(field);
+    }
+    return acc;
+  }, {});
+
 const Query = extendType({
   type: 'Query',
   definition(t) {
-    // Define a field to fetch transfer summaries
     t.nonNull.list.field('transferSummary', {
       type: 'TransferSummary',
       args: {
@@ -33,105 +72,35 @@ const Query = extendType({
         groupBy: list(stringArg()),
       },
       resolve: async (parent, args, ctx) => {
-        const { limit = 100, offset = 0, filter = {}, groupBy = [] } = args;
-        const groupByFields = groupBy && groupBy.length > 0 ? groupBy : null;
-
-        let aggregateResult;
+        const limit = args.limit ?? DEFAULT_SUMMARY_LIMIT;
+        const offset = args.offset ?? DEFAULT_SUMMARY_OFFSET;
+        const groupBy = args.groupBy ?? [];
 
         try {
-          if (!groupByFields) {
-            const whereCondition = createWhereCondition(filter);
-            // Aggregate results without grouping when no group by fields are provided
-            aggregateResult = await ctx.transaction.aggregate([
-              { $match: whereCondition },
-              { $skip: offset ?? 0 },
-              { $limit: limit ?? 100 },
+          const groups = await ctx.transaction
+            .aggregate([
+              { $match: createWhereCondition(args.filter) },
               {
-              $group: {
-                _id: null,
-                _count: { $sum: 1 },
-                _sumSourceAmount: { $sum: '$sourceAmount' },
-                _sumTargetAmount: { $sum: '$targetAmount' },
+                $group: {
+                  _id: groupBy.length ? groupKey(groupBy) : null,
+                  _count: { $sum: 1 },
+                  _sumSourceAmount: { $sum: fieldPath(SummedField.SOURCE_AMOUNT) },
+                  _sumTargetAmount: { $sum: fieldPath(SummedField.TARGET_AMOUNT) },
+                },
               },
-              },
-            ]).toArray();
+              { $sort: { _count: SortOrder.DESCENDING } },
+              { $skip: offset },
+              { $limit: limit },
+            ])
+            .toArray();
 
-            aggregateResult = {
-              _count: { transferId: aggregateResult[0]?._count || 0 },
-              _sum: {
-              sourceAmount: aggregateResult[0]?._sumSourceAmount || 0,
-              targetAmount: aggregateResult[0]?._sumTargetAmount || 0,
-              },
-            };
-            return [
-              {
-                group: {
-                  errorCode: null,
-                  sourceCurrency: null,
-                  targetCurrency: null,
-                  payerDFSP: null,
-                  payeeDFSP: null,
-                },
-                count: aggregateResult._count ? aggregateResult._count.transferId : 0,
-                sum: {
-                  sourceAmount: aggregateResult._sum?.sourceAmount || 0,
-                  targetAmount: aggregateResult._sum?.targetAmount || 0,
-                },
-              },
-            ];
-          } else {
-
-            const timeFilter = {
-              createdAt: {
-              ...(filter?.startDate && { $gte: new Date(filter.startDate) }),
-              ...(filter?.endDate && { $lte: new Date(filter.endDate) }),
-              },
-            };
-            // Aggregate results with grouping when group by fields are provided
-            aggregateResult = await ctx.transaction.aggregate([
-              {
-                $match: {
-                  ...timeFilter
-                },
-              },
-              {
-              $group: {
-                _id: groupByFields.reduce((acc, field) => {
-                if (field) {
-                  acc[field] = `$${field}`;
-                }
-                return acc;
-                }, {}),
-                _count: { $sum: 1 },
-                _sumSourceAmount: { $sum: '$sourceAmount' },
-                _sumTargetAmount: { $sum: '$targetAmount' },
-              },
-              },
-              { $sort: { _count: -1 } },
-              { $skip: offset ?? 0 },
-              { $limit: limit ?? 100 },
-            ]).toArray();
-            const transfersSummary = aggregateResult.map((group) => ({
-              group: {
-                errorCode: group._id.errorCode || null,
-                sourceCurrency: group._id.sourceCurrency || null,
-                targetCurrency: group._id.targetCurrency || null,
-                payerDFSP: group._id.payerDFSP || null,
-                payeeDFSP: group._id.payeeDFSP || null,
-              },
-              count: group._count || 0,
-              sum: {
-                sourceAmount: group._sumSourceAmount || 0,
-                targetAmount: group._sumTargetAmount || 0,
-              },
-            }));
-            return transfersSummary;
+          if (!groupBy.length && !groups.length) {
+            return [toSummary(NO_TRANSFERS)];
           }
+          return groups.map(toSummary);
         } catch (error) {
           console.error('Error fetching transfers:', error);
           throw new Error('Error fetching transfers data');
-        } finally {
-          aggregateResult = null;
         }
       },
     });

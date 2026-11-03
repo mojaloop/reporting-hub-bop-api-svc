@@ -37,27 +37,32 @@ const createMongoClient = (): MongoClient => {
     }
   }
 
-  const mongoClient = new MongoClient(mongoUri, mongoOptions);
-  mongoClient.connect();
-  return mongoClient;
+  return new MongoClient(mongoUri, mongoOptions);
 };
 
-const createEventStoreClient = (): Collection => {
-  const mongoClient = createMongoClient();
-  const db = mongoClient.db(Config.EVENT_STORE_DB.DATABASE);
-  return db.collection('reporting');
+const EventStoreCollection = {
+  EVENTS: 'reporting',
+  TRANSACTIONS: 'transaction',
+  SETTLEMENTS: 'settlement',
+} as const;
+
+export interface EventStores {
+  client: MongoClient;
+  eventStore: Collection;
+  transaction: Collection;
+  settlement: Collection;
+}
+
+/** The event store's collections, all served by one client the caller connects and closes. */
+const createEventStores = (): EventStores => {
+  const client = createMongoClient();
+  const db = client.db(Config.EVENT_STORE_DB.DATABASE);
+  return {
+    client,
+    eventStore: db.collection(EventStoreCollection.EVENTS),
+    transaction: db.collection(EventStoreCollection.TRANSACTIONS),
+    settlement: db.collection(EventStoreCollection.SETTLEMENTS),
+  };
 };
 
-const createTransactionClient = (): Collection => {
-  const mongoClient = createMongoClient();
-  const db = mongoClient.db(Config.EVENT_STORE_DB.DATABASE);
-  return db.collection('transaction');
-};
-
-const createSettlementClient = (): Collection => {
-  const mongoClient = createMongoClient();
-  const db = mongoClient.db(Config.EVENT_STORE_DB.DATABASE);
-  return db.collection('settlement');
-};
-
-export { createTransactionClient, createEventStoreClient, createSettlementClient };
+export { createEventStores };

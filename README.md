@@ -3,7 +3,7 @@
 #### Build
 From the repo root:
 ```sh
-docker build -t reporting-api .
+docker build --build-arg NODE_VERSION="$(cat .nvmrc)-alpine" -t reporting-api .
 ```
 
 #### Run

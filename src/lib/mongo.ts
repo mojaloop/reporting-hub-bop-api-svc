@@ -10,10 +10,9 @@
 
 import { Collection, MongoClient } from 'mongodb';
 
-let collection: Collection;
+let collection: Collection | null = null;
 let client: MongoClient | null = null;
 
-// Not being used anywhere right now
 const getMongoClient = async (uri: string, collectionName: string): Promise<Collection> => {
   if (!collection) {
     client = new MongoClient(uri);
@@ -27,6 +26,7 @@ const closeMongoClientConnection = async (): Promise<void> => {
   if (client) {
     await client.close();
     client = null;
+    collection = null;
   }
 };
 
